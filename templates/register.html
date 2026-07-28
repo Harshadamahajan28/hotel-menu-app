@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Register | The Royal Spice</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="hero-section">
+        <div class="container">
+            <h1>Create Account</h1>
+            <p>Join us for exclusive dining experience.</p>
+            <form style="display: flex; flex-direction: column; gap: 10px;">
+                <input type="text" placeholder="Full Name" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                <input type="email" placeholder="Enter Email" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                <input type="password" placeholder="Create Password" required style="padding: 10px; border-radius: 5px; border: 1px solid #ccc;">
+                <button type="submit" class="btn btn-secondary" style="margin-top: 10px;">Register</button>
+            </form>
+            <br>
+            <a href="{{ url_for('home') }}" style="color: #f39c12; text-decoration: none;">← Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

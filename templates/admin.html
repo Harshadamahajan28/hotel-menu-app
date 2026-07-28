@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Admin - Live Kitchen Orders</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #121212; color: #fff; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #d4af37; padding-bottom: 10px; margin-bottom: 20px; }
+        h1 { color: #d4af37; margin: 0; }
+        .live-badge { background: #27ae60; color: #fff; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; }
+        
+        .order-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid #d4af37;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .table-badge { background: #d4af37; color: #000; font-weight: bold; padding: 4px 12px; border-radius: 5px; font-size: 16px; }
+        .items-list { margin: 12px 0; font-size: 15px; color: #ddd; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 6px; }
+        .items-list ul { margin: 5px 0 0 0; padding-left: 20px; }
+        
+        /* Status Buttons */
+        .status-buttons { margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-prep { background: #f39c12; color: #000; border: none; padding: 8px 14px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .btn-ready { background: #3498db; color: #fff; border: none; padding: 8px 14px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .btn-done { background: #27ae60; color: #fff; border: none; padding: 8px 14px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        
+        .no-orders { text-align: center; color: #888; font-size: 18px; margin-top: 50px; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>👑 Live Kitchen & Admin Dashboard</h1>
+        <span class="live-badge">🟢 LIVE AUTO-REFRESH (3s)</span>
+    </div>
+
+    <div id="ordersContainer">
+        <p class="no-orders">Loading live orders...</p>
+    </div>
+
+    <script>
+        function fetchOrders() {
+            fetch('/api/orders')
+            .then(response => response.json())
+            .then(orders => {
+                let container = document.getElementById('ordersContainer');
+                
+                if (orders.length === 0) {
+                    container.innerHTML = '<p class="no-orders">No active orders right now...</p>';
+                    return;
+                }
+
+                let html = '';
+                // Display latest orders on top
+                orders.slice().reverse().forEach(order => {
+                    let itemsHtml = '';
+                    order.items.forEach(item => {
+                        itemsHtml += `<li><b>${item.name}</b> - ₹${item.price}</li>`;
+                    });
+
+                    html += `
+                        <div class="order-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <h3>Order ID: #<span>${order.id}</span> - <span class="table-badge">${order.table_no}</span></h3>
+                                <span style="color: #f39c12; font-weight: bold; font-size: 16px; background: rgba(243, 156, 18, 0.15); padding: 5px 12px; border-radius: 20px;">${order.status}</span>
+                            </div>
+                            <p style="margin: 8px 0;"><b>Customer:</b> ${order.customer_name} | <b>Mobile:</b> ${order.phone}</p>
+                            
+                            <div class="items-list">
+                                <b>Ordered Dishes:</b>
+                                <ul>${itemsHtml}</ul>
+                            </div>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; flex-wrap: wrap; gap: 10px;">
+                                <h3 style="color: #27ae60; margin: 0;">Total Bill: ₹${order.total}</h3>
+                                
+                                <div class="status-buttons">
+                                    <button class="btn-prep" onclick="updateOrderStatus(${order.id}, 'Preparing 🍳')">Preparing 🍳</button>
+                                    <button class="btn-ready" onclick="updateOrderStatus(${order.id}, 'Ready to Serve 🔔')">Ready 🔔</button>
+                                    <button class="btn-done" onclick="updateOrderStatus(${order.id}, 'Completed ✅')">Complete ✅</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            })
+            .catch(err => console.log('Error fetching orders:', err));
+        }
+
+        function updateOrderStatus(orderId, statusText) {
+            fetch('/api/update-status/' + orderId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: statusText })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    fetchOrders(); // Refresh instantly
+                } else {
+                    alert("Error updating order status!");
+                }
+            });
+        }
+
+        // Fetch orders immediately on load
+        fetchOrders();
+
+        // Auto Refresh every 3 seconds
+        setInterval(fetchOrders, 3000);
+    </script>
+</body>
+</html>

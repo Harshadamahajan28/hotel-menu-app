@@ -1,0 +1,124 @@
+/* General Styling */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4') no-repeat center center fixed;
+    background-size: cover;
+    color: #ffffff;
+    height: 100vh;
+}
+
+/* Header & Navigation */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+    background: rgba(0, 0, 0, 0.8);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #e67e22;
+    letter-spacing: 1px;
+}
+
+nav a {
+    color: #ffffff;
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+nav a:hover {
+    color: #e67e22;
+}
+
+/* Hero Section / Center Card */
+.hero-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 80px);
+    text-align: center;
+}
+
+.container {
+    background: rgba(20, 20, 20, 0.85);
+    padding: 50px 40px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+    max-width: 550px;
+    width: 90%;
+}
+
+h1 {
+    font-size: 32px;
+    color: #f39c12;
+    margin-bottom: 15px;
+}
+
+p {
+    font-size: 16px;
+    color: #bdc3c7;
+    margin-bottom: 30px;
+}
+
+/* Professional Buttons */
+.btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.btn {
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.btn-primary {
+    background: #e67e22;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #d35400;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: #27ae60;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background: #219150;
+    transform: translateY(-2px);
+}
+
+.btn-outline {
+    background: transparent;
+    color: #f39c12;
+    border: 2px solid #f39c12;
+}
+
+.btn-outline:hover {
+    background: #f39c12;
+    color: #fff;
+    transform: translateY(-2px);
+}
