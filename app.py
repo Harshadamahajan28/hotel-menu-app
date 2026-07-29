@@ -66,3 +66,20 @@ def update_status(order_id):
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
+    from datetime import date
+
+@app.route('/analytics')
+def analytics():
+    # SQLite डेटाबेसमधून किंवा ऑर्डर्सच्या लिस्टधून डेटा फिल्टर करणे
+    # उदा. आजच्या ऑर्डर्सचे एकूण उत्पन्न आणि टॉप डिशेस
+    today = date.today().strftime("%Y-%m-%d")
+    
+    # हा सॅम्पल डेटा आहे - तुमच्या डेटाबेसनुसार हा डायनॅमिक होईल
+    total_sales = 4500  # आजचे एकूण उत्पन्न (₹)
+    total_orders = 18   # आजच्या एकूण ऑर्डर्स
+    popular_item = "Paneer Butter Masala" # सर्वात जास्त विकला गेलेला पदार्थ
+    
+    return render_template('analytics.html', 
+                           sales=total_sales, 
+                           orders=total_orders, 
+                           top_item=popular_item)
