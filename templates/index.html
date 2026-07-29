@@ -6,7 +6,6 @@
     <title>The Royal Spice | Fine Dining & Hospitality</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        /* Feature Cards Styling */
         .features-grid {
             display: flex;
             gap: 20px;
@@ -70,14 +69,12 @@
 </head>
 <body>
 
-    <!-- Header Navigation -->
+    <!-- Header Navigation (Only Customer Links Included) -->
     <header>
         <div class="logo">👑 The Royal Spice</div>
         <nav>
             <a href="{{ url_for('home') }}">Home</a>
             <a href="{{ url_for('menu') }}">Digital Menu</a>
-            <a href="/admin">Admin Panel</a>
-            <a href="/analytics">Analytics</a>
             <button onclick="toggleLanguage()" id="langBtn" style="background: #f39c12; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; margin-left: 10px;">मराठी</button>
         </nav>
     </header>
@@ -119,7 +116,7 @@
             <div style="background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 25px; text-align: left; margin-top: 30px; border-left: 4px solid #f39c12;">
                 <h3 style="color: #f39c12; margin-bottom: 10px;" id="aboutTitle">✨ About Our Culinary Heritage</h3>
                 <p style="font-size: 14px; color: #ddd; line-height: 1.8;" id="aboutDesc">
-                    At 'The Royal Spice', we take pride in serving exquisite delicacies prepared by world-class chefs. Our menu blends traditional royal recipes with modern gastronomy.
+                    At 'The Royal Spice', we take pride in serving exquisite delicacies prepared by world-class chefs.
                 </p>
                 
                 <h3 style="color: #f39c12; margin-bottom: 10px; margin-top: 15px;" id="infoTitle">📍 Location & Timings</h3>
@@ -148,18 +145,17 @@
         </div>
     </div>
 
-    <!-- Professional Footer -->
+    <!-- Footer -->
     <footer>
         <p>© 2026 The Royal Spice Restaurant System. All Rights Reserved.</p>
     </footer>
 
-    <!-- JavaScript for Dynamic Language Switching -->
+    <!-- JavaScript for Language Switching -->
     <script>
         let currentLang = 'en';
 
         function toggleLanguage() {
             if (currentLang === 'en') {
-                // Change to Marathi
                 document.getElementById('welcomeHeading').innerText = "द रॉयल स्पाइस मध्ये आपले स्वागत आहे 👑";
                 document.getElementById('welcomeSub').innerText = "अस्सल चव आणि शाही आदरातिथ्याचा अनुभव घ्या";
                 document.getElementById('exploreBtn').innerText = "डिजिटल मेनु पहा 📜";
@@ -183,7 +179,6 @@
                 document.getElementById('langBtn').innerText = "English";
                 currentLang = 'mr';
             } else {
-                // Change to English
                 document.getElementById('welcomeHeading').innerText = "Welcome to The Royal Spice 👑";
                 document.getElementById('welcomeSub').innerText = "Where Culinary Art Meets Royal Hospitality";
                 document.getElementById('exploreBtn').innerText = "Explore Digital Menu 📜";
