@@ -69,13 +69,24 @@ def update_status(order_id):
             
     return jsonify({'success': False, 'error': 'Order not found'})
 
-# ९. Daily Order Analytics Route (main च्या वर)
+# ९. Real-time Dynamic Order Analytics Route
 @app.route('/analytics')
 def analytics():
     today = date.today().strftime("%Y-%m-%d")
-    total_sales = 4500
-    total_orders = 18
-    popular_item = "Paneer Butter Masala"
+    
+    total_sales = sum(order.get('total', 0) for order in orders_db)
+    total_orders = len(orders_db)
+    
+    item_counts = {}
+    for order in orders_db:
+        for item in order.get('items', []):
+            item_name = item.get('name') if isinstance(item, dict) else item
+            item_counts[item_name] = item_counts.get(item_name, 0) + 1
+            
+    if item_counts:
+        popular_item = max(item_counts, key=item_counts.get)
+    else:
+        popular_item = "No Sales Yet"
     
     return render_template('analytics.html', 
                            sales=total_sales, 
