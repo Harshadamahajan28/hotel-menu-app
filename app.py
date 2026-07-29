@@ -74,9 +74,11 @@ def update_status(order_id):
 def analytics():
     today = date.today().strftime("%Y-%m-%d")
     
+    # ऑर्डर्समधून एकूण विक्री आणि ऑर्डर्स कॅल्क्युलेट करणे
     total_sales = sum(order.get('total', 0) for order in orders_db)
     total_orders = len(orders_db)
     
+    # सर्वात जास्त विकला गेलेला पदार्थ शोधणे
     item_counts = {}
     for order in orders_db:
         for item in order.get('items', []):
@@ -88,11 +90,15 @@ def analytics():
     else:
         popular_item = "No Sales Yet"
     
+    # आलेखासाठी (Graph) तासांनुसार सॅम्पल डेटा
+    hourly_sales = [0, 0, 0, 0, 0, 0]
+    
     return render_template('analytics.html', 
                            sales=total_sales, 
                            orders=total_orders, 
-                           top_item=popular_item)
+                           top_item=popular_item,
+                           chart_data=hourly_sales)
 
-# सर्व रूट्स संपल्यानंतर शेवटी हेच राहील
+# शेवटी सर्व रूट्स संपल्यावर हेच राहील
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
