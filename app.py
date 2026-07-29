@@ -4,10 +4,10 @@ import json
 import os
 
 app = Flask(__name__)
-app.secret_key = 'royal_spice_secret_key_2026'  # Session साठी गुपित की
+app.secret_key = 'royal_spice_secret_key_2026'
 
 DATA_FILE = 'orders.json'
-ADMIN_PASSWORD = 'theroyalspice'  # 🔑 तुमचा Admin/Analytics चा पासवर्ड इथे बदला
+ADMIN_PASSWORD = 'admin123'  # 🔑 Admin Password
 
 def load_orders():
     if not os.path.exists(DATA_FILE):
@@ -30,7 +30,6 @@ def home():
 def menu():
     return render_template('menu.html')
 
-# 🔐 Login Page Route
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     error = None
@@ -68,13 +67,11 @@ def login():
         </html>
     '''
 
-# 🚪 Logout Route
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
     return redirect(url_for('login'))
 
-# 🔒 Protected Admin Route
 @app.route('/admin')
 def admin():
     if not session.get('logged_in'):
@@ -82,7 +79,6 @@ def admin():
     orders = load_orders()
     return render_template('admin.html', orders=orders)
 
-# 🔒 Protected Analytics Route
 @app.route('/analytics')
 def analytics():
     if not session.get('logged_in'):
@@ -94,6 +90,7 @@ def place_order():
     orders = load_orders()
     data = request.json
     order_id = len(orders) + 1
+    today_str = datetime.now().strftime('%Y-%m-%d')
     
     new_order = {
         'id': order_id,
@@ -103,6 +100,7 @@ def place_order():
         'items': data.get('items', []),
         'total': data.get('total', 0),
         'status': 'Pending',
+        'date': today_str,
         'time': datetime.now().strftime('%I:%M %p')
     }
     
@@ -113,13 +111,19 @@ def place_order():
 @app.route('/api/orders', methods=['GET'])
 def get_orders():
     orders = load_orders()
-    total_revenue = sum(order['total'] for order in orders if order['status'] == 'Completed')
-    total_orders = len(orders)
-    completed_orders = len([o for o in orders if o['status'] == 'Completed'])
-    pending_orders = len([o for o in orders if o['status'] == 'Pending'])
+    target_date = request.args.get('date') # Filter by date if provided
+
+    filtered_orders = orders
+    if target_date:
+        filtered_orders = [o for o in orders if o.get('date', '') == target_date]
+
+    total_revenue = sum(order['total'] for order in filtered_orders if order['status'] == 'Completed')
+    total_orders = len(filtered_orders)
+    completed_orders = len([o for o in filtered_orders if o['status'] == 'Completed'])
+    pending_orders = len([o for o in filtered_orders if o['status'] == 'Pending'])
 
     return jsonify({
-        'orders': orders,
+        'orders': filtered_orders,
         'stats': {
             'total_revenue': total_revenue,
             'total_orders': total_orders,
