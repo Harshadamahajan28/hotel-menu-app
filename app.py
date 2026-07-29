@@ -19,6 +19,10 @@ def menu():
 def admin():
     return render_template('admin.html', orders=orders)
 
+@app.route('/analytics')
+def analytics():
+    return render_template('analytics.html')
+
 @app.route('/api/place-order', methods=['POST'])
 def place_order():
     global order_counter
@@ -42,7 +46,21 @@ def place_order():
 
 @app.route('/api/orders', methods=['GET'])
 def get_orders():
-    return jsonify({'orders': orders})
+    # Calculate basic analytics stats
+    total_revenue = sum(order['total'] for order in orders if order['status'] == 'Completed')
+    total_orders = len(orders)
+    completed_orders = len([o for o in orders if o['status'] == 'Completed'])
+    pending_orders = len([o for o in orders if o['status'] == 'Pending'])
+
+    return jsonify({
+        'orders': orders,
+        'stats': {
+            'total_revenue': total_revenue,
+            'total_orders': total_orders,
+            'completed_orders': completed_orders,
+            'pending_orders': pending_orders
+        }
+    })
 
 @app.route('/api/update-status', methods=['POST'])
 def update_status():
