@@ -2,71 +2,105 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Kitchen Display System (KDS)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - The Royal Spice</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .order-card { border-left: 6px solid #ffc107; }
-        .taste-badge { background-color: #e3f2fd; color: #0d6efd; font-weight: bold; }
+        body { background-color: #0f172a; color: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
+        .order-card { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; }
+        .badge-pending { background-color: #ffc107; color: #000; }
+        .badge-completed { background-color: #198754; color: #fff; }
     </style>
 </head>
-<body class="bg-dark text-white p-4">
-    <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>👨‍🍳 Kitchen Live Orders (15 Days History)</h2>
-            <button onclick="loadKitchenOrders()" class="btn btn-outline-light btn-sm">🔄 Refresh Orders</button>
+<body>
+
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary">
+            <h2 class="fw-bold text-warning"><i class="fa-solid fa-utensils"></i> Kitchen & Admin Dashboard</h2>
+            <div>
+                <button class="btn btn-outline-warning btn-sm me-2" onclick="fetchOrders()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                <a href="/" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-house"></i> Home</a>
+            </div>
         </div>
 
-        <div class="row" id="kitchenOrdersList">
-            <!-- Dynamic Kitchen Orders will be loaded here -->
+        <div class="row" id="ordersContainer">
+            <!-- Dynamic Orders Will Load Here -->
         </div>
     </div>
 
     <script>
-        async function loadKitchenOrders() {
-            const response = await fetch('/api/orders');
-            const orders = await response.json();
-            const container = document.getElementById('kitchenOrdersList');
-            container.innerHTML = '';
+        async function fetchOrders() {
+            const res = await fetch('/api/orders');
+            const data = await res.json();
+            const container = document.getElementById('ordersContainer');
 
-            orders.reverse().forEach(order => {
-                let itemsList = '';
-                order.items.forEach(item => {
-                    itemsList += `<li><strong>${item.name}</strong> x ${item.qty} <span class="badge taste-badge">${item.taste || 'Regular'}</span></li>`;
-                });
+            if (data.orders.length === 0) {
+                container.innerHTML = '<div class="col-12 text-center py-5 text-muted"><h4>No orders received yet.</h4></div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            data.orders.forEach(order => {
+                let itemsList = order.items.map(i => `
+                    <div class="d-flex justify-content-between small border-bottom border-secondary py-1">
+                        <span>${i.type === 'Non-Veg' ? '🔴' : '🟢'} ${i.name} (${i.taste}) x ${i.qty}</span>
+                        <span class="fw-bold">₹${i.price * i.qty}</span>
+                    </div>
+                `).join('');
+
+                let statusBadge = order.status === 'Completed' 
+                    ? '<span class="badge badge-completed p-2">Completed</span>'
+                    : '<span class="badge badge-pending p-2">Pending</span>';
 
                 container.innerHTML += `
-                    <div class="col-md-4 mb-3">
-                        <div class="card text-dark shadow-sm order-card">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <h5 class="card-title">${order.table_no} (#${order.id})</h5>
-                                    <span class="badge bg-info text-dark">${order.status}</span>
-                                </div>
-                                <small class="text-muted">📅 ${order.created_at}</small>
-                                <hr>
-                                <ul>${itemsList}</ul>
-                                <div class="d-flex gap-2 mt-3">
-                                    <button class="btn btn-warning btn-sm" onclick="updateStatus(${order.id}, 'Cooking 👨‍🍳')">Cooking</button>
-                                    <button class="btn btn-success btn-sm" onclick="updateStatus(${order.id}, 'Ready ✅')">Ready</button>
-                                </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card order-card text-white p-3 shadow-lg">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="m-0 text-warning fw-bold">Order #${order.id}</h5>
+                                <span>${statusBadge}</span>
                             </div>
+                            
+                            <div class="bg-dark p-2 rounded mb-3">
+                                <div><i class="fa-solid fa-user text-info"></i> <strong>Name:</strong> ${order.customer_name}</div>
+                                <div><i class="fa-solid fa-chair text-warning"></i> <strong>Table:</strong> ${order.table_no}</div>
+                                <div><i class="fa-solid fa-phone text-success"></i> <strong>Phone:</strong> ${order.phone || 'N/A'}</div>
+                                <div class="text-muted small"><i class="fa-solid fa-clock"></i> Time: ${order.time}</div>
+                            </div>
+
+                            <h6 class="fw-bold text-light">Items Ordered:</h6>
+                            <div class="mb-3">${itemsList}</div>
+
+                            <div class="d-flex justify-content-between align-items-center fw-bold fs-5 mb-3 text-success">
+                                <span>Total:</span>
+                                <span>₹${order.total}</span>
+                            </div>
+
+                            ${order.status === 'Pending' ? `
+                                <button class="btn btn-success w-100 fw-bold" onclick="updateStatus(${order.id}, 'Completed')">
+                                    <i class="fa-solid fa-check"></i> Mark as Completed
+                                </button>
+                            ` : `
+                                <button class="btn btn-secondary w-100 disabled">Order Served</button>
+                            `}
                         </div>
                     </div>
                 `;
             });
         }
 
-        async function updateStatus(id, status) {
-            await fetch(`/api/update-status/${id}`, {
+        async function updateStatus(orderId, status) {
+            await fetch('/api/update-status', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: status })
+                body: JSON.stringify({ order_id: orderId, status: status })
             });
-            loadKitchenOrders();
+            fetchOrders();
         }
 
-        setInterval(loadKitchenOrders, 5000); // ऑटोमॅटिक दर ५ सेकंदांनी रिफ्रेश होईल
-        loadKitchenOrders();
+        // Auto refresh every 5 seconds
+        setInterval(fetchOrders, 5000);
+        fetchOrders();
     </script>
 </body>
 </html>
