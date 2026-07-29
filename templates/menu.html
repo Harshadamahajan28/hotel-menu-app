@@ -3,121 +3,267 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu - The Royal Spice</title>
+    <title>Menu Card - The Royal Spice</title>
+    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .menu-card { transition: transform 0.2s; }
-        .menu-card:hover { transform: scale(1.02); }
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .hero-header { background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200'); background-size: cover; color: white; padding: 40px 0; }
+        .veg-symbol { color: #198754; font-size: 0.9rem; }
+        .nonveg-symbol { color: #dc3545; font-size: 0.9rem; }
+        .category-header { border-bottom: 2px solid #ffc107; padding-bottom: 5px; margin-top: 25px; margin-bottom: 15px; color: #212529; font-weight: bold; }
+        .menu-card { transition: all 0.2s ease-in-out; border-radius: 12px; }
+        .menu-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .cart-sticky { position: sticky; top: 20px; }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
-    <div class="container py-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>🍽️ Hotel Menu</h2>
-            <a href="/" class="btn btn-outline-dark">Home</a>
-        </div>
+    <!-- Header Section -->
+    <div class="hero-header text-center mb-4">
+        <h1>👑 The Royal Spice Menu</h1>
+        <p class="lead">Authentic Veg & Non-Veg Culinary Experience</p>
+        <a href="/" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-house"></i> Back to Home</a>
+    </div>
 
+    <div class="container pb-5">
         <div class="row">
-            <!-- Menu Items List -->
-            <div class="col-md-8">
+            
+            <!-- Left Side: Categorized Menu Items -->
+            <div class="col-lg-8">
+
+                <!-- 1. STARTERS -->
+                <h3 class="category-header"><i class="fa-solid fa-bowl-food text-warning"></i> Starters</h3>
                 <div class="row">
-                    <!-- Item 1 -->
+                    <!-- Veg Starter 1 -->
                     <div class="col-md-6 mb-3">
                         <div class="card p-3 shadow-sm menu-card">
-                            <h5>Paneer Butter Masala</h5>
-                            <p class="text-muted">₹ 240</p>
-                            <div class="mb-2">
-                                <label class="form-label small">Taste Choice:</label>
+                            <div class="d-flex justify-content-between">
+                                <h5><i class="fa-solid fa-circle veg-symbol"></i> Paneer Tikka</h5>
+                                <span class="fw-bold text-success">₹ 220</span>
+                            </div>
+                            <small class="text-muted">Marinated paneer cubes grilled in tandoor.</small>
+                            <div class="mt-2">
+                                <select id="taste-Paneer Tikka" class="form-select form-select-sm">
+                                    <option value="Medium 🌶️">Medium 🌶️</option>
+                                    <option value="Spicy 🔥">Spicy 🔥</option>
+                                    <option value="Jain 😇">Jain 😇</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-warning btn-sm mt-2 fw-bold" onclick="addToCart('Paneer Tikka', 220, 'Veg')">+ Add to Order</button>
+                        </div>
+                    </div>
+
+                    <!-- Non-Veg Starter 1 -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card p-3 shadow-sm menu-card">
+                            <div class="d-flex justify-content-between">
+                                <h5><i class="fa-solid fa-circle nonveg-symbol"></i> Chicken Tikka</h5>
+                                <span class="fw-bold text-success">₹ 280</span>
+                            </div>
+                            <small class="text-muted">Juicy chicken pieces roasted with spices.</small>
+                            <div class="mt-2">
+                                <select id="taste-Chicken Tikka" class="form-select form-select-sm">
+                                    <option value="Spicy 🔥">Spicy 🔥</option>
+                                    <option value="Medium 🌶️">Medium 🌶️</option>
+                                    <option value="Extra Spicy 🔥🔥">Extra Spicy 🔥🔥</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-warning btn-sm mt-2 fw-bold" onclick="addToCart('Chicken Tikka', 280, 'Non-Veg')">+ Add to Order</button>
+                        </div>
+                    </div>
+
+                    <!-- Veg Starter 2 -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card p-3 shadow-sm menu-card">
+                            <div class="d-flex justify-content-between">
+                                <h5><i class="fa-solid fa-circle veg-symbol"></i> Crispy Veg</h5>
+                                <span class="fw-bold text-success">₹ 180</span>
+                            </div>
+                            <small class="text-muted">Fried mixed vegetables in sweet & spicy sauce.</small>
+                            <div class="mt-2">
+                                <select id="taste-Crispy Veg" class="form-select form-select-sm">
+                                    <option value="Medium 🌶️">Medium 🌶️</option>
+                                    <option value="Spicy 🔥">Spicy 🔥</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-warning btn-sm mt-2 fw-bold" onclick="addToCart('Crispy Veg', 180, 'Veg')">+ Add to Order</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. MAIN COURSE -->
+                <h3 class="category-header"><i class="fa-solid fa-utensils text-warning"></i> Main Course</h3>
+                <div class="row">
+                    <!-- Veg Main Course -->
+                    <div class="col-md-6 mb-3">
+                        <div class="card p-3 shadow-sm menu-card">
+                            <div class="d-flex justify-content-between">
+                                <h5><i class="fa-solid fa-circle veg-symbol"></i> Paneer Butter Masala</h5>
+                                <span class="fw-bold text-success">₹ 260</span>
+                            </div>
+                            <small class="text-muted">Rich gravy with soft paneer cubes and butter.</small>
+                            <div class="mt-2">
                                 <select id="taste-Paneer Butter Masala" class="form-select form-select-sm">
-                                    <option value="Medium">Medium 🌶️</option>
-                                    <option value="Spicy">Spicy 🔥</option>
-                                    <option value="Jain / Less Spicy">Jain / Less Spicy 😇</option>
+                                    <option value="Medium 🌶️">Medium 🌶️</option>
+                                    <option value="Spicy 🔥">Spicy 🔥</option>
+                                    <option value="Jain 😇">Jain 😇</option>
                                 </select>
                             </div>
-                            <button class="btn btn-success btn-sm mt-2" onclick="addToCart('Paneer Butter Masala', 240)">+ Add to Order</button>
+                            <button class="btn btn-warning btn-sm mt-2 fw-bold" onclick="addToCart('Paneer Butter Masala', 260, 'Veg')">+ Add to Order</button>
                         </div>
                     </div>
 
-                    <!-- Item 2 -->
+                    <!-- Non-Veg Main Course 1 -->
                     <div class="col-md-6 mb-3">
                         <div class="card p-3 shadow-sm menu-card">
-                            <h5>Veg Kolhapuri</h5>
-                            <p class="text-muted">₹ 210</p>
-                            <div class="mb-2">
-                                <label class="form-label small">Taste Choice:</label>
-                                <select id="taste-Veg Kolhapuri" class="form-select form-select-sm">
-                                    <option value="Spicy">Spicy 🔥</option>
-                                    <option value="Medium">Medium 🌶️</option>
-                                    <option value="Extra Spicy">Extra Spicy 🌶️🔥</option>
+                            <div class="d-flex justify-content-between">
+                                <h5><i class="fa-solid fa-circle nonveg-symbol"></i> Butter Chicken</h5>
+                                <span class="fw-bold text-success">₹ 340</span>
+                            </div>
+                            <small class="text-muted">Tandoori chicken in tomato and butter gravy.</small>
+                            <div class="mt-2">
+                                <select id="taste-Butter Chicken" class="form-select form-select-sm">
+                                    <option value="Medium 🌶️">Medium 🌶️</option>
+                                    <option value="Spicy 🔥">Spicy 🔥</option>
                                 </select>
                             </div>
-                            <button class="btn btn-success btn-sm mt-2" onclick="addToCart('Veg Kolhapuri', 210)">+ Add to Order</button>
+                            <button class="btn btn-warning btn-sm mt-2 fw-bold" onclick="addToCart('Butter Chicken', 340, 'Non-Veg')">+ Add to Order</button>
                         </div>
                     </div>
 
-                    <!-- Item 3 -->
+                    <!-- Non-Veg Main Course 2 -->
                     <div class="col-md-6 mb-3">
                         <div class="card p-3 shadow-sm menu-card">
-                            <h5>Butter Garlic Roti</h5>
-                            <p class="text-muted">₹ 40</p>
-                            <div class="mb-2">
-                                <label class="form-label small">Choice:</label>
-                                <select id="taste-Butter Garlic Roti" class="form-select form-select-sm">
-                                    <option value="Butter">Butter 🧈</option>
-                                    <option value="Plain">Plain 🫓</option>
+                            <div class="d-flex justify-content-between">
+                                <h5><i class="fa-solid fa-circle nonveg-symbol"></i> Mutton Rogan Josh</h5>
+                                <span class="fw-bold text-success">₹ 390</span>
+                            </div>
+                            <small class="text-muted">Tender mutton cooked in authentic Kashmiri gravy.</small>
+                            <div class="mt-2">
+                                <select id="taste-Mutton Rogan Josh" class="form-select form-select-sm">
+                                    <option value="Spicy 🔥">Spicy 🔥</option>
+                                    <option value="Medium 🌶️">Medium 🌶️</option>
                                 </select>
                             </div>
-                            <button class="btn btn-success btn-sm mt-2" onclick="addToCart('Butter Garlic Roti', 40)">+ Add to Order</button>
+                            <button class="btn btn-warning btn-sm mt-2 fw-bold" onclick="addToCart('Mutton Rogan Josh', 390, 'Non-Veg')">+ Add to Order</button>
                         </div>
                     </div>
 
-                    <!-- Item 4 -->
+                    <!-- Veg Dal -->
                     <div class="col-md-6 mb-3">
                         <div class="card p-3 shadow-sm menu-card">
-                            <h5>Jeera Rice</h5>
-                            <p class="text-muted">₹ 140</p>
-                            <div class="mb-2">
-                                <label class="form-label small">Choice:</label>
-                                <select id="taste-Jeera Rice" class="form-select form-select-sm">
-                                    <option value="Full">Full Portion</option>
-                                    <option value="Half">Half Portion</option>
+                            <div class="d-flex justify-content-between">
+                                <h5><i class="fa-solid fa-circle veg-symbol"></i> Dal Tadka</h5>
+                                <span class="fw-bold text-success">₹ 160</span>
+                            </div>
+                            <small class="text-muted">Yellow lentils tempered with ghee and garlic.</small>
+                            <div class="mt-2">
+                                <select id="taste-Dal Tadka" class="form-select form-select-sm">
+                                    <option value="Medium 🌶️">Medium 🌶️</option>
+                                    <option value="Spicy 🔥">Spicy 🔥</option>
+                                    <option value="Jain 😇">Jain 😇</option>
                                 </select>
                             </div>
-                            <button class="btn btn-success btn-sm mt-2" onclick="addToCart('Jeera Rice', 140)">+ Add to Order</button>
+                            <button class="btn btn-warning btn-sm mt-2 fw-bold" onclick="addToCart('Dal Tadka', 160, 'Veg')">+ Add to Order</button>
                         </div>
+                    </div>
+                </div>
+
+                <!-- 3. DRINKS & BEVERAGES -->
+                <h3 class="category-header"><i class="fa-solid fa-glass-water text-warning"></i> Drinks & Beverages</h3>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card p-3 shadow-sm menu-card">
+                            <div class="d-flex justify-content-between">
+                                <h5><i class="fa-solid fa-circle veg-symbol"></i> Masala Taak (Buttermilk)</h5>
+                                <span class="fw-bold text-success">₹ 50</span>
+                            </div>
+                            <small class="text-muted">Refreshing chilled spiced buttermilk.</small>
+                            <button class="btn btn-warning btn-sm mt-2 fw-bold" onclick="addToCart('Masala Taak', 50, 'Veg')">+ Add to Order</button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="card p-3 shadow-sm menu-card">
+                            <div class="d-flex justify-content-between">
+                                <h5><i class="fa-solid fa-circle veg-symbol"></i> Cold Coffee with Ice Cream</h5>
+                                <span class="fw-bold text-success">₹ 110</span>
+                            </div>
+                            <small class="text-muted">Creamy thick coffee topped with vanilla icecream.</small>
+                            <button class="btn btn-warning btn-sm mt-2 fw-bold" onclick="addToCart('Cold Coffee', 110, 'Veg')">+ Add to Order</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. DESSERTS -->
+                <h3 class="category-header"><i class="fa-solid fa-ice-cream text-warning"></i> Desserts</h3>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card p-3 shadow-sm menu-card">
+                            <div class="d-flex justify-content-between">
+                                <h5><i class="fa-solid fa-circle veg-symbol"></i> Gulab Jamun (2 Pcs)</h5>
+                                <span class="fw-bold text-success">₹ 80</span>
+                            </div>
+                            <small class="text-muted">Warm, soft gulab jamuns dipped in sugar syrup.</small>
+                            <button class="btn btn-warning btn-sm mt-2 fw-bold" onclick="addToCart('Gulab Jamun', 80, 'Veg')">+ Add to Order</button>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="card p-3 shadow-sm menu-card">
+                            <div class="d-flex justify-content-between">
+                                <h5><i class="fa-solid fa-circle veg-symbol"></i> Sizzling Brownie</h5>
+                                <span class="fw-bold text-success">₹ 160</span>
+                            </div>
+                            <small class="text-muted">Hot brownie topped with vanilla ice cream and chocolate sauce.</small>
+                            <button class="btn btn-warning btn-sm mt-2 fw-bold" onclick="addToCart('Sizzling Brownie', 160, 'Veg')">+ Add to Order</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Side: Sticky Shopping Cart -->
+            <div class="col-lg-4">
+                <div class="card shadow-lg cart-sticky border-0">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+                        <h5 class="m-0"><i class="fa-solid fa-cart-shopping text-warning"></i> Your Order Cart</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="cartItems" style="max-height: 350px; overflow-y: auto;">
+                            <p class="text-muted text-center py-4">Your cart is empty. Add items from menu!</p>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between fs-5 fw-bold mb-3">
+                            <span>Total Amount:</span>
+                            <span class="text-success">₹ <span id="cartTotal">0</span></span>
+                        </div>
+                        <button class="btn btn-success w-100 btn-lg shadow-sm fw-bold" onclick="placeOrder()"><i class="fa-solid fa-paper-plane"></i> Place Order</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Cart Section -->
-            <div class="col-md-4">
-                <div class="card p-3 shadow">
-                    <h4 class="border-bottom pb-2">🛒 Your Cart</h4>
-                    <div id="cartItems" class="my-3">
-                        <p class="text-muted">Your cart is empty.</p>
-                    </div>
-                    <h5>Total: ₹ <span id="cartTotal">0</span></h5>
-                    <button class="btn btn-primary w-100 mt-3" onclick="placeOrder()">Place Order 🚀</button>
-                </div>
-            </div>
         </div>
     </div>
 
-    <!-- JavaScript Code (Script Tag च्या आत) -->
+    <!-- JavaScript logic -->
     <script>
         let cart = [];
 
-        function addToCart(itemName, price) {
+        function addToCart(itemName, price, type) {
             const tasteElement = document.getElementById(`taste-${itemName}`);
-            const taste = tasteElement ? tasteElement.value : 'Medium';
+            const taste = tasteElement ? tasteElement.value : 'Regular';
             
+            // Check if exact same item with same taste exists
             const existingIndex = cart.findIndex(item => item.name === itemName && item.taste === taste);
             
             if (existingIndex > -1) {
                 cart[existingIndex].qty += 1;
             } else {
-                cart.push({ name: itemName, price: price, qty: 1, taste: taste });
+                cart.push({ name: itemName, price: price, qty: 1, taste: taste, type: type });
             }
             renderCart();
         }
@@ -132,7 +278,7 @@
             let total = 0;
 
             if (cart.length === 0) {
-                cartContainer.innerHTML = '<p class="text-muted">Your cart is empty.</p>';
+                cartContainer.innerHTML = '<p class="text-muted text-center py-4">Your cart is empty. Add items from menu!</p>';
                 document.getElementById('cartTotal').innerText = 0;
                 return;
             }
@@ -141,14 +287,18 @@
 
             cart.forEach((item, index) => {
                 total += item.price * item.qty;
+                const icon = item.type === 'Non-Veg' ? '<i class="fa-solid fa-circle nonveg-symbol"></i>' : '<i class="fa-solid fa-circle veg-symbol"></i>';
+                
                 cartContainer.innerHTML += `
-                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                    <div class="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded border">
                         <div>
-                            <strong>${item.name}</strong><br>
-                            <small class="text-primary">${item.taste}</small> | 
-                            <small class="text-muted">₹${item.price} x ${item.qty}</small>
+                            <strong>${icon} ${item.name}</strong><br>
+                            <small class="text-primary fw-bold">${item.taste}</small><br>
+                            <small class="text-muted">₹${item.price} x ${item.qty} = <strong>₹${item.price * item.qty}</strong></small>
                         </div>
-                        <button class="btn btn-outline-danger btn-sm" onclick="removeFromCart(${index})">🗑️ Delete</button>
+                        <button class="btn btn-outline-danger btn-sm rounded-circle ms-2" onclick="removeFromCart(${index})" title="Delete Item">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
                     </div>
                 `;
             });
@@ -158,7 +308,7 @@
 
         async function placeOrder() {
             if (cart.length === 0) {
-                alert("Please add items to cart first!");
+                alert("तुमच्या कार्टमध्ये एकही आयटम नाही! कृपया आधी डिश निवडा.");
                 return;
             }
 
@@ -177,11 +327,11 @@
 
             const result = await response.json();
             if (result.success) {
-                alert("Order placed successfully! Order ID: #" + result.order_id);
+                alert("🎉 तुमची ऑर्डर किचनमध्ये पाठवली आहे! Order ID: #" + result.order_id);
                 cart = [];
                 renderCart();
             } else {
-                alert("Failed to place order.");
+                alert("ऑर्डर सबमिट करताना अडचण आली.");
             }
         }
     </script>
