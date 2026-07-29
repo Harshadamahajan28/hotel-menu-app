@@ -3,109 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analytics Dashboard - The Royal Spice</title>
+    <title>Business Analytics - The Royal Spice</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #0f172a; color: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
-        .stat-card { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; }
+        body { background-color: #0b0f19; color: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
+        .card-custom { background-color: #161e2e; border: 1px solid #2a364f; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .stat-icon { font-size: 2.2rem; opacity: 0.8; }
+        .badge-completed { background-color: #10b981; color: #fff; padding: 6px 12px; border-radius: 20px; font-weight: 600; }
+        .badge-pending { background-color: #f59e0b; color: #000; padding: 6px 12px; border-radius: 20px; font-weight: 600; }
+        .badge-item { background-color: #2a364f; color: #f39c12; border: 1px solid #f39c12; margin: 2px; }
     </style>
 </head>
 <body>
 
     <div class="container py-4">
-        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary">
-            <h2 class="fw-bold text-warning"><i class="fa-solid fa-chart-line"></i> Sales & Revenue Analytics</h2>
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
             <div>
-                <a href="/admin" class="btn btn-outline-warning btn-sm me-2"><i class="fa-solid fa-utensils"></i> Kitchen Admin</a>
-                <a href="/" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-house"></i> Home</a>
+                <h2 class="fw-bold text-warning m-0"><i class="fa-solid fa-chart-pie"></i> Business & Sales Analytics</h2>
+                <small class="text-muted">हॉटेलच्या विक्रीचा व ऑर्डर्सचा सविस्तर अहवाल</small>
+            </div>
+            <div>
+                <a href="/admin" class="btn btn-outline-warning me-2"><i class="fa-solid fa-kitchen-set"></i> Kitchen Admin</a>
+                <a href="/" class="btn btn-outline-light"><i class="fa-solid fa-house"></i> Home</a>
             </div>
         </div>
 
-        <!-- Summary Cards -->
+        <!-- 4 Key Metric Cards -->
         <div class="row g-3 mb-4">
             <div class="col-md-3">
-                <div class="card stat-card p-3 text-white">
-                    <small class="text-muted fw-bold">TOTAL REVENUE</small>
-                    <h3 class="text-success fw-bold mt-2">₹ <span id="totalRevenue">0</span></h3>
+                <div class="card card-custom p-3 border-start border-success border-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted fw-bold small text-uppercase">एकूण उत्पन्न (Revenue)</span>
+                            <h2 class="text-success fw-bold mt-2 mb-0">₹<span id="totalRevenue">0</span></h2>
+                        </div>
+                        <i class="fa-solid fa-indian-rupee-sign text-success stat-icon"></i>
+                    </div>
                 </div>
             </div>
+
             <div class="col-md-3">
-                <div class="card stat-card p-3 text-white">
-                    <small class="text-muted fw-bold">TOTAL ORDERS</small>
-                    <h3 class="text-warning fw-bold mt-2"><span id="totalOrders">0</span></h3>
+                <div class="card card-custom p-3 border-start border-warning border-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted fw-bold small text-uppercase">एकूण ऑर्डर्स (Total)</span>
+                            <h2 class="text-warning fw-bold mt-2 mb-0"><span id="totalOrders">0</span></h2>
+                        </div>
+                        <i class="fa-solid fa-receipt text-warning stat-icon"></i>
+                    </div>
                 </div>
             </div>
+
             <div class="col-md-3">
-                <div class="card stat-card p-3 text-white">
-                    <small class="text-muted fw-bold">COMPLETED ORDERS</small>
-                    <h3 class="text-info fw-bold mt-2"><span id="completedOrders">0</span></h3>
+                <div class="card card-custom p-3 border-start border-info border-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted fw-bold small text-uppercase">पूर्ण ऑर्डर्स (Completed)</span>
+                            <h2 class="text-info fw-bold mt-2 mb-0"><span id="completedOrders">0</span></h2>
+                        </div>
+                        <i class="fa-solid fa-circle-check text-info stat-icon"></i>
+                    </div>
                 </div>
             </div>
+
             <div class="col-md-3">
-                <div class="card stat-card p-3 text-white">
-                    <small class="text-muted fw-bold">PENDING ORDERS</small>
-                    <h3 class="text-danger fw-bold mt-2"><span id="pendingOrders">0</span></h3>
+                <div class="card card-custom p-3 border-start border-danger border-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="text-muted fw-bold small text-uppercase">पेंडिंग ऑर्डर्स (Pending)</span>
+                            <h2 class="text-danger fw-bold mt-2 mb-0"><span id="pendingOrders">0</span></h2>
+                        </div>
+                        <i class="fa-solid fa-clock text-danger stat-icon"></i>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Recent Sales Table -->
-        <div class="card stat-card p-4">
-            <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-list"></i> Order History Summary</h5>
-            <div class="table-responsive">
-                <table class="table table-dark table-striped align-middle m-0">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Customer Name</th>
-                            <th>Table</th>
-                            <th>Total Amount</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="analyticsTable">
-                        <tr><td colspan="5" class="text-center py-4 text-muted">Loading analytics data...</td></tr>
-                    </tbody>
-                </table>
+        <!-- Detailed Breakdown -->
+        <div class="row g-4">
+            <!-- Left: Top Selling Items -->
+            <div class="col-md-4">
+                <div class="card card-custom p-3">
+                    <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-fire text-danger"></i> सर्वाधिक विकल्या गेलेल्या डिशेस</h5>
+                    <ul class="list-group list-group-flush bg-transparent" id="topDishesList">
+                        <li class="list-group-item bg-transparent text-muted text-center py-3">अद्याप ऑर्डर्स डेटा उपलब्ध नाही.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right: Detailed Order History Table -->
+            <div class="col-md-8">
+                <div class="card card-custom p-3">
+                    <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-list-check"></i> ऑर्डर्सचा सविस्तर इतिहास</h5>
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover align-middle m-0">
+                            <thead>
+                                <tr>
+                                    <th>ऑर्डर #</th>
+                                    <th>ग्राहक व टेबल</th>
+                                    <th>मागवलेले पदार्थ (Items)</th>
+                                    <th>रक्कम</th>
+                                    <th>स्थिती (Status)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="analyticsTable">
+                                <tr><td colspan="5" class="text-center py-4 text-muted">डेटा लोड होत आहे...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         async function loadAnalytics() {
-            const res = await fetch('/api/orders');
-            const data = await res.json();
+            try {
+                const res = await fetch('/api/orders');
+                const data = await res.json();
 
-            document.getElementById('totalRevenue').innerText = data.stats.total_revenue;
-            document.getElementById('totalOrders').innerText = data.stats.total_orders;
-            document.getElementById('completedOrders').innerText = data.stats.completed_orders;
-            document.getElementById('pendingOrders').innerText = data.stats.pending_orders;
+                // 1. Update Top Stats
+                document.getElementById('totalRevenue').innerText = data.stats.total_revenue || 0;
+                document.getElementById('totalOrders').innerText = data.stats.total_orders || 0;
+                document.getElementById('completedOrders').innerText = data.stats.completed_orders || 0;
+                document.getElementById('pendingOrders').innerText = data.stats.pending_orders || 0;
 
-            const tbody = document.getElementById('analyticsTable');
-            if (data.orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No sales data recorded yet.</td></tr>';
-                return;
+                const tbody = document.getElementById('analyticsTable');
+                const topDishesList = document.getElementById('topDishesList');
+
+                if (!data.orders || data.orders.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">अद्याप कोणतीही ऑर्डर नोंदवलेली नाही.</td></tr>';
+                    topDishesList.innerHTML = '<li class="list-group-item bg-transparent text-muted text-center py-3">माहिती उपलब्ध नाही</li>';
+                    return;
+                }
+
+                // 2. Render Order History Table
+                tbody.innerHTML = '';
+                let dishCountMap = {};
+
+                data.orders.forEach(order => {
+                    const statusBadge = order.status === 'Completed' 
+                        ? '<span class="badge-completed"><i class="fa-solid fa-check"></i> Completed</span>' 
+                        : '<span class="badge-pending"><i class="fa-solid fa-hourglass"></i> Pending</span>';
+
+                    // Format Items List
+                    let itemsHTML = '';
+                    if (order.items && order.items.length > 0) {
+                        order.items.forEach(item => {
+                            itemsHTML += `<span class="badge badge-item">${item.name} (x${item.qty || 1})</span> `;
+                            
+                            // Count dish frequency for top dishes
+                            dishCountMap[item.name] = (dishCountMap[item.name] || 0) + (item.qty || 1);
+                        });
+                    } else {
+                        itemsHTML = '<span class="text-muted small">No items listed</span>';
+                    }
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong>#${order.id}</strong><br><small class="text-muted">${order.time || ''}</small></td>
+                            <td><strong>${order.customer_name}</strong><br><small class="text-info">Table: ${order.table_no}</small></td>
+                            <td>${itemsHTML}</td>
+                            <td class="text-success fw-bold fs-6">₹${order.total}</td>
+                            <td>${statusBadge}</td>
+                        </tr>
+                    `;
+                });
+
+                // 3. Render Top Selling Dishes
+                topDishesList.innerHTML = '';
+                const sortedDishes = Object.entries(dishCountMap).sort((a, b) => b[1] - a[1]);
+
+                if (sortedDishes.length === 0) {
+                    topDishesList.innerHTML = '<li class="list-group-item bg-transparent text-muted text-center py-3">कोणत्याही डिशेस विकल्या गेल्या नाहीत.</li>';
+                } else {
+                    sortedDishes.slice(0, 5).forEach(([dishName, count], index) => {
+                        topDishesList.innerHTML += `
+                            <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center border-secondary">
+                                <div>
+                                    <span class="badge bg-warning text-dark me-2">#${index + 1}</span>
+                                    <strong>${dishName}</strong>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">${count} ऑर्डर्स</span>
+                            </li>
+                        `;
+                    });
+                }
+
+            } catch (err) {
+                console.error("Analytics fetch error:", err);
             }
-
-            tbody.innerHTML = '';
-            data.orders.forEach(order => {
-                const statusBadge = order.status === 'Completed' 
-                    ? '<span class="badge bg-success">Completed</span>' 
-                    : '<span class="badge bg-warning text-dark">Pending</span>';
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>#${order.id}</strong></td>
-                        <td>${order.customer_name}</td>
-                        <td>${order.table_no}</td>
-                        <td class="text-success fw-bold">₹${order.total}</td>
-                        <td>${statusBadge}</td>
-                    </tr>
-                `;
-            });
         }
 
+        // Auto Refresh every 5 seconds
         setInterval(loadAnalytics, 5000);
         loadAnalytics();
     </script>
