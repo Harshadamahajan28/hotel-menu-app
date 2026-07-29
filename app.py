@@ -3,7 +3,6 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-# Orders list to store order details
 orders = []
 order_counter = 1
 
@@ -39,14 +38,12 @@ def place_order():
         'time': datetime.now().strftime('%I:%M %p')
     }
     
-    orders.insert(0, new_order)  # New orders at top
+    orders.insert(0, new_order)
     order_counter += 1
-    
     return jsonify({'success': True, 'order_id': new_order['id']})
 
 @app.route('/api/orders', methods=['GET'])
 def get_orders():
-    # Calculate basic analytics stats
     total_revenue = sum(order['total'] for order in orders if order['status'] == 'Completed')
     total_orders = len(orders)
     completed_orders = len([o for o in orders if o['status'] == 'Completed'])
