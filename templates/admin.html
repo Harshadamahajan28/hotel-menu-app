@@ -3,62 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kitchen Admin - Royal Spice</title>
+    <title>Kitchen & Billing Admin - Royal Spice</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #121212; color: #fff; }
-        .card-order { background-color: #1e1e1e; border: 1px solid #333; }
+        body { 
+            background-color: #f4f6f9; 
+            color: #212529; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        }
+        .navbar-custom { background-color: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .card-order { 
+            background-color: #ffffff; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
+            transition: all 0.2s ease-in-out;
+        }
+        .card-order:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.08); }
+        .order-badge-pending { background-color: #fff3cd; color: #856404; font-weight: 600; }
+        .order-badge-completed { background-color: #d4edda; color: #155724; font-weight: 600; }
+        .items-list { background-color: #f8f9fa; border-radius: 8px; padding: 10px 15px; }
+        
+        /* Print Formatting */
+        @media print {
+            body * { visibility: hidden; }
+            #printableArea, #printableArea * { visibility: visible; }
+            #printableArea { position: absolute; left: 0; top: 0; width: 100%; color: #000; }
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
 <body>
-    <div class="container py-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="text-warning"><i class="fas fa-utensils me-2"></i>Kitchen Dashboard</h2>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom py-3 mb-4 no-print">
+        <div class="container">
+            <h3 class="navbar-brand text-danger fw-bold m-0"><i class="fas fa-utensils me-2"></i>Kitchen & Billing Admin</h3>
             <div>
-                <a href="/analytics" class="btn btn-outline-info me-2"><i class="fas fa-chart-line"></i> Analytics</a>
-                <a href="/logout" class="btn btn-outline-danger"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                <a href="/analytics" class="btn btn-outline-primary me-2"><i class="fas fa-chart-line me-1"></i> Analytics</a>
+                <a href="/logout" class="btn btn-outline-danger"><i class="fas fa-sign-out-alt me-1"></i> Logout</a>
             </div>
         </div>
+    </nav>
 
-        <div id="ordersList" class="row g-3">
-            <!-- Orders load automatically here -->
-            <div class="text-center py-5 text-muted">Loading orders...</div>
+    <div class="container py-2 no-print">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold text-secondary">Live Orders</h4>
+            <span class="badge bg-primary px-3 py-2">Auto Refreshing Every 5s</span>
+        </div>
+
+        <div id="ordersList" class="row g-4">
+            <div class="text-center py-5 text-muted">Loading live orders...</div>
         </div>
     </div>
 
+    <!-- Printable Bill Template Modal Hidden Area -->
+    <div id="printableArea" class="d-none p-4"></div>
+
     <script>
+        let globalOrders = [];
+
         function fetchOrders() {
             fetch('/api/orders')
                 .then(res => res.json())
                 .then(data => {
+                    globalOrders = data.orders || [];
                     const container = document.getElementById('ordersList');
-                    if (!data.orders || data.orders.length === 0) {
-                        container.innerHTML = '<div class="col-12 text-center text-muted py-5"><h4>No Orders Yet!</h4></div>';
+                    
+                    if (!globalOrders || globalOrders.length === 0) {
+                        container.innerHTML = '<div class="col-12 text-center text-muted py-5"><h4>No Orders Found</h4></div>';
                         return;
                     }
 
                     let html = '';
-                    data.orders.forEach(o => {
-                        let statusBadge = o.status === 'Completed' ? 'bg-success' : 'bg-warning text-dark';
-                        let itemsList = (o.items || []).map(i => `<li>${i.name || i.title} x ${i.qty || 1}</li>`).join('');
+                    globalOrders.forEach(o => {
+                        let isCompleted = o.status === 'Completed';
+                        let statusBadge = isCompleted ? 'order-badge-completed' : 'order-badge-pending';
+                        
+                        let itemsList = (o.items || []).map(i => `
+                            <li class="d-flex justify-content-between align-items-center py-1 border-bottom border-light">
+                                <span><strong>${i.name || i.title}</strong></span>
+                                <span class="badge bg-secondary rounded-pill">x${i.qty || 1}</span>
+                            </li>
+                        `).join('');
 
                         html += `
                             <div class="col-md-4">
                                 <div class="card card-order p-3">
                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <h5 class="text-warning m-0">Order #${o.id}</h5>
-                                        <span class="badge ${statusBadge}">${o.status}</span>
+                                        <h5 class="fw-bold text-danger m-0">Order #${o.id}</h5>
+                                        <span class="badge ${statusBadge} px-2 py-1">${o.status}</span>
                                     </div>
-                                    <p class="mb-1"><strong>Table:</strong> ${o.table_no} | <strong>Name:</strong> ${o.customer_name}</p>
-                                    <p class="mb-2 text-muted small"><i class="far fa-clock"></i> ${o.time || ''}</p>
-                                    <hr class="border-secondary my-2">
-                                    <ul>${itemsList}</ul>
-                                    <div class="d-flex justify-content-between align-items-center mt-3">
-                                        <h6 class="m-0 text-success">₹${o.total}</h6>
-                                        ${o.status === 'Pending' ? `
-                                            <button onclick="updateStatus(${o.id}, 'Completed')" class="btn btn-sm btn-success">Mark Completed</button>
-                                        ` : '<span class="text-muted small">Done</span>'}
+                                    <div class="text-muted mb-2 small">
+                                        <div><i class="fas fa-chair me-1 text-primary"></i> <strong>Table:</strong> ${o.table_no}</div>
+                                        <div><i class="fas fa-user me-1 text-primary"></i> <strong>Name:</strong> ${o.customer_name}</div>
+                                        <div><i class="far fa-clock me-1 text-primary"></i> <strong>Time:</strong> ${o.time || ''}</div>
+                                    </div>
+                                    <div class="items-list my-2">
+                                        <ul class="list-unstyled m-0">${itemsList}</ul>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+                                        <h5 class="fw-bold text-success m-0">₹${o.total}</h5>
+                                        <div>
+                                            <button onclick="printBill(${o.id})" class="btn btn-sm btn-outline-success me-1">
+                                                <i class="fas fa-print me-1"></i> Bill
+                                            </button>
+                                            ${!isCompleted ? `
+                                                <button onclick="updateStatus(${o.id}, 'Completed')" class="btn btn-sm btn-warning">
+                                                    Complete
+                                                </button>
+                                            ` : '<span class="badge bg-light text-muted border">Done</span>'}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -77,9 +132,57 @@
             }).then(() => fetchOrders());
         }
 
-        // 🔄 दर ५ सेकंदांनी किचन पेज स्वयंचलित (Auto-Refresh) होईल
-       fetchOrders();
-       setInterval(fetchOrders, 5000);
+        // Bill Printing Function
+        function printBill(orderId) {
+            const order = globalOrders.find(o => String(o.id) === String(orderId));
+            if (!order) return alert('Order not found');
+
+            let itemsHtml = (order.items || []).map(i => `
+                <tr>
+                    <td style="padding: 5px 0;">${i.name || i.title}</td>
+                    <td style="text-align: center;">${i.qty || 1}</td>
+                    <td style="text-align: right;">₹${(i.price || 0) * (i.qty || 1)}</td>
+                </tr>
+            `).join('');
+
+            const billArea = document.getElementById('printableArea');
+            billArea.classList.remove('d-none');
+            billArea.innerHTML = `
+                <div style="max-width: 300px; margin: auto; font-family: monospace; font-size: 14px;">
+                    <h3 style="text-align: center; margin-bottom: 2px;">ROYAL SPICE</h3>
+                    <p style="text-align: center; margin-top: 0; font-size: 12px;">Hotel & Restaurant</p>
+                    <hr style="border-top: 1px dashed #000;">
+                    <p style="margin: 3px 0;"><strong>Order ID:</strong> #${order.id}</p>
+                    <p style="margin: 3px 0;"><strong>Table No:</strong> ${order.table_no}</p>
+                    <p style="margin: 3px 0;"><strong>Customer:</strong> ${order.customer_name}</p>
+                    <p style="margin: 3px 0;"><strong>Date:</strong> ${order.date || ''} ${order.time || ''}</p>
+                    <hr style="border-top: 1px dashed #000;">
+                    <table style="width: 100%;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid #000;">
+                                <th style="text-align: left;">Item</th>
+                                <th style="text-align: center;">Qty</th>
+                                <th style="text-align: right;">Amt</th>
+                            </tr>
+                        </thead>
+                        <tbody>${itemsHtml}</tbody>
+                    </table>
+                    <hr style="border-top: 1px dashed #000;">
+                    <h4 style="display: flex; justify-content: space-between; margin: 10px 0;">
+                        <span>TOTAL:</span>
+                        <span>₹${order.total}</span>
+                    </h4>
+                    <hr style="border-top: 1px dashed #000;">
+                    <p style="text-align: center; margin-top: 15px;">*** Thank You! Visit Again ***</p>
+                </div>
+            `;
+
+            window.print();
+            billArea.classList.add('d-none');
+        }
+
+        fetchOrders();
+        setInterval(fetchOrders, 5000);
     </script>
 </body>
 </html>
