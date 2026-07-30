@@ -26,18 +26,19 @@
     </div>
 
     <div class="container">
-        <!-- Category Filter Buttons -->
+        <!-- Category Filter Buttons (Drinks Category Added) -->
         <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap">
             <button class="btn btn-warning btn-cat" onclick="filterMenu('all')">All Dishes</button>
             <button class="btn btn-outline-warning btn-cat" onclick="filterMenu('Starters')">Starters</button>
             <button class="btn btn-outline-warning btn-cat" onclick="filterMenu('Main Course')">Main Course</button>
+            <button class="btn btn-outline-warning btn-cat" onclick="filterMenu('Roti & Breads')">Roti & Breads</button>
             <button class="btn btn-outline-warning btn-cat" onclick="filterMenu('Desserts')">Desserts</button>
-            <button class="btn btn-outline-warning btn-cat" onclick="filterMenu('Beverages')">Beverages</button>
+            <button class="btn btn-outline-warning btn-cat" onclick="filterMenu('Drinks')">Drinks</button>
         </div>
 
-        <!-- Menu Grid (Without Images) -->
+        <!-- Menu Grid -->
         <div class="row g-3" id="menuGrid">
-            <!-- Dishes will be dynamically injected here -->
+            <!-- Dishes loaded dynamically via JS -->
         </div>
 
         <!-- ⭐ Customer Feedback Button -->
@@ -137,12 +138,33 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const dishes = [
-            { id: 1, name: "Paneer Butter Masala", price: 240, category: "Main Course", type: "veg", desc: "Rich & creamy cottage cheese gravy cooked in butter and spices." },
-            { id: 2, name: "Chicken Biryani", price: 280, category: "Main Course", type: "nonveg", desc: "Aromatic basmati rice cooked with juicy chicken & authentic spices." },
-            { id: 3, name: "Veg Crispy Starter", price: 180, category: "Starters", type: "veg", desc: "Crispy fried assorted vegetables tossed in Indo-Chinese sauce." },
-            { id: 4, name: "Gulab Jamun (2 Pcs)", price: 90, category: "Desserts", type: "veg", desc: "Classic soft and warm milk-solid dumplings soaked in rose syrup." },
-            { id: 5, name: "Fresh Lime Soda", price: 70, category: "Beverages", type: "veg", desc: "Refreshing sweet and salty lemon juice topped with sparkling soda." },
-            { id: 6, name: "Chicken Tikka Starter", price: 260, category: "Starters", type: "nonveg", desc: "Boneless chicken marinated in spiced yogurt and grilled to perfection." }
+            // Starters
+            { id: 1, name: "Paneer Tikka Starter", price: 220, category: "Starters", type: "veg", desc: "Marinated cottage cheese cubes grilled in tandoor with spices." },
+            { id: 2, name: "Veg Crispy Starter", price: 180, category: "Starters", type: "veg", desc: "Crispy fried assorted vegetables tossed in Indo-Chinese sauce." },
+            { id: 3, name: "Chicken Tikka Starter", price: 260, category: "Starters", type: "nonveg", desc: "Boneless chicken marinated in spiced yogurt and grilled to perfection." },
+            { id: 4, name: "Chicken Tandoori (Half)", price: 290, category: "Starters", type: "nonveg", desc: "Classic tandoor roasted chicken with authentic Indian spices." },
+
+            // Main Course
+            { id: 5, name: "Paneer Butter Masala", price: 240, category: "Main Course", type: "veg", desc: "Rich & creamy cottage cheese gravy cooked in butter and spices." },
+            { id: 6, name: "Veg Kolhapuri", price: 210, category: "Main Course", type: "veg", desc: "Spicy mixed vegetable curry prepared in authentic Kolhapuri style." },
+            { id: 7, name: "Chicken Biryani", price: 280, category: "Main Course", type: "nonveg", desc: "Aromatic basmati rice cooked with juicy chicken & rich spices." },
+            { id: 8, name: "Butter Chicken", price: 310, category: "Main Course", type: "nonveg", desc: "Tender chicken cooked in rich tomato and butter gravy." },
+            { id: 9, name: "Dal Tadka", price: 160, category: "Main Course", type: "veg", desc: "Yellow lentils tempered with garlic, cumin, and ghee." },
+
+            // Roti & Breads
+            { id: 10, name: "Butter Naan", price: 45, category: "Roti & Breads", type: "veg", desc: "Soft refined flour bread baked in tandoor with butter." },
+            { id: 11, name: "Garlic Naan", price: 60, category: "Roti & Breads", type: "veg", desc: "Tandoori naan topped with chopped garlic and coriander." },
+            { id: 12, name: "Tandoori Roti", price: 25, category: "Roti & Breads", type: "veg", desc: "Whole wheat bread baked freshly in clay oven." },
+
+            // Desserts
+            { id: 13, name: "Gulab Jamun (2 Pcs)", price: 90, category: "Desserts", type: "veg", desc: "Classic soft and warm milk-solid dumplings soaked in rose syrup." },
+            { id: 14, name: "Sizzling Sizzler Brownie", price: 150, category: "Desserts", type: "veg", desc: "Hot chocolate brownie served with vanilla ice cream on sizzler plate." },
+
+            // Drinks (Beverages Replaced)
+            { id: 15, name: "Sol Kadhi", price: 50, category: "Drinks", type: "veg", desc: "Traditional refreshing Konkani drink made with kokum and coconut milk." },
+            { id: 16, name: "Fresh Lime Soda", price: 70, category: "Drinks", type: "veg", desc: "Refreshing sweet and salty lemon juice topped with sparkling soda." },
+            { id: 17, name: "Cold Coffee with Ice Cream", price: 110, category: "Drinks", type: "veg", desc: "Chilled blended coffee served with a scoop of vanilla ice cream." },
+            { id: 18, name: "Sweet Lassi", price: 80, category: "Drinks", type: "veg", desc: "Traditional thick yogurt drink served chilled with malai." }
         ];
 
         let cart = {};
