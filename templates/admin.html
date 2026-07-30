@@ -3,62 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kitchen & Billing Admin - Royal Spice</title>
+    <title>Kitchen & Billing Dashboard - Royal Spice</title>
+    <!-- Google Fonts & Bootstrap -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --primary-gradient: linear-gradient(135deg, #ff4e50 0%, #f9d423 100%);
+            --header-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
         body { 
-            background-color: #f4f6f9; 
-            color: #212529; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
         }
-        .navbar-custom { background-color: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-        .card-order { 
-            background-color: #ffffff; 
-            border: 1px solid #e2e8f0; 
+
+        /* Navbar Style */
+        .navbar-custom {
+            background: var(--header-gradient);
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15);
+        }
+
+        .brand-badge {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+        }
+
+        /* Live Pulse Dot */
+        .pulse-dot {
+            height: 10px;
+            width: 10px;
+            background-color: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Order Cards */
+        .card-order {
+            background: var(--card-bg);
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            transition: all 0.25s ease;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-order:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px -6px rgba(0, 0, 0, 0.08);
+            border-color: #cbd5e1;
+        }
+
+        .card-order.pending-card {
+            border-left: 5px solid #f59e0b;
+        }
+
+        .card-order.completed-card {
+            border-left: 5px solid #10b981;
+        }
+
+        .badge-pending {
+            background-color: #fef3c7;
+            color: #d97706;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        .badge-completed {
+            background-color: #d1fae5;
+            color: #059669;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        .items-box {
+            background-color: #f8fafc;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.03);
-            transition: all 0.2s ease-in-out;
+            padding: 12px 16px;
+            border: 1px solid #f1f5f9;
         }
-        .card-order:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0,0,0,0.08); }
-        .order-badge-pending { background-color: #fff3cd; color: #856404; font-weight: 600; }
-        .order-badge-completed { background-color: #d4edda; color: #155724; font-weight: 600; }
-        .items-list { background-color: #f8f9fa; border-radius: 8px; padding: 10px 15px; }
-        
-        /* Print Formatting */
+
+        .btn-custom-bill {
+            background-color: #0284c7;
+            color: white;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-custom-bill:hover {
+            background-color: #0369a1;
+            color: white;
+        }
+
+        .btn-custom-complete {
+            background-color: #f59e0b;
+            color: white;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-custom-complete:hover {
+            background-color: #d97706;
+            color: white;
+        }
+
+        /* Thermal Receipt Print Styling */
         @media print {
             body * { visibility: hidden; }
             #printableArea, #printableArea * { visibility: visible; }
-            #printableArea { position: absolute; left: 0; top: 0; width: 100%; color: #000; }
+            #printableArea { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100%; 
+                color: #000;
+            }
             .no-print { display: none !important; }
         }
     </style>
 </head>
 <body>
-    <!-- Navbar -->
+
+    <!-- Header Navbar -->
     <nav class="navbar navbar-expand-lg navbar-custom py-3 mb-4 no-print">
         <div class="container">
-            <h3 class="navbar-brand text-danger fw-bold m-0"><i class="fas fa-utensils me-2"></i>Kitchen & Billing Admin</h3>
-            <div>
-                <a href="/analytics" class="btn btn-outline-primary me-2"><i class="fas fa-chart-line me-1"></i> Analytics</a>
-                <a href="/logout" class="btn btn-outline-danger"><i class="fas fa-sign-out-alt me-1"></i> Logout</a>
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+                <div class="bg-warning text-dark rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <span class="fs-4 brand-badge">ROYAL SPICE</span>
+            </a>
+            
+            <div class="d-flex align-items-center gap-3">
+                <a href="/analytics" class="btn btn-outline-light rounded-pill px-3 py-2 btn-sm">
+                    <i class="fas fa-chart-pie me-1 text-info"></i> Analytics
+                </a>
+                <a href="/logout" class="btn btn-outline-danger rounded-pill px-3 py-2 btn-sm">
+                    <i class="fas fa-power-off"></i>
+                </a>
             </div>
         </div>
     </nav>
 
-    <div class="container py-2 no-print">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold text-secondary">Live Orders</h4>
-            <span class="badge bg-primary px-3 py-2">Auto Refreshing Every 5s</span>
+    <div class="container pb-5 no-print">
+        <!-- Sub Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h3 class="fw-bold mb-1">Kitchen & Billing Orders</h3>
+                <p class="text-muted small m-0">Real-time order management system</p>
+            </div>
+            <div class="d-flex align-items-center gap-2 bg-white px-3 py-2 rounded-pill border shadow-sm">
+                <span class="pulse-dot"></span>
+                <span class="fw-semibold text-secondary small">Live Sync (5s)</span>
+            </div>
         </div>
 
+        <!-- Orders Grid -->
         <div id="ordersList" class="row g-4">
-            <div class="text-center py-5 text-muted">Loading live orders...</div>
+            <div class="text-center py-5 text-muted">
+                <div class="spinner-border text-danger" role="status"></div>
+                <p class="mt-2">Connecting to Kitchen Stream...</p>
+            </div>
         </div>
     </div>
 
-    <!-- Printable Bill Template Modal Hidden Area -->
-    <div id="printableArea" class="d-none p-4"></div>
+    <!-- Hidden Thermal Print Bill Container -->
+    <div id="printableArea" class="d-none"></div>
 
     <script>
         let globalOrders = [];
@@ -71,48 +204,71 @@
                     const container = document.getElementById('ordersList');
                     
                     if (!globalOrders || globalOrders.length === 0) {
-                        container.innerHTML = '<div class="col-12 text-center text-muted py-5"><h4>No Orders Found</h4></div>';
+                        container.innerHTML = `
+                            <div class="col-12 text-center py-5">
+                                <div class="bg-white p-5 rounded-4 border shadow-sm max-w-md mx-auto">
+                                    <i class="fas fa-mug-hot fa-3x text-warning mb-3"></i>
+                                    <h4 class="fw-bold text-secondary">No Active Orders</h4>
+                                    <p class="text-muted small m-0">New orders will automatically appear here once customers place them.</p>
+                                </div>
+                            </div>`;
                         return;
                     }
 
                     let html = '';
                     globalOrders.forEach(o => {
                         let isCompleted = o.status === 'Completed';
-                        let statusBadge = isCompleted ? 'order-badge-completed' : 'order-badge-pending';
+                        let cardClass = isCompleted ? 'completed-card' : 'pending-card';
+                        let badgeClass = isCompleted ? 'badge-completed' : 'badge-pending';
                         
                         let itemsList = (o.items || []).map(i => `
-                            <li class="d-flex justify-content-between align-items-center py-1 border-bottom border-light">
-                                <span><strong>${i.name || i.title}</strong></span>
-                                <span class="badge bg-secondary rounded-pill">x${i.qty || 1}</span>
+                            <li class="d-flex justify-content-between align-items-center py-1">
+                                <span class="fw-medium text-dark"><i class="fas fa-circle text-warning me-2" style="font-size: 6px;"></i>${i.name || i.title}</span>
+                                <span class="badge bg-white text-dark border px-2 py-1">x${i.qty || 1}</span>
                             </li>
                         `).join('');
 
                         html += `
-                            <div class="col-md-4">
-                                <div class="card card-order p-3">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <h5 class="fw-bold text-danger m-0">Order #${o.id}</h5>
-                                        <span class="badge ${statusBadge} px-2 py-1">${o.status}</span>
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card card-order ${cardClass} p-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <span class="text-muted small fw-semibold">ORDER NO</span>
+                                            <h4 class="fw-extrabold text-danger m-0">#${o.id}</h4>
+                                        </div>
+                                        <span class="${badgeClass}">${o.status}</span>
                                     </div>
-                                    <div class="text-muted mb-2 small">
-                                        <div><i class="fas fa-chair me-1 text-primary"></i> <strong>Table:</strong> ${o.table_no}</div>
-                                        <div><i class="fas fa-user me-1 text-primary"></i> <strong>Name:</strong> ${o.customer_name}</div>
-                                        <div><i class="far fa-clock me-1 text-primary"></i> <strong>Time:</strong> ${o.time || ''}</div>
+
+                                    <div class="row g-2 mb-3 text-muted small bg-light p-2 rounded-3 border-0">
+                                        <div class="col-6">
+                                            <i class="fas fa-chair text-danger me-1"></i> <strong>Table:</strong> ${o.table_no}
+                                        </div>
+                                        <div class="col-6 text-end">
+                                            <i class="far fa-clock text-danger me-1"></i> ${o.time || ''}
+                                        </div>
+                                        <div class="col-12">
+                                            <i class="fas fa-user text-danger me-1"></i> ${o.customer_name}
+                                        </div>
                                     </div>
-                                    <div class="items-list my-2">
+
+                                    <div class="items-box mb-3">
                                         <ul class="list-unstyled m-0">${itemsList}</ul>
                                     </div>
-                                    <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
-                                        <h5 class="fw-bold text-success m-0">₹${o.total}</h5>
+
+                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top">
                                         <div>
-                                            <button onclick="printBill(${o.id})" class="btn btn-sm btn-outline-success me-1">
+                                            <span class="text-muted small d-block">TOTAL</span>
+                                            <h4 class="fw-bold text-success m-0">₹${o.total}</h4>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <button onclick="printBill(${o.id})" class="btn btn-sm btn-custom-bill px-3 py-2">
                                                 <i class="fas fa-print me-1"></i> Bill
                                             </button>
                                             ${!isCompleted ? `
-                                                <button onclick="updateStatus(${o.id}, 'Completed')" class="btn btn-sm btn-warning">
-                                                    Complete
+                                                <button onclick="updateStatus(${o.id}, 'Completed')" class="btn btn-sm btn-custom-complete px-3 py-2">
+                                                    Done
                                                 </button>
-                                            ` : '<span class="badge bg-light text-muted border">Done</span>'}
+                                            ` : '<span class="badge bg-light text-muted border px-3 py-2 align-self-center">Completed</span>'}
                                         </div>
                                     </div>
                                 </div>
@@ -132,14 +288,14 @@
             }).then(() => fetchOrders());
         }
 
-        // Bill Printing Function
+        // Print Receipt Thermal Style Format
         function printBill(orderId) {
             const order = globalOrders.find(o => String(o.id) === String(orderId));
-            if (!order) return alert('Order not found');
+            if (!order) return alert('Order details not found');
 
             let itemsHtml = (order.items || []).map(i => `
                 <tr>
-                    <td style="padding: 5px 0;">${i.name || i.title}</td>
+                    <td style="padding: 6px 0; text-align: left;">${i.name || i.title}</td>
                     <td style="text-align: center;">${i.qty || 1}</td>
                     <td style="text-align: right;">₹${(i.price || 0) * (i.qty || 1)}</td>
                 </tr>
@@ -148,32 +304,34 @@
             const billArea = document.getElementById('printableArea');
             billArea.classList.remove('d-none');
             billArea.innerHTML = `
-                <div style="max-width: 300px; margin: auto; font-family: monospace; font-size: 14px;">
-                    <h3 style="text-align: center; margin-bottom: 2px;">ROYAL SPICE</h3>
-                    <p style="text-align: center; margin-top: 0; font-size: 12px;">Hotel & Restaurant</p>
-                    <hr style="border-top: 1px dashed #000;">
-                    <p style="margin: 3px 0;"><strong>Order ID:</strong> #${order.id}</p>
-                    <p style="margin: 3px 0;"><strong>Table No:</strong> ${order.table_no}</p>
-                    <p style="margin: 3px 0;"><strong>Customer:</strong> ${order.customer_name}</p>
-                    <p style="margin: 3px 0;"><strong>Date:</strong> ${order.date || ''} ${order.time || ''}</p>
-                    <hr style="border-top: 1px dashed #000;">
-                    <table style="width: 100%;">
+                <div style="max-width: 280px; margin: auto; font-family: 'Courier New', Courier, monospace; font-size: 13px; color: #000; padding: 10px;">
+                    <div style="text-align: center; margin-bottom: 10px;">
+                        <h2 style="margin: 0; font-size: 20px; font-weight: bold;">ROYAL SPICE</h2>
+                        <p style="margin: 2px 0; font-size: 11px;">Fine Dining & Restaurant</p>
+                    </div>
+                    <div style="border-top: 1px dashed #000; margin: 8px 0;"></div>
+                    <p style="margin: 2px 0;"><strong>Order ID:</strong> #${order.id}</p>
+                    <p style="margin: 2px 0;"><strong>Table No:</strong> ${order.table_no}</p>
+                    <p style="margin: 2px 0;"><strong>Name:</strong> ${order.customer_name}</p>
+                    <p style="margin: 2px 0;"><strong>Date:</strong> ${order.date || ''} ${order.time || ''}</p>
+                    <div style="border-top: 1px dashed #000; margin: 8px 0;"></div>
+                    <table style="width: 100%; border-collapse: collapse;">
                         <thead>
-                            <tr style="border-bottom: 1px solid #000;">
-                                <th style="text-align: left;">Item</th>
-                                <th style="text-align: center;">Qty</th>
-                                <th style="text-align: right;">Amt</th>
+                            <tr style="border-bottom: 1px dashed #000;">
+                                <th style="text-align: left; padding-bottom: 4px;">Item</th>
+                                <th style="text-align: center; padding-bottom: 4px;">Qty</th>
+                                <th style="text-align: right; padding-bottom: 4px;">Amt</th>
                             </tr>
                         </thead>
                         <tbody>${itemsHtml}</tbody>
                     </table>
-                    <hr style="border-top: 1px dashed #000;">
-                    <h4 style="display: flex; justify-content: space-between; margin: 10px 0;">
-                        <span>TOTAL:</span>
+                    <div style="border-top: 1px dashed #000; margin: 8px 0;"></div>
+                    <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin: 8px 0;">
+                        <span>TOTAL PAYABLE:</span>
                         <span>₹${order.total}</span>
-                    </h4>
-                    <hr style="border-top: 1px dashed #000;">
-                    <p style="text-align: center; margin-top: 15px;">*** Thank You! Visit Again ***</p>
+                    </div>
+                    <div style="border-top: 1px dashed #000; margin: 8px 0;"></div>
+                    <p style="text-align: center; margin-top: 12px; font-size: 11px;">*** Thank You & Visit Again! ***</p>
                 </div>
             `;
 
