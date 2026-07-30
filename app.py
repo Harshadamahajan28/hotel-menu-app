@@ -1,30 +1,21 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from datetime import datetime
-import json
+from pymongo import MongoClient
 import os
 
 app = Flask(__name__)
 app.secret_key = 'royal_spice_secret_key_2026'
 
-DATA_FILE = 'orders.json'
-REVIEWS_FILE = 'reviews.json'
 ADMIN_PASSWORD = 'admin123'
 
-def load_data(filename):
-    if not os.path.exists(filename):
-        return []
-    try:
-        with open(filename, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception:
-        return []
+# 🌐 MongoDB Connection (Render च्या Environment Variable मधून URI आपोआप घेतली जाईल)
+DEFAULT_MONGO_URI = "mongodb+srv://admin:admin123@cluster0.gcG8b15.mongodb.net/hotel_db?retryWrites=true&w=majority"
+MONGO_URI = os.environ.get("MONGO_URI", DEFAULT_MONGO_URI)
 
-def save_data(filename, data):
-    try:
-        with open(filename, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=4, ensure_ascii=False)
-    except Exception as e:
-        print(f"Error saving data: {e}")
+client = MongoClient(MONGO_URI)
+db = client['hotel_database']
+orders_collection = db['orders']
+reviews_collection = db['reviews']
 
 @app.route('/')
 def home():
@@ -80,7 +71,7 @@ def logout():
 def admin():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    orders = load_data(DATA_FILE)
+    orders = list(orders_collection.find({}, {'_id': 0}).sort('id', -1))
     return render_template('admin.html', orders=orders)
 
 @app.route('/analytics')
@@ -91,9 +82,9 @@ def analytics():
 
 @app.route('/api/place-order', methods=['POST'])
 def place_order():
-    orders = load_data(DATA_FILE)
     data = request.json
-    order_id = len(orders) + 1
+    total_orders = orders_collection.count_documents({})
+    order_id = total_orders + 1
     today_str = datetime.now().strftime('%Y-%m-%d')
     
     new_order = {
@@ -108,26 +99,25 @@ def place_order():
         'time': datetime.now().strftime('%I:%M %p')
     }
     
-    orders.insert(0, new_order)
-    save_data(DATA_FILE, orders)
-    return jsonify({'success': True, 'order_id': new_order['id']})
+    orders_collection.insert_one(new_order)
+    return jsonify({'success': True, 'order_id': order_id})
 
 @app.route('/api/orders', methods=['GET'])
 def get_orders():
-    orders = load_data(DATA_FILE)
     target_date = request.args.get('date')
-
-    filtered_orders = orders
+    
     if target_date:
-        filtered_orders = [o for o in orders if o.get('date', '') == target_date]
+        orders = list(orders_collection.find({'date': target_date}, {'_id': 0}).sort('id', -1))
+    else:
+        orders = list(orders_collection.find({}, {'_id': 0}).sort('id', -1))
 
-    total_revenue = sum(order['total'] for order in filtered_orders if order['status'] == 'Completed')
-    total_orders = len(filtered_orders)
-    completed_orders = len([o for o in filtered_orders if o['status'] == 'Completed'])
-    pending_orders = len([o for o in filtered_orders if o['status'] == 'Pending'])
+    total_revenue = sum(order['total'] for order in orders if order['status'] == 'Completed')
+    total_orders = len(orders)
+    completed_orders = len([o for o in orders if o['status'] == 'Completed'])
+    pending_orders = len([o for o in orders if o['status'] == 'Pending'])
 
     return jsonify({
-        'orders': filtered_orders,
+        'orders': orders,
         'stats': {
             'total_revenue': total_revenue,
             'total_orders': total_orders,
@@ -138,37 +128,30 @@ def get_orders():
 
 @app.route('/api/update-status', methods=['POST'])
 def update_status():
-    orders = load_data(DATA_FILE)
     data = request.json
     order_id = data.get('order_id')
     new_status = data.get('status')
     
-    for order in orders:
-        if order['id'] == order_id:
-            order['status'] = new_status
-            save_data(DATA_FILE, orders)
-            return jsonify({'success': True})
-            
+    result = orders_collection.update_one({'id': order_id}, {'$set': {'status': new_status}})
+    if result.modified_count > 0:
+        return jsonify({'success': True})
     return jsonify({'success': False})
 
 @app.route('/api/submit-review', methods=['POST'])
 def submit_review():
-    reviews = load_data(REVIEWS_FILE)
     data = request.json
-    
     new_review = {
         'name': data.get('name', 'Anonymous'),
         'rating': int(data.get('rating', 5)),
         'comment': data.get('comment', ''),
         'date': datetime.now().strftime('%Y-%m-%d %I:%M %p')
     }
-    reviews.insert(0, new_review)
-    save_data(REVIEWS_FILE, reviews)
+    reviews_collection.insert_one(new_review)
     return jsonify({'success': True})
 
 @app.route('/api/reviews', methods=['GET'])
 def get_reviews():
-    reviews = load_data(REVIEWS_FILE)
+    reviews = list(reviews_collection.find({}, {'_id': 0}).sort('_id', -1))
     avg_rating = round(sum(r['rating'] for r in reviews) / len(reviews), 1) if reviews else 5.0
     return jsonify({
         'reviews': reviews,
