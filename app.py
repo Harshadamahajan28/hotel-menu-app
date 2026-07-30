@@ -9,8 +9,7 @@ app.secret_key = 'royal_spice_secret_key_2026'
 ADMIN_PASSWORD = 'admin123'
 
 # 🌐 MongoDB Connection (Render च्या Environment Variable मधून URI आपोआप घेतली जाईल)
-DEFAULT_MONGO_URI = "mongodb+srv://admin:admin123@cluster0.gcG8b15.mongodb.net/hotel_db?retryWrites=true&w=majority"
-MONGO_URI = os.environ.get("MONGO_URI", DEFAULT_MONGO_URI)
+MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/hotel_db")
 
 client = MongoClient(MONGO_URI)
 db = client['hotel_database']
