@@ -14,14 +14,17 @@ def load_data(filename):
     if not os.path.exists(filename):
         return []
     try:
-        with open(filename, 'r') as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             return json.load(f)
     except Exception:
         return []
 
 def save_data(filename, data):
-    with open(filename, 'w') as f:
-        json.dump(data, f, indent=4)
+    try:
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+    except Exception as e:
+        print(f"Error saving data: {e}")
 
 @app.route('/')
 def home():
@@ -148,7 +151,6 @@ def update_status():
             
     return jsonify({'success': False})
 
-# ⭐ Review & Feedback APIs
 @app.route('/api/submit-review', methods=['POST'])
 def submit_review():
     reviews = load_data(REVIEWS_FILE)
