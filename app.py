@@ -8,6 +8,9 @@ app.secret_key = 'royal_spice_secret_key_2026'
 
 ADMIN_PASSWORD = 'admin123'
 
+# Backup list: जर डेटाबेस स्लो असेल तरी ऑर्डर मिस होणार नाही
+memory_orders = []
+
 # MongoDB Connection Setup
 MONGO_URI = os.environ.get("MONGO_URI", "")
 orders_collection = None
@@ -15,12 +18,13 @@ reviews_collection = None
 
 if MONGO_URI:
     try:
-        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=2000, connectTimeoutMS=2000)
+        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=3000, connectTimeoutMS=3000)
         db = client['hotel_database']
         orders_collection = db['orders']
         reviews_collection = db['reviews']
+        print("Connected to MongoDB successfully")
     except Exception as e:
-        print("MongoDB Conn Error:", e)
+        print("MongoDB Conn Exception:", e)
 
 @app.route('/')
 def home():
@@ -70,14 +74,20 @@ def logout():
 def admin():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
+    
     orders = []
+    # 1. MongoDB मधून ऑर्डर्स आणा
     if orders_collection is not None:
         try:
             orders = list(orders_collection.find({}, {'_id': 0}))
-            # Newest orders first
-            orders.sort(key=lambda x: str(x.get('id', '')), reverse=True)
         except Exception as e:
             print("Fetch orders error:", e)
+    
+    # 2. जर MongoDB रिकामे असेल तर मेमरीमधील ऑर्डर्स दाखवा
+    if not orders and memory_orders:
+        orders = memory_orders.copy()
+    
+    orders.sort(key=lambda x: str(x.get('id', '')), reverse=True)
     return render_template('admin.html', orders=orders)
 
 @app.route('/analytics')
@@ -86,13 +96,11 @@ def analytics():
         return redirect(url_for('login'))
     return render_template('analytics.html')
 
-# 🚀 Kitchen & Analytics साठी परफेक्ट ऑर्डर सेविंग रूट
 @app.route('/api/place-order', methods=['POST'])
 def place_order():
     try:
         data = request.get_json(silent=True) or {}
         
-        # Simple Order ID
         gen_id = int(datetime.now().timestamp() % 10000)
         today_str = datetime.now().strftime('%Y-%m-%d')
         
@@ -108,13 +116,20 @@ def place_order():
             'time': datetime.now().strftime('%I:%M %p')
         }
         
+        # लोकल मेमरीमध्ये नक्की सेव्ह करा
+        memory_orders.append(new_order)
+        
+        # MongoDB मध्येही सेव्ह करण्याचा प्रयत्न करा
         if orders_collection is not None:
-            orders_collection.insert_one(new_order)
+            try:
+                orders_collection.insert_one(new_order)
+            except Exception as db_e:
+                print("DB Insert Failed, saved in memory:", db_e)
 
         return jsonify({'success': True, 'order_id': gen_id})
 
     except Exception as e:
-        print("Order Error:", e)
+        print("Place order exception:", e)
         return jsonify({'success': True, 'order_id': 101})
 
 @app.route('/api/orders', methods=['GET'])
@@ -123,11 +138,15 @@ def get_orders():
     if orders_collection is not None:
         try:
             orders = list(orders_collection.find({}, {'_id': 0}))
-            orders.sort(key=lambda x: str(x.get('id', '')), reverse=True)
         except Exception as e:
             print("Get orders error:", e)
 
+    if not orders and memory_orders:
+        orders = memory_orders.copy()
+
+    orders.sort(key=lambda x: str(x.get('id', '')), reverse=True)
     total_revenue = sum(float(o.get('total', 0)) for o in orders if o.get('status') == 'Completed')
+    
     return jsonify({
         'orders': orders,
         'stats': {
@@ -144,8 +163,19 @@ def update_status():
         data = request.get_json(silent=True) or {}
         order_id = data.get('order_id')
         new_status = str(data.get('status'))
+        
+        # Update memory
+        for o in memory_orders:
+            if str(o.get('id')) == str(order_id):
+                o['status'] = new_status
+                
+        # Update DB
         if orders_collection is not None:
-            orders_collection.update_one({'id': int(order_id)}, {'$set': {'status': new_status}})
+            try:
+                orders_collection.update_one({'id': int(order_id)}, {'$set': {'status': new_status}})
+            except:
+                pass
+
         return jsonify({'success': True})
     except:
         return jsonify({'success': True})
