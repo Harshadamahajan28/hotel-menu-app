@@ -8,8 +8,9 @@ app.secret_key = 'royal_spice_secret_key_2026'
 
 ADMIN_PASSWORD = 'admin123'
 
-# Backup list: मेमरीमध्ये ऑर्डर्स सेव्ह ठेवण्यासाठी
+# Global in-memory backups
 memory_orders = []
+memory_reviews = []
 
 # MongoDB Connection Setup
 MONGO_URI = os.environ.get("MONGO_URI", "")
@@ -99,7 +100,6 @@ def place_order():
     try:
         data = request.get_json(silent=True) or {}
         
-        # Order ID 1, 2, 3... साध्या नंबरमध्ये जनरेट करण्यासाठी:
         gen_id = len(memory_orders) + 1
         if orders_collection is not None:
             try:
@@ -182,13 +182,54 @@ def update_status():
     except:
         return jsonify({'success': True})
 
+# 🌟 ५०% फिक्स: FEEDBACK / REVIEW SAVE ROUTE
 @app.route('/api/submit-review', methods=['POST'])
 def submit_review():
-    return jsonify({'success': True})
+    try:
+        data = request.get_json(silent=True) or {}
+        new_review = {
+            'name': str(data.get('name', 'Anonymous')),
+            'rating': int(data.get('rating', 5)),
+            'comment': str(data.get('comment', '')),
+            'date': datetime.now().strftime('%Y-%m-%d %I:%M %p')
+        }
+        
+        memory_reviews.append(new_review)
+        
+        if reviews_collection is not None:
+            try:
+                reviews_collection.insert_one(new_review)
+            except Exception as e:
+                print("Review DB error:", e)
 
+        return jsonify({'success': True})
+    except Exception as e:
+        print("Submit review exception:", e)
+        return jsonify({'success': True})
+
+# 🌟 ५०% फिक्स: FEEDBACK / REVIEW FETCH ROUTE
 @app.route('/api/reviews', methods=['GET'])
 def get_reviews():
-    return jsonify({'reviews': [], 'avg_rating': 5.0, 'total_reviews': 0})
+    reviews = []
+    if reviews_collection is not None:
+        try:
+            reviews = list(reviews_collection.find({}, {'_id': 0}))
+        except Exception as e:
+            print("Get reviews DB error:", e)
+
+    if not reviews and memory_reviews:
+        reviews = memory_reviews.copy()
+
+    total_rev = len(reviews)
+    avg_rating = 5.0
+    if total_rev > 0:
+        avg_rating = round(sum(int(r.get('rating', 5)) for r in reviews) / total_rev, 1)
+
+    return jsonify({
+        'reviews': reviews,
+        'avg_rating': avg_rating,
+        'total_reviews': total_rev
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)
