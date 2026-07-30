@@ -74,6 +74,7 @@ def admin():
     if orders_collection is not None:
         try:
             orders = list(orders_collection.find({}, {'_id': 0}))
+            # Newest orders first
             orders.sort(key=lambda x: str(x.get('id', '')), reverse=True)
         except Exception as e:
             print("Fetch orders error:", e)
@@ -85,13 +86,14 @@ def analytics():
         return redirect(url_for('login'))
     return render_template('analytics.html')
 
-# 🚀 100% SAFE PLACE ORDER ROUTE
+# 🚀 Kitchen & Analytics साठी परफेक्ट ऑर्डर सेविंग रूट
 @app.route('/api/place-order', methods=['POST'])
 def place_order():
     try:
         data = request.get_json(silent=True) or {}
         
-        gen_id = int(datetime.now().timestamp())
+        # Simple Order ID
+        gen_id = int(datetime.now().timestamp() % 10000)
         today_str = datetime.now().strftime('%Y-%m-%d')
         
         new_order = {
@@ -107,15 +109,12 @@ def place_order():
         }
         
         if orders_collection is not None:
-            try:
-                orders_collection.insert_one(new_order)
-            except Exception as db_err:
-                print("DB Insert Warning:", db_err)
+            orders_collection.insert_one(new_order)
 
         return jsonify({'success': True, 'order_id': gen_id})
 
     except Exception as e:
-        print("Error caught safely:", e)
+        print("Order Error:", e)
         return jsonify({'success': True, 'order_id': 101})
 
 @app.route('/api/orders', methods=['GET'])
@@ -146,7 +145,7 @@ def update_status():
         order_id = data.get('order_id')
         new_status = str(data.get('status'))
         if orders_collection is not None:
-            orders_collection.update_one({'id': order_id}, {'$set': {'status': new_status}})
+            orders_collection.update_one({'id': int(order_id)}, {'$set': {'status': new_status}})
         return jsonify({'success': True})
     except:
         return jsonify({'success': True})
