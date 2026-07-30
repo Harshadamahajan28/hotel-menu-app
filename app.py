@@ -8,16 +8,21 @@ app.secret_key = 'royal_spice_secret_key_2026'
 
 ADMIN_PASSWORD = 'admin123'
 
-# 🌐 MongoDB Connection Setup
-MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/hotel_db")
+# 🌐 Safe MongoDB Connection Setup with Short Timeout
+MONGO_URI = os.environ.get("MONGO_URI", "")
 
-try:
-    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-    db = client['hotel_database']
-    orders_collection = db['orders']
-    reviews_collection = db['reviews']
-except Exception as e:
-    print("Database Connection Error:", e)
+orders_collection = None
+reviews_collection = None
+
+if MONGO_URI:
+    try:
+        # serverSelectionTimeoutMS=2000 मुळे वेबसाईट कधीच २ सेकंदापेक्षा जास्त अडकणार नाही
+        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=2000, connectTimeoutMS=2000)
+        db = client['hotel_database']
+        orders_collection = db['orders']
+        reviews_collection = db['reviews']
+    except Exception as e:
+        print("MongoDB Connection Warning:", e)
 
 @app.route('/')
 def home():
@@ -73,11 +78,13 @@ def logout():
 def admin():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    try:
-        orders = list(orders_collection.find({}, {'_id': 0}))
-        orders.sort(key=lambda x: x.get('id', 0), reverse=True)
-    except Exception as e:
-        orders = []
+    orders = []
+    if orders_collection is not None:
+        try:
+            orders = list(orders_collection.find({}, {'_id': 0}))
+            orders.sort(key=lambda x: x.get('id', 0), reverse=True)
+        except Exception as e:
+            print("Fetch Orders Error:", e)
     return render_template('admin.html', orders=orders)
 
 @app.route('/analytics')
@@ -91,100 +98,110 @@ def place_order():
     try:
         data = request.get_json(silent=True) or {}
         
-        # Safe count of documents
-        try:
-            total_orders = orders_collection.count_documents({})
-        except:
-            total_orders = 0
-
-        order_id = total_orders + 1
-        today_str = datetime.now().strftime('%Y-%m-%d')
-        
-        new_order = {
-            'id': int(order_id),
-            'customer_name': str(data.get('name', 'Guest')),
-            'table_no': str(data.get('table_no', 'N/A')),
-            'phone': str(data.get('phone', 'N/A')),
-            'items': data.get('items', []),
-            'total': float(data.get('total', 0)),
-            'status': 'Pending',
-            'date': today_str,
-            'time': datetime.now().strftime('%I:%M %p')
-        }
-        
-        orders_collection.insert_one(new_order)
-        return jsonify({'success': True, 'order_id': order_id})
+        if orders_collection is not None:
+            try:
+                total_orders = orders_collection.count_documents({})
+            except:
+                total_orders = 0
+            
+            order_id = total_orders + 1
+            today_str = datetime.now().strftime('%Y-%m-%d')
+            
+            new_order = {
+                'id': int(order_id),
+                'customer_name': str(data.get('name', 'Guest')),
+                'table_no': str(data.get('table_no', 'N/A')),
+                'phone': str(data.get('phone', 'N/A')),
+                'items': data.get('items', []),
+                'total': float(data.get('total', 0)),
+                'status': 'Pending',
+                'date': today_str,
+                'time': datetime.now().strftime('%I:%M %p')
+            }
+            
+            orders_collection.insert_one(new_order)
+            return jsonify({'success': True, 'order_id': order_id})
+        else:
+            return jsonify({'success': False, 'error': 'Database Connection Issue'}), 500
     except Exception as e:
-        print("Place Order Error:", str(e))
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/orders', methods=['GET'])
 def get_orders():
     target_date = request.args.get('date')
-    try:
-        if target_date:
-            orders = list(orders_collection.find({'date': target_date}, {'_id': 0}))
-        else:
-            orders = list(orders_collection.find({}, {'_id': 0}))
+    orders = []
+    if orders_collection is not None:
+        try:
+            if target_date:
+                orders = list(orders_collection.find({'date': target_date}, {'_id': 0}))
+            else:
+                orders = list(orders_collection.find({}, {'_id': 0}))
 
-        orders.sort(key=lambda x: x.get('id', 0), reverse=True)
+            orders.sort(key=lambda x: x.get('id', 0), reverse=True)
+        except Exception as e:
+            print("Get Orders Error:", e)
 
-        total_revenue = sum(float(order.get('total', 0)) for order in orders if order.get('status') == 'Completed')
-        total_orders = len(orders)
-        completed_orders = len([o for o in orders if o.get('status') == 'Completed'])
-        pending_orders = len([o for o in orders if o.get('status') == 'Pending'])
+    total_revenue = sum(float(order.get('total', 0)) for order in orders if order.get('status') == 'Completed')
+    total_orders = len(orders)
+    completed_orders = len([o for o in orders if o.get('status') == 'Completed'])
+    pending_orders = len([o for o in orders if o.get('status') == 'Pending'])
 
-        return jsonify({
-            'orders': orders,
-            'stats': {
-                'total_revenue': total_revenue,
-                'total_orders': total_orders,
-                'completed_orders': completed_orders,
-                'pending_orders': pending_orders
-            }
-        })
-    except Exception as e:
-        return jsonify({'orders': [], 'stats': {'total_revenue': 0, 'total_orders': 0, 'completed_orders': 0, 'pending_orders': 0}})
+    return jsonify({
+        'orders': orders,
+        'stats': {
+            'total_revenue': total_revenue,
+            'total_orders': total_orders,
+            'completed_orders': completed_orders,
+            'pending_orders': pending_orders
+        }
+    })
 
 @app.route('/api/update-status', methods=['POST'])
 def update_status():
-    try:
-        data = request.get_json(silent=True) or {}
-        order_id = int(data.get('order_id'))
-        new_status = str(data.get('status'))
-        
-        result = orders_collection.update_one({'id': order_id}, {'$set': {'status': new_status}})
-        return jsonify({'success': True})
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
+    if orders_collection is not None:
+        try:
+            data = request.get_json(silent=True) or {}
+            order_id = int(data.get('order_id'))
+            new_status = str(data.get('status'))
+            
+            orders_collection.update_one({'id': order_id}, {'$set': {'status': new_status}})
+            return jsonify({'success': True})
+        except Exception as e:
+            return jsonify({'success': False, 'error': str(e)})
+    return jsonify({'success': False})
 
 @app.route('/api/submit-review', methods=['POST'])
 def submit_review():
-    try:
-        data = request.get_json(silent=True) or {}
-        new_review = {
-            'name': str(data.get('name', 'Anonymous')),
-            'rating': int(data.get('rating', 5)),
-            'comment': str(data.get('comment', '')),
-            'date': datetime.now().strftime('%Y-%m-%d %I:%M %p')
-        }
-        reviews_collection.insert_one(new_review)
-        return jsonify({'success': True})
-    except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
+    if reviews_collection is not None:
+        try:
+            data = request.get_json(silent=True) or {}
+            new_review = {
+                'name': str(data.get('name', 'Anonymous')),
+                'rating': int(data.get('rating', 5)),
+                'comment': str(data.get('comment', '')),
+                'date': datetime.now().strftime('%Y-%m-%d %I:%M %p')
+            }
+            reviews_collection.insert_one(new_review)
+            return jsonify({'success': True})
+        except Exception as e:
+            return jsonify({'success': False, 'error': str(e)})
+    return jsonify({'success': False})
 
 @app.route('/api/reviews', methods=['GET'])
 def get_reviews():
-    try:
-        reviews = list(reviews_collection.find({}, {'_id': 0}))
-        avg_rating = round(sum(r.get('rating', 5) for r in reviews) / len(reviews), 1) if reviews else 5.0
-        return jsonify({
-            'reviews': reviews,
-            'avg_rating': avg_rating,
-            'total_reviews': len(reviews)
-        })
-    except Exception as e:
-        return jsonify({'reviews': [], 'avg_rating': 5.0, 'total_reviews': 0})
+    reviews = []
+    if reviews_collection is not None:
+        try:
+            reviews = list(reviews_collection.find({}, {'_id': 0}))
+        except Exception as e:
+            print("Get Reviews Error:", e)
+
+    avg_rating = round(sum(r.get('rating', 5) for r in reviews) / len(reviews), 1) if reviews else 5.0
+    return jsonify({
+        'reviews': reviews,
+        'avg_rating': avg_rating,
+        'total_reviews': len(reviews)
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)
