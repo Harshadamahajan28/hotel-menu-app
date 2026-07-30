@@ -7,20 +7,21 @@ app = Flask(__name__)
 app.secret_key = 'royal_spice_secret_key_2026'
 
 DATA_FILE = 'orders.json'
-ADMIN_PASSWORD = 'admin123'  # 🔑 Admin Password
+REVIEWS_FILE = 'reviews.json'
+ADMIN_PASSWORD = 'admin123'
 
-def load_orders():
-    if not os.path.exists(DATA_FILE):
+def load_data(filename):
+    if not os.path.exists(filename):
         return []
     try:
-        with open(DATA_FILE, 'r') as f:
+        with open(filename, 'r') as f:
             return json.load(f)
     except Exception:
         return []
 
-def save_orders(orders):
-    with open(DATA_FILE, 'w') as f:
-        json.dump(orders, f, indent=4)
+def save_data(filename, data):
+    with open(filename, 'w') as f:
+        json.dump(data, f, indent=4)
 
 @app.route('/')
 def home():
@@ -76,7 +77,7 @@ def logout():
 def admin():
     if not session.get('logged_in'):
         return redirect(url_for('login'))
-    orders = load_orders()
+    orders = load_data(DATA_FILE)
     return render_template('admin.html', orders=orders)
 
 @app.route('/analytics')
@@ -87,7 +88,7 @@ def analytics():
 
 @app.route('/api/place-order', methods=['POST'])
 def place_order():
-    orders = load_orders()
+    orders = load_data(DATA_FILE)
     data = request.json
     order_id = len(orders) + 1
     today_str = datetime.now().strftime('%Y-%m-%d')
@@ -105,13 +106,13 @@ def place_order():
     }
     
     orders.insert(0, new_order)
-    save_orders(orders)
+    save_data(DATA_FILE, orders)
     return jsonify({'success': True, 'order_id': new_order['id']})
 
 @app.route('/api/orders', methods=['GET'])
 def get_orders():
-    orders = load_orders()
-    target_date = request.args.get('date') # Filter by date if provided
+    orders = load_data(DATA_FILE)
+    target_date = request.args.get('date')
 
     filtered_orders = orders
     if target_date:
@@ -134,7 +135,7 @@ def get_orders():
 
 @app.route('/api/update-status', methods=['POST'])
 def update_status():
-    orders = load_orders()
+    orders = load_data(DATA_FILE)
     data = request.json
     order_id = data.get('order_id')
     new_status = data.get('status')
@@ -142,10 +143,36 @@ def update_status():
     for order in orders:
         if order['id'] == order_id:
             order['status'] = new_status
-            save_orders(orders)
+            save_data(DATA_FILE, orders)
             return jsonify({'success': True})
             
     return jsonify({'success': False})
+
+# ⭐ Review & Feedback APIs
+@app.route('/api/submit-review', methods=['POST'])
+def submit_review():
+    reviews = load_data(REVIEWS_FILE)
+    data = request.json
+    
+    new_review = {
+        'name': data.get('name', 'Anonymous'),
+        'rating': int(data.get('rating', 5)),
+        'comment': data.get('comment', ''),
+        'date': datetime.now().strftime('%Y-%m-%d %I:%M %p')
+    }
+    reviews.insert(0, new_review)
+    save_data(REVIEWS_FILE, reviews)
+    return jsonify({'success': True})
+
+@app.route('/api/reviews', methods=['GET'])
+def get_reviews():
+    reviews = load_data(REVIEWS_FILE)
+    avg_rating = round(sum(r['rating'] for r in reviews) / len(reviews), 1) if reviews else 5.0
+    return jsonify({
+        'reviews': reviews,
+        'avg_rating': avg_rating,
+        'total_reviews': len(reviews)
+    })
 
 if __name__ == '__main__':
     app.run(debug=True)
