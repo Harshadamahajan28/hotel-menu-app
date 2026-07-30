@@ -3,102 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - The Royal Spice</title>
+    <title>Kitchen Admin - The Royal Spice</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #0f172a; color: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
-        .order-card { background-color: #1e293b; border: 1px solid #334155; border-radius: 12px; }
-        .badge-pending { background-color: #ffc107; color: #000; }
-        .badge-completed { background-color: #198754; color: #fff; }
+        body { background-color: #0d1117; color: #ffffff; font-family: 'Segoe UI', sans-serif; }
+        .card-custom { background-color: #161b22; border: 1px solid #30363d; border-radius: 12px; }
+        .table-custom { color: #ffffff !important; }
+        .table-custom thead th { background-color: #21262d !important; color: #f39c12 !important; border-bottom: 2px solid #f39c12 !important; padding: 12px; }
+        .table-custom td { padding: 12px; vertical-align: middle; }
+        .badge-item { background-color: #21262d; color: #58a6ff; border: 1px solid #388bfd; margin: 2px; padding: 4px 8px; font-size: 13px; }
+        
+        /* Print Modal Styling */
+        @media print {
+            body * { visibility: hidden; }
+            #printableReceipt, #printableReceipt * { visibility: visible; }
+            #printableReceipt { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+        }
+        .receipt-box { background: #ffffff; color: #000000; padding: 20px; border-radius: 8px; font-family: 'Courier New', Courier, monospace; }
     </style>
 </head>
 <body>
 
     <div class="container py-4">
-        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary">
-            <h2 class="fw-bold text-warning"><i class="fa-solid fa-utensils"></i> Kitchen & Admin Dashboard</h2>
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary">
             <div>
-                <button class="btn btn-outline-warning btn-sm me-2" onclick="fetchOrders()"><i class="fa-solid fa-rotate"></i> Refresh</button>
-                <a href="/" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-house"></i> Home</a>
+                <h2 class="fw-bold text-warning m-0"><i class="fa-solid fa-kitchen-set"></i> Kitchen Admin Panel</h2>
+                <span class="text-light opacity-75">Live Table Orders & Status Management</span>
+            </div>
+            <div>
+                <a href="/analytics" class="btn btn-outline-warning me-2"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+                <a href="/logout" class="btn btn-outline-danger"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
             </div>
         </div>
 
-        <div class="row" id="ordersContainer">
-            <!-- Dynamic Orders Will Load Here -->
+        <div class="card card-custom p-3">
+            <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-bell"></i> Live Orders List</h5>
+            <div class="table-responsive">
+                <table class="table table-custom align-middle m-0">
+                    <thead>
+                        <tr>
+                            <th>Order ID / Date</th>
+                            <th>Customer & Table</th>
+                            <th>Items Ordered</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTable">
+                        <tr><td colspan="6" class="text-center py-4 text-light opacity-50">Loading orders...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <script>
-        async function fetchOrders() {
-            const res = await fetch('/api/orders');
-            const data = await res.json();
-            const container = document.getElementById('ordersContainer');
-
-            if (data.orders.length === 0) {
-                container.innerHTML = '<div class="col-12 text-center py-5 text-muted"><h4>No orders received yet.</h4></div>';
-                return;
-            }
-
-            container.innerHTML = '';
-            data.orders.forEach(order => {
-                let itemsList = order.items.map(i => `
-                    <div class="d-flex justify-content-between small border-bottom border-secondary py-1">
-                        <span>${i.type === 'Non-Veg' ? '🔴' : '🟢'} ${i.name} (${i.taste}) x ${i.qty}</span>
-                        <span class="fw-bold">₹${i.price * i.qty}</span>
-                    </div>
-                `).join('');
-
-                let statusBadge = order.status === 'Completed' 
-                    ? '<span class="badge badge-completed p-2">Completed</span>'
-                    : '<span class="badge badge-pending p-2">Pending</span>';
-
-                container.innerHTML += `
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card order-card text-white p-3 shadow-lg">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h5 class="m-0 text-warning fw-bold">Order #${order.id}</h5>
-                                <span>${statusBadge}</span>
-                            </div>
-                            
-                            <div class="bg-dark p-2 rounded mb-3">
-                                <div><i class="fa-solid fa-user text-info"></i> <strong>Name:</strong> ${order.customer_name}</div>
-                                <div><i class="fa-solid fa-chair text-warning"></i> <strong>Table:</strong> ${order.table_no}</div>
-                                <div><i class="fa-solid fa-phone text-success"></i> <strong>Phone:</strong> ${order.phone || 'N/A'}</div>
-                                <div class="text-muted small"><i class="fa-solid fa-clock"></i> Time: ${order.time}</div>
-                            </div>
-
-                            <h6 class="fw-bold text-light">Items Ordered:</h6>
-                            <div class="mb-3">${itemsList}</div>
-
-                            <div class="d-flex justify-content-between align-items-center fw-bold fs-5 mb-3 text-success">
-                                <span>Total:</span>
-                                <span>₹${order.total}</span>
-                            </div>
-
-                            ${order.status === 'Pending' ? `
-                                <button class="btn btn-success w-100 fw-bold" onclick="updateStatus(${order.id}, 'Completed')">
-                                    <i class="fa-solid fa-check"></i> Mark as Completed
-                                </button>
-                            ` : `
-                                <button class="btn btn-secondary w-100 disabled">Order Served</button>
-                            `}
+    <!-- Receipt Modal -->
+    <div class="modal fade" id="receiptModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark border-secondary">
+                <div class="modal-body p-4">
+                    <div id="printableReceipt" class="receipt-box">
+                        <div class="text-center mb-3">
+                            <h3 class="fw-bold m-0">👑 THE ROYAL SPICE</h3>
+                            <small>Fine Dining & Royal Cuisine</small><br>
+                            <small>Main Boulevard, City Center</small><br>
+                            <small>GSTIN: 27AAAAA0000A1Z5</small>
+                            <hr style="border-top: 1px dashed #000; margin: 8px 0;">
+                        </div>
+                        <div class="d-flex justify-content-between small">
+                            <span id="r_orderId">Order: #0</span>
+                            <span id="r_date">Date: --</span>
+                        </div>
+                        <div class="d-flex justify-content-between small mb-2">
+                            <span id="r_customer">Name: --</span>
+                            <span id="r_table">Table: --</span>
+                        </div>
+                        <hr style="border-top: 1px dashed #000; margin: 8px 0;">
+                        
+                        <table class="w-100 small mb-2">
+                            <thead>
+                                <tr>
+                                    <th class="text-start">Item</th>
+                                    <th class="text-center">Qty</th>
+                                    <th class="text-end">Price</th>
+                                </tr>
+                            </thead>
+                            <tbody id="r_itemsList">
+                            </tbody>
+                        </table>
+                        
+                        <hr style="border-top: 1px dashed #000; margin: 8px 0;">
+                        <div class="d-flex justify-content-between fw-bold fs-6">
+                            <span>TOTAL AMOUNT:</span>
+                            <span id="r_total">₹0</span>
+                        </div>
+                        <hr style="border-top: 1px dashed #000; margin: 8px 0;">
+                        <div class="text-center small mt-3">
+                            <p class="m-0">Thank you for dining with us!</p>
+                            <small>Please visit again 🌸</small>
                         </div>
                     </div>
-                `;
-            });
+                </div>
+                <div class="modal-footer border-secondary no-print">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-warning fw-bold" onclick="window.print()"><i class="fa-solid fa-print"></i> Print Bill</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let globalOrders = [];
+
+        async function fetchOrders() {
+            try {
+                const res = await fetch('/api/orders');
+                const data = await res.json();
+                globalOrders = data.orders || [];
+
+                const tbody = document.getElementById('ordersTable');
+                if (globalOrders.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-light opacity-50">No active orders yet.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                globalOrders.forEach(order => {
+                    let itemsHTML = '';
+                    if (order.items && order.items.length > 0) {
+                        order.items.forEach(item => {
+                            itemsHTML += `<span class="badge badge-item">${item.name} (x${item.qty || 1})</span> `;
+                        });
+                    }
+
+                    const isCompleted = order.status === 'Completed';
+                    const statusSelect = `
+                        <select class="form-select form-select-sm ${isCompleted ? 'bg-success text-white' : 'bg-warning text-dark'} fw-bold" 
+                                onchange="updateStatus(${order.id}, this.value)" style="width: 130px;">
+                            <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="Completed" ${order.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                        </select>
+                    `;
+
+                    const printBtn = isCompleted 
+                        ? `<button class="btn btn-sm btn-outline-info" onclick="openBill(${order.id})"><i class="fa-solid fa-receipt"></i> Print Bill</button>`
+                        : `<button class="btn btn-sm btn-outline-secondary" disabled><i class="fa-solid fa-receipt"></i> Print Bill</button>`;
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><strong class="text-warning">#${order.id}</strong><br><small class="text-light opacity-50">${order.date || ''} ${order.time || ''}</small></td>
+                            <td><strong class="text-white">${order.customer_name}</strong><br><small class="text-info">Table: ${order.table_no}</small></td>
+                            <td>${itemsHTML}</td>
+                            <td class="text-success fw-bold">₹${order.total}</td>
+                            <td>${statusSelect}</td>
+                            <td>${printBtn}</td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                console.error("Error fetching orders:", err);
+            }
         }
 
-        async function updateStatus(orderId, status) {
+        async function updateStatus(orderId, newStatus) {
             await fetch('/api/update-status', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ order_id: orderId, status: status })
+                body: JSON.stringify({ order_id: orderId, status: newStatus })
             });
             fetchOrders();
         }
 
-        // Auto refresh every 5 seconds
+        function openBill(orderId) {
+            const order = globalOrders.find(o => o.id === orderId);
+            if (!order) return;
+
+            document.getElementById('r_orderId').innerText = `Order: #${order.id}`;
+            document.getElementById('r_date').innerText = `Date: ${order.date || 'Today'} ${order.time || ''}`;
+            document.getElementById('r_customer').innerText = `Name: ${order.customer_name}`;
+            document.getElementById('r_table').innerText = `Table: ${order.table_no}`;
+            document.getElementById('r_total').innerText = `₹${order.total}`;
+
+            const itemsTbody = document.getElementById('r_itemsList');
+            itemsTbody.innerHTML = '';
+            if (order.items && order.items.length > 0) {
+                order.items.forEach(item => {
+                    itemsTbody.innerHTML += `
+                        <tr>
+                            <td class="text-start">${item.name}</td>
+                            <td class="text-center">${item.qty || 1}</td>
+                            <td class="text-end">₹${(item.price || 0) * (item.qty || 1)}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('receiptModal'));
+            modal.show();
+        }
+
         setInterval(fetchOrders, 5000);
         fetchOrders();
     </script>
