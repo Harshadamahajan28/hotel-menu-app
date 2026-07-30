@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Day-Wise Analytics - The Royal Spice</title>
+    <title>Business Analytics - The Royal Spice</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -45,14 +45,15 @@
         <!-- Header -->
         <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary flex-wrap gap-2">
             <div>
-                <h2 class="fw-bold text-warning m-0"><i class="fa-solid fa-chart-line"></i> Day-Wise Analytics</h2>
-                <span class="text-light opacity-75">Daily Sales & Order Performance Tracker</span>
+                <h2 class="fw-bold text-warning m-0"><i class="fa-solid fa-chart-line"></i> Business Analytics Dashboard</h2>
+                <span class="text-light opacity-75">Sales & Order Performance Tracker</span>
             </div>
             
-            <!-- Date Filter Picker -->
+            <!-- Date Filter Picker (With Reset Button) -->
             <div class="d-flex align-items-center gap-2">
-                <label for="dateFilter" class="fw-bold text-warning small text-nowrap">Select Date:</label>
+                <label for="dateFilter" class="fw-bold text-warning small text-nowrap">Filter Date:</label>
                 <input type="date" id="dateFilter" class="form-control bg-dark text-white border-secondary" onchange="loadAnalytics()">
+                <button class="btn btn-sm btn-outline-warning text-nowrap" onclick="resetDateFilter()">Show All</button>
             </div>
 
             <div>
@@ -67,7 +68,7 @@
                 <div class="card card-custom p-3 border-start border-success border-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <span class="text-uppercase fw-bold text-success small">Selected Day Revenue</span>
+                            <span class="text-uppercase fw-bold text-success small">Total Revenue</span>
                             <h2 class="text-white fw-bold mt-2 mb-0">₹<span id="totalRevenue">0</span></h2>
                         </div>
                         <i class="fa-solid fa-indian-rupee-sign text-success stat-icon"></i>
@@ -79,7 +80,7 @@
                 <div class="card card-custom p-3 border-start border-warning border-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <span class="text-uppercase fw-bold text-warning small">Selected Day Orders</span>
+                            <span class="text-uppercase fw-bold text-warning small">Total Orders</span>
                             <h2 class="text-white fw-bold mt-2 mb-0"><span id="totalOrders">0</span></h2>
                         </div>
                         <i class="fa-solid fa-receipt text-warning stat-icon"></i>
@@ -127,12 +128,12 @@
             <!-- Complete Order History Table -->
             <div class="col-md-8">
                 <div class="card card-custom p-3">
-                    <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-list-check"></i> Orders History (<span id="displayDateLabel">Today</span>)</h5>
+                    <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-list-check"></i> Orders History (<span id="displayDateLabel">All Time</span>)</h5>
                     <div class="table-responsive">
                         <table class="table table-custom align-middle m-0">
                             <thead>
                                 <tr>
-                                    <th>Order ID</th>
+                                    <th>Order ID / Date</th>
                                     <th>Customer / Table</th>
                                     <th>Ordered Items</th>
                                     <th>Amount</th>
@@ -150,15 +151,13 @@
     </div>
 
     <script>
-        // Set today's date in picker by default
-        document.getElementById('dateFilter').valueAsDate = new Date();
-
         async function loadAnalytics() {
             try {
                 const selectedDate = document.getElementById('dateFilter').value;
-                document.getElementById('displayDateLabel').innerText = selectedDate || 'All Time';
+                document.getElementById('displayDateLabel').innerText = selectedDate ? selectedDate : 'All Time';
 
-                const res = await fetch(`/api/orders?date=${selectedDate}`);
+                const url = selectedDate ? `/api/orders?date=${selectedDate}` : '/api/orders';
+                const res = await fetch(url);
                 const data = await res.json();
 
                 document.getElementById('totalRevenue').innerText = data.stats.total_revenue || 0;
@@ -170,8 +169,8 @@
                 const topDishesList = document.getElementById('topDishesList');
 
                 if (!data.orders || data.orders.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-light opacity-50">No orders found for this date.</td></tr>';
-                    topDishesList.innerHTML = '<li class="list-group-item bg-transparent text-light opacity-50 text-center py-3">No Sales For Selected Date</li>';
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-light opacity-50">No orders found.</td></tr>';
+                    topDishesList.innerHTML = '<li class="list-group-item bg-transparent text-light opacity-50 text-center py-3">No Sales Yet</li>';
                     return;
                 }
 
@@ -193,9 +192,11 @@
                         itemsHTML = '<span class="text-light opacity-50 small">No items</span>';
                     }
 
+                    const orderDateStr = order.date ? `<br><small class="text-warning">${order.date}</small>` : '';
+
                     tbody.innerHTML += `
                         <tr>
-                            <td><strong class="text-warning">#${order.id}</strong><br><small class="text-light opacity-50">${order.time || ''}</small></td>
+                            <td><strong class="text-warning">#${order.id}</strong>${orderDateStr}<br><small class="text-light opacity-50">${order.time || ''}</small></td>
                             <td><strong class="text-white">${order.customer_name}</strong><br><small class="text-info">Table: ${order.table_no}</small></td>
                             <td>${itemsHTML}</td>
                             <td class="text-success fw-bold fs-6">₹${order.total}</td>
@@ -209,7 +210,7 @@
                 const sortedDishes = Object.entries(dishCountMap).sort((a, b) => b[1] - a[1]);
 
                 if (sortedDishes.length === 0) {
-                    topDishesList.innerHTML = '<li class="list-group-item bg-transparent text-light opacity-50 text-center py-3">No Sales For Selected Date</li>';
+                    topDishesList.innerHTML = '<li class="list-group-item bg-transparent text-light opacity-50 text-center py-3">No Sales Yet</li>';
                 } else {
                     sortedDishes.slice(0, 5).forEach(([dishName, count], index) => {
                         topDishesList.innerHTML += `
@@ -227,6 +228,11 @@
             } catch (err) {
                 console.error("Analytics fetch error:", err);
             }
+        }
+
+        function resetDateFilter() {
+            document.getElementById('dateFilter').value = '';
+            loadAnalytics();
         }
 
         setInterval(loadAnalytics, 5000);
