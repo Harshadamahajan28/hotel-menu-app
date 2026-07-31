@@ -3,9 +3,9 @@ import datetime
 
 app = Flask(__name__)
 
-# ऑर्डर्स साठवण्यासाठी मेमरी
+# ऑर्डर्स साठवण्यासाठी मेमरी (In-Memory Database)
 orders = []
-order_counter = 1  # Order ID 1 पासून सुरू होईल
+order_counter = 1  # Order ID #1 पासून सुरू होईल
 
 @app.route('/')
 @app.route('/home')
@@ -42,7 +42,7 @@ def place_order():
         'table_no': data['table_no'],
         'phone': data.get('phone', 'N/A'),
         'items': data['items'],
-        'total': data['total'],
+        'total': float(data['total']),
         'time': now,
         'status': 'Pending ⏳'
     }
@@ -68,7 +68,7 @@ def complete_order():
             
     return jsonify({'success': False, 'error': 'Order not found'}), 404
 
-# API: Analytics साठी डेटा मिळवण्यासाठी
+# API: Analytics साठी सर्व आकडेवारी (Live Data) मिळवण्यासाठी
 @app.route('/api/admin/analytics_data', methods=['GET'])
 def get_analytics():
     total_orders = len(orders)
@@ -81,7 +81,8 @@ def get_analytics():
         'total_orders': total_orders,
         'total_revenue': total_revenue,
         'pending_orders': pending_orders,
-        'completed_orders': completed_orders
+        'completed_orders': completed_orders,
+        'orders': orders
     })
 
 if __name__ == '__main__':
