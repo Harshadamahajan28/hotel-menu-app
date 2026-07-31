@@ -33,7 +33,10 @@ memory_reviews = []
 # Support 'index', 'home', and 'menu' endpoints to prevent BuildError
 @app.route('/', endpoint='index')
 @app.route('/home', endpoint='home')
-@app.route('/menu', endpoint='menu')
+@app.route('/menu')
+@app.route('/menu')
+def menu_page():
+    return render_template('menu.html')
 def index():
     return render_template('index.html')
 
