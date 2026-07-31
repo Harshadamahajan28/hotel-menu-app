@@ -32,7 +32,9 @@ else:
 memory_orders = []
 memory_reviews = []
 
-@app.route('/')
+# Endpoint Name 'index' as well as 'home' for safe redirection
+@app.route('/', endpoint='home')
+@app.route('/index')
 def index():
     return render_template('index.html')
 
