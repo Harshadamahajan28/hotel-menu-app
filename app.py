@@ -49,16 +49,16 @@ def login():
             return render_template('login.html', error="Invalid Credentials")
     return render_template('login.html')
 
-@app.route('/logout')
-def logout():
-    session.pop('admin_logged_in', None)
-    return redirect(url_for('login'))
-
 @app.route('/admin')
 def admin():
     if not session.get('admin_logged_in'):
         return redirect(url_for('login'))
     return render_template('admin.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('admin_logged_in', None)
+    return redirect(url_for('login'))
 
 @app.route('/analytics')
 def analytics():
@@ -72,7 +72,7 @@ def place_order():
     try:
         data = request.json or {}
         now = datetime.datetime.now()
-        
+
         order_data = {
             "id": int(now.timestamp()),
             "table_no": data.get('table_no', 'N/A'),
@@ -145,7 +145,7 @@ def submit_review():
     try:
         data = request.json or {}
         now = datetime.datetime.now()
-        
+
         review_data = {
             "name": data.get('name', 'Anonymous'),
             "rating": int(data.get('rating', 5)),
@@ -155,6 +155,8 @@ def submit_review():
 
         if use_mongodb and reviews_collection is not None:
             reviews_collection.insert_one(review_data)
+            if '_id' in review_data:
+                del review_data['_id']
         else:
             memory_reviews.append(review_data)
 
