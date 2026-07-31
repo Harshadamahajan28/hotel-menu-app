@@ -16,12 +16,15 @@
     <nav class="navbar navbar-dark bg-dark border-bottom border-secondary mb-4">
         <div class="container">
             <span class="navbar-brand fw-bold text-warning"><i class="fa-solid fa-utensils"></i> Kitchen Admin Dashboard</span>
-            <button onclick="fetchOrders()" class="btn btn-outline-warning btn-sm fw-bold"><i class="fa-solid fa-rotate"></i> Refresh Orders</button>
+            <div>
+                <a href="/analytics" class="btn btn-outline-info btn-sm fw-bold me-2"><i class="fa-solid fa-chart-line"></i> Analytics</a>
+                <button onclick="fetchOrders()" class="btn btn-warning btn-sm fw-bold"><i class="fa-solid fa-rotate"></i> Refresh</button>
+            </div>
         </div>
     </nav>
 
     <div class="container">
-        <h4 class="fw-bold text-warning mb-3">Live Orders</h4>
+        <h4 class="fw-bold text-warning mb-3"><i class="fa-solid fa-list-check"></i> Live Orders</h4>
         <div class="row g-3" id="ordersContainer"></div>
     </div>
 
@@ -44,21 +47,31 @@
                         itemsHTML += `<li class="d-flex justify-content-between"><span>${i.name} (x${i.qty})</span><strong>₹${i.price * i.qty}</strong></li>`;
                     });
 
+                    const isPending = ord.status.includes('Pending');
+                    const statusBadge = isPending 
+                        ? `<span class="badge bg-warning text-dark">${ord.status}</span>` 
+                        : `<span class="badge bg-success">${ord.status}</span>`;
+
+                    const actionBtn = isPending 
+                        ? `<button class="btn btn-success btn-sm w-100 fw-bold mt-2" onclick="markCompleted('${ord.id}')"><i class="fa-solid fa-check-double me-1"></i> Mark as Completed</button>`
+                        : `<button class="btn btn-outline-secondary btn-sm w-100 fw-bold mt-2" disabled>Completed</button>`;
+
                     container.innerHTML += `
                         <div class="col-md-6 col-12">
                             <div class="order-card p-3 border-warning">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="badge bg-warning text-dark fw-bold">${ord.id}</span>
-                                    <span class="badge bg-danger">${ord.status}</span>
+                                    <span class="badge bg-warning text-dark fw-bold fs-6">Order #${ord.id}</span>
+                                    ${statusBadge}
                                 </div>
                                 <h5 class="fw-bold text-white mb-1">Table No: ${ord.table_no}</h5>
                                 <p class="text-secondary small mb-2">Customer: ${ord.customer_name} | Time: ${ord.time}</p>
                                 <hr class="border-secondary my-2">
                                 <ul class="list-unstyled small text-light mb-2">${itemsHTML}</ul>
-                                <div class="d-flex justify-content-between fw-bold text-success fs-5 border-top border-secondary pt-2">
+                                <div class="d-flex justify-content-between fw-bold text-success fs-5 border-top border-secondary pt-2 mb-2">
                                     <span>Total:</span>
                                     <span>₹${ord.total}</span>
                                 </div>
+                                ${actionBtn}
                             </div>
                         </div>
                     `;
@@ -66,7 +79,20 @@
             } catch(e) { console.error('Failed to load orders'); }
         }
 
-        // ऑटो-रिफ्रेश दर ५ सेकंदांनी
+        async function markCompleted(orderId) {
+            try {
+                const res = await fetch('/api/admin/complete_order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: orderId })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    fetchOrders(); // Refresh status immediately
+                }
+            } catch(e) { alert('Failed to update status'); }
+        }
+
         setInterval(fetchOrders, 5000);
         fetchOrders();
     </script>
