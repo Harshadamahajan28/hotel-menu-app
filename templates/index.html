@@ -7,105 +7,239 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #0d1117; color: #ffffff; font-family: 'Segoe UI', sans-serif; }
-        .hero { background: linear-gradient(rgba(0,0,0,0.7), rgba(13,17,23,1)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80') center/cover; padding: 100px 20px; text-align: center; }
-        .heritage-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 30px; margin-top: -50px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        body { 
+            background-color: #0d1117; 
+            color: #ffffff; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        }
+        .hero-section {
+            background: linear-gradient(180deg, #161b22 0%, #0d1117 100%);
+            padding: 80px 20px 50px 20px;
+            text-align: center;
+            border-bottom: 1px solid #30363d;
+        }
         .gold-text { color: #f39c12; }
-        .btn-gold { background-color: #f39c12; color: #000; font-weight: bold; border-radius: 25px; padding: 12px 30px; transition: 0.3s; }
-        .btn-gold:hover { background-color: #e67e22; color: #fff; transform: translateY(-2px); }
+        .btn-gold { 
+            background-color: #f39c12; 
+            color: #000; 
+            font-weight: bold; 
+            border-radius: 30px; 
+            padding: 12px 35px; 
+            transition: all 0.3s ease; 
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-gold:hover { 
+            background-color: #e67e22; 
+            color: #fff; 
+            transform: translateY(-2px); 
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+        }
+        .custom-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            height: 100%;
+        }
+        .info-icon {
+            font-size: 2.5rem;
+            color: #f39c12;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary sticky-top">
+    <!-- Header & Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary sticky-top py-3">
         <div class="container">
-            <a class="navbar-navbar-brand text-warning fw-bold fs-4" href="#">👑 THE ROYAL SPICE</a>
+            <a class="navbar-brand text-warning fw-bold fs-4" href="#"><i class="fa-solid fa-crown me-2"></i>THE ROYAL SPICE</a>
             <div class="d-flex align-items-center gap-2">
-                <a href="{{ url_for('menu') }}" class="btn btn-outline-warning btn-sm fw-bold">Menu 📜</a>
-                <button onclick="toggleLang()" id="langBtn" class="btn btn-warning btn-sm fw-bold">मराठी</button>
+                <a href="{{ url_for('menu') }}" class="btn btn-outline-warning btn-sm fw-bold px-3">Menu 📜</a>
+                <button onclick="toggleLang()" id="langBtn" class="btn btn-warning btn-sm fw-bold px-3">मराठी</button>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <div class="hero">
-        <span class="badge bg-warning text-dark px-3 py-2 mb-3 fw-bold">✨ Authentic Fine Dining Experience</span>
-        <h1 class="display-4 fw-bold gold-text mb-2" id="heroTitle">Welcome to The Royal Spice</h1>
-        <p class="lead text-light opacity-75 mb-4" id="heroSub">Where Culinary Art Meets Royal Heritage & Hospitality</p>
-        <a href="{{ url_for('menu') }}" class="btn btn-gold fs-5" id="menuBtn">Explore Digital Menu <i class="fa-solid fa-arrow-right ms-2"></i></a>
+    <!-- Hero Banner Section -->
+    <div class="hero-section">
+        <div class="container">
+            <span class="badge bg-warning text-dark px-3 py-2 mb-3 fw-bold rounded-pill">✨ Authentic Culinary Experience</span>
+            <h1 class="display-4 fw-bold gold-text mb-3" id="heroTitle">Welcome to The Royal Spice</h1>
+            <p class="lead text-light opacity-75 mb-4 mx-auto" style="max-width: 650px;" id="heroSub">
+                Where Traditional Royal Heritage Meets Unmatched Taste & Pure Hospitality.
+            </p>
+            <a href="{{ url_for('menu') }}" class="btn btn-gold fs-5" id="menuBtn">
+                Explore Digital Menu <i class="fa-solid fa-utensils ms-2"></i>
+            </a>
+        </div>
     </div>
 
-    <!-- History & About Section -->
-    <div class="container mb-5">
-        <div class="heritage-card">
-            <div class="row align-items-center g-4">
-                <div class="col-md-6">
-                    <h3 class="gold-text fw-bold mb-3" id="histTitle"><i class="fa-solid fa-landmark"></i> Our Culinary History</h3>
-                    <p class="text-secondary leading-relaxed" id="histText">
-                        Founded in 2010, 'The Royal Spice' began with a passion for preserving traditional royal recipes. Over the past 15 years, our master chefs have blended authentic hand-ground spices with premium ingredients to offer an unmatchable dining experience.
+    <!-- Main Content Section -->
+    <div class="container py-5">
+        <div class="row g-4">
+            
+            <!-- History Card -->
+            <div class="col-lg-7">
+                <div class="custom-card">
+                    <h3 class="gold-text fw-bold mb-3" id="histTitle">
+                        <i class="fa-solid fa-landmark me-2"></i> Our History & Tradition
+                    </h3>
+                    <p class="text-secondary leading-relaxed fs-5 mb-3" id="histText">
+                        Established with a passion for traditional cuisine, 'The Royal Spice' has been serving authentic flavors prepared with hand-ground spices and fresh ingredients.
                     </p>
-                    <p class="text-secondary" id="histSubText">
-                        Every dish tells a story of heritage, passion, and uncompromising quality.
+                    <p class="text-secondary fs-6 mb-0" id="histSubText">
+                        Our rich history is rooted in quality, hospitality, and creating memorable dining experiences for every guest who walks through our doors.
                     </p>
+                    
+                    <hr class="border-secondary my-4">
+                    
+                    <div class="row text-center g-3">
+                        <div class="col-4">
+                            <h4 class="gold-text fw-bold m-0">100%</h4>
+                            <small class="text-secondary">Fresh & Quality</small>
+                        </div>
+                        <div class="col-4">
+                            <h4 class="gold-text fw-bold m-0">Pure</h4>
+                            <small class="text-secondary">Royal Spices</small>
+                        </div>
+                        <div class="col-4">
+                            <h4 class="gold-text fw-bold m-0">Fast</h4>
+                            <small class="text-secondary">Table Service</small>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6 text-center">
-                    <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80" class="img-fluid rounded-3 border border-secondary shadow" alt="Hotel Interior">
+            </div>
+
+            <!-- Address & Hotel Details Card -->
+            <div class="col-lg-5">
+                <div class="custom-card border-warning">
+                    <h3 class="gold-text fw-bold mb-4" id="addrTitle">
+                        <i class="fa-solid fa-location-dot me-2"></i> Visit Our Hotel
+                    </h3>
+                    
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="text-warning fs-5 me-3"><i class="fa-solid fa-map-pin"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1 text-white" id="addrHeader">Hotel Address</h6>
+                            <p class="text-secondary small mb-0" id="addrDetail">
+                                <strong>The Royal Spice Hotel</strong><br>
+                                Near Ved Bus Stand / Main Road, Ved Area,<br>
+                                Maharashtra, India - 400001
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="text-warning fs-5 me-3"><i class="fa-solid fa-clock"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1 text-white" id="timeHeader">Working Hours</h6>
+                            <p class="text-secondary small mb-0" id="timeDetail">
+                                Monday to Sunday<br>
+                                <strong>11:00 AM - 11:00 PM</strong>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-start">
+                        <div class="text-warning fs-5 me-3"><i class="fa-solid fa-phone"></i></div>
+                        <div>
+                            <h6 class="fw-bold mb-1 text-white" id="contactHeader">Contact & Booking</h6>
+                            <p class="text-secondary small mb-0">
+                                Phone: <strong>+91 98765 43210</strong><br>
+                                Email: info@theroyalspice.com
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-2">
+                        <a href="{{ url_for('menu') }}" class="btn btn-outline-warning w-100 fw-bold rounded-pill" id="orderNowBtn">
+                            Order Food Now <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Features Row -->
+    <div class="container pb-5">
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="p-4 bg-dark rounded-3 border border-secondary">
+                    <div class="info-icon"><i class="fa-solid fa-utensils"></i></div>
+                    <h5 class="fw-bold gold-text" id="f1_t">Delicious Food</h5>
+                    <p class="text-secondary small mb-0" id="f1_d">Prepared with royal recipes & authentic spices.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 bg-dark rounded-3 border border-secondary">
+                    <div class="info-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <h5 class="fw-bold gold-text" id="f2_t">Hygienic & Clean</h5>
+                    <p class="text-secondary small mb-0" id="f2_d">Maintained with highest standard of food safety.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 bg-dark rounded-3 border border-secondary">
+                    <div class="info-icon"><i class="fa-solid fa-qrcode"></i></div>
+                    <h5 class="fw-bold gold-text" id="f3_t">QR Table Order</h5>
+                    <p class="text-secondary small mb-0" id="f3_d">Direct table ordering system connected to kitchen.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Features Section -->
-    <div class="container py-4">
-        <div class="row text-center g-4">
-            <div class="col-md-4">
-                <div class="p-4 bg-dark rounded-3 border border-secondary">
-                    <div class="fs-1 gold-text mb-2"><i class="fa-solid fa-utensils"></i></div>
-                    <h5 class="fw-bold gold-text" id="f1_t">Master Chefs</h5>
-                    <p class="text-secondary small mb-0" id="f1_d">Prepared using authentic traditional recipes & royal spices.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="p-4 bg-dark rounded-3 border border-secondary">
-                    <div class="fs-1 gold-text mb-2"><i class="fa-solid fa-leaf"></i></div>
-                    <h5 class="fw-bold gold-text" id="f2_t">100% Fresh & Pure</h5>
-                    <p class="text-secondary small mb-0" id="f2_d">Hygienic open kitchen with highest standards of quality.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="p-4 bg-dark rounded-3 border border-secondary">
-                    <div class="fs-1 gold-text mb-2"><i class="fa-solid fa-bolt"></i></div>
-                    <h5 class="fw-bold gold-text" id="f3_t">Instant Table Order</h5>
-                    <p class="text-secondary small mb-0" id="f3_d">Seamless digital ordering directly sent to our kitchen.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <footer class="text-center py-4 text-secondary border-top border-secondary mt-5 small">
-        <p class="mb-0">© 2026 The Royal Spice Fine Dining. All Rights Reserved.</p>
+    <footer class="text-center py-4 text-secondary border-top border-secondary small">
+        <p class="mb-0">© 2026 The Royal Spice Hotel. All Rights Reserved.</p>
     </footer>
 
+    <!-- Language Toggle Script -->
     <script>
         let currentLang = 'en';
         function toggleLang() {
             if(currentLang === 'en') {
                 document.getElementById('heroTitle').innerText = "द रॉयल स्पाइस मध्ये आपले स्वागत आहे";
-                document.getElementById('heroSub').innerText = "अस्सल चव आणि शाही आदरातिथ्याचा अनोखा अनुभव";
-                document.getElementById('menuBtn').innerText = "डिजिटल मेनु पहा 📜";
-                document.getElementById('histTitle').innerHTML = '<i class="fa-solid fa-landmark"></i> आमचा इतिहास व परंपरा';
-                document.getElementById('histText').innerText = "२०१० मध्ये स्थापन झालेले 'द रॉयल स्पाइस' हे हॉटेल आपल्या खास शाही पाककृतींसाठी प्रसिद्ध आहे. गेल्या १५ वर्षांपासून आमचे शेफ अस्सल हाताने वाटलेल्या मसाल्यांचा वापर करून उत्कृष्ट मेजवानी देतात.";
-                document.getElementById('histSubText').innerText = "प्रत्येक डिशमध्ये परंपरेची चव आणि गुणवत्तेची खात्री आहे.";
+                document.getElementById('heroSub').innerText = "अस्सल चव, शाही परंपरा आणि उत्तम आदरातिथ्याचा एकमेव ठिकाण.";
+                document.getElementById('menuBtn').innerHTML = "डिजिटल मेनु पहा <i class='fa-solid fa-utensils ms-2'></i>";
+                
+                document.getElementById('histTitle').innerHTML = '<i class="fa-solid fa-landmark me-2"></i> आमचा इतिहास आणि परंपरा';
+                document.getElementById('histText').innerText = "उत्कृष्ट खाद्यसंस्कृती जपण्याच्या ध्येयाने 'द रॉयल स्पाइस' ची सुरुवात झाली. आम्ही हाताने वाटलेल्या मसाल्यांचा आणि ताज्या घटकांचा वापर करून अस्सल चव सादर करतो.";
+                document.getElementById('histSubText').innerText = "आमची परंपरा उत्तम गुणवत्ता आणि ग्राहकांना आनंददायी मेजवानी देण्यात सामावलेली आहे.";
+                
+                document.getElementById('addrTitle').innerHTML = '<i class="fa-solid fa-location-dot me-2"></i> हॉटेलचा पत्ता';
+                document.getElementById('addrHeader').innerText = "हॉटेलचा पत्ता";
+                document.getElementById('addrDetail').innerHTML = "<strong>द रॉयल स्पाइस हॉटेल</strong><br>वेद बस स्टँड जवळ / मुख्य रस्ता, वेद परिसर,<br>महाराष्ट्र, भारत";
+                
+                document.getElementById('timeHeader').innerText = "वेळ";
+                document.getElementById('timeDetail').innerHTML = "सोमवार ते रविवार<br><strong>सकाळी ११:०० ते रात्री ११:००</strong>";
+                
+                document.getElementById('contactHeader').innerText = "संपर्क";
+                document.getElementById('orderNowBtn').innerHTML = "आत्ताच ऑर्डर करा <i class='fa-solid fa-arrow-right ms-1'></i>";
+                
                 document.getElementById('langBtn').innerText = "English";
                 currentLang = 'mr';
             } else {
                 document.getElementById('heroTitle').innerText = "Welcome to The Royal Spice";
-                document.getElementById('heroSub').innerText = "Where Culinary Art Meets Royal Heritage & Hospitality";
-                document.getElementById('menuBtn').innerText = "Explore Digital Menu 📜";
-                document.getElementById('histTitle').innerHTML = '<i class="fa-solid fa-landmark"></i> Our Culinary History';
-                document.getElementById('histText').innerText = "Founded in 2010, 'The Royal Spice' began with a passion for preserving traditional royal recipes. Over the past 15 years, our master chefs have blended authentic hand-ground spices with premium ingredients.";
-                document.getElementById('histSubText').innerText = "Every dish tells a story of heritage, passion, and uncompromising quality.";
+                document.getElementById('heroSub').innerText = "Where Traditional Royal Heritage Meets Unmatched Taste & Pure Hospitality.";
+                document.getElementById('menuBtn').innerHTML = "Explore Digital Menu <i class='fa-solid fa-utensils ms-2'></i>";
+                
+                document.getElementById('histTitle').innerHTML = '<i class="fa-solid fa-landmark me-2"></i> Our History & Tradition';
+                document.getElementById('histText').innerText = "Established with a passion for traditional cuisine, 'The Royal Spice' has been serving authentic flavors prepared with hand-ground spices and fresh ingredients.";
+                document.getElementById('histSubText').innerText = "Our rich history is rooted in quality, hospitality, and creating memorable dining experiences for every guest who walks through our doors.";
+                
+                document.getElementById('addrTitle').innerHTML = '<i class="fa-solid fa-location-dot me-2"></i> Visit Our Hotel';
+                document.getElementById('addrHeader').innerText = "Hotel Address";
+                document.getElementById('addrDetail').innerHTML = "<strong>The Royal Spice Hotel</strong><br>Near Ved Bus Stand / Main Road, Ved Area,<br>Maharashtra, India - 400001";
+                
+                document.getElementById('timeHeader').innerText = "Working Hours";
+                document.getElementById('timeDetail').innerHTML = "Monday to Sunday<br><strong>11:00 AM - 11:00 PM</strong>";
+                
+                document.getElementById('contactHeader').innerText = "Contact & Booking";
+                document.getElementById('orderNowBtn').innerHTML = "Order Food Now <i class='fa-solid fa-arrow-right ms-1'></i>";
+                
                 document.getElementById('langBtn').innerText = "मराठी";
                 currentLang = 'en';
             }
