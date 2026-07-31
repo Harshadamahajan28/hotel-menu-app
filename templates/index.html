@@ -3,202 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Royal Spice | Fine Dining & Hospitality</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>The Royal Spice | Fine Dining & Heritage</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .features-grid {
-            display: flex;
-            gap: 20px;
-            margin: 30px 0;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .feature-card {
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 20px;
-            border-radius: 12px;
-            flex: 1;
-            min-width: 200px;
-            text-align: center;
-            transition: 0.3s ease;
-        }
-
-        .feature-card:hover {
-            background: rgba(243, 156, 18, 0.15);
-            border-color: #f39c12;
-            transform: translateY(-5px);
-        }
-
-        .feature-icon {
-            font-size: 30px;
-            margin-bottom: 10px;
-        }
-
-        .stats-bar {
-            display: flex;
-            justify-content: space-around;
-            background: rgba(0, 0, 0, 0.6);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 25px;
-            border: 1px solid rgba(243, 156, 18, 0.3);
-        }
-
-        .stat-item h2 {
-            color: #f39c12;
-            font-size: 24px;
-            margin-bottom: 2px;
-        }
-
-        .stat-item p {
-            font-size: 12px;
-            color: #bbb;
-            margin-bottom: 0;
-        }
-
-        footer {
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            font-size: 13px;
-            color: #888;
-        }
+        body { background-color: #0d1117; color: #ffffff; font-family: 'Segoe UI', sans-serif; }
+        .hero { background: linear-gradient(rgba(0,0,0,0.7), rgba(13,17,23,1)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80') center/cover; padding: 100px 20px; text-align: center; }
+        .heritage-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 30px; margin-top: -50px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .gold-text { color: #f39c12; }
+        .btn-gold { background-color: #f39c12; color: #000; font-weight: bold; border-radius: 25px; padding: 12px 30px; transition: 0.3s; }
+        .btn-gold:hover { background-color: #e67e22; color: #fff; transform: translateY(-2px); }
     </style>
 </head>
 <body>
 
-    <!-- Header Navigation (Only Customer Links Included) -->
-    <header>
-        <div class="logo">👑 The Royal Spice</div>
-        <nav>
-            <a href="{{ url_for('home') }}">Home</a>
-            <a href="{{ url_for('menu') }}">Digital Menu</a>
-            <button onclick="toggleLanguage()" id="langBtn" style="background: #f39c12; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; margin-left: 10px;">मराठी</button>
-        </nav>
-    </header>
-
-    <!-- Main Hero Section -->
-    <div class="hero-section" style="height: auto; padding: 60px 20px;">
-        <div class="container" style="max-width: 900px; margin: 0 auto; text-align: center;">
-            <span style="background: rgba(243, 156, 18, 0.2); color: #f39c12; padding: 5px 15px; border-radius: 20px; font-size: 13px; font-weight: bold;">
-                ✨ Authentic Fine Dining Experience
-            </span>
-
-            <h1 id="welcomeHeading" style="font-size: 38px; margin-top: 15px;">Welcome to The Royal Spice 👑</h1>
-            <p id="welcomeSub" style="font-size: 18px; color: #e0e0e0;">Where Culinary Art Meets Royal Hospitality</p>
-
-            <div style="margin: 25px 0;">
-                <a href="{{ url_for('menu') }}" class="btn btn-primary" id="exploreBtn" style="display: inline-block; text-decoration: none; background: #f39c12; color: #fff; padding: 12px 28px; border-radius: 25px; font-weight: bold;">Explore Digital Menu 📜</a>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary sticky-top">
+        <div class="container">
+            <a class="navbar-navbar-brand text-warning fw-bold fs-4" href="#">👑 THE ROYAL SPICE</a>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ url_for('menu') }}" class="btn btn-outline-warning btn-sm fw-bold">Menu 📜</a>
+                <button onclick="toggleLang()" id="langBtn" class="btn btn-warning btn-sm fw-bold">मराठी</button>
             </div>
+        </div>
+    </nav>
 
-            <!-- 3 Key Features -->
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">👨‍🍳</div>
-                    <h4 style="color: #f39c12; margin-bottom: 8px;" id="f1_title">Master Chefs</h4>
-                    <p style="font-size: 13px; color: #ccc;" id="f1_desc">Crafted with authentic spices and fresh local ingredients.</p>
+    <!-- Hero Section -->
+    <div class="hero">
+        <span class="badge bg-warning text-dark px-3 py-2 mb-3 fw-bold">✨ Authentic Fine Dining Experience</span>
+        <h1 class="display-4 fw-bold gold-text mb-2" id="heroTitle">Welcome to The Royal Spice</h1>
+        <p class="lead text-light opacity-75 mb-4" id="heroSub">Where Culinary Art Meets Royal Heritage & Hospitality</p>
+        <a href="{{ url_for('menu') }}" class="btn btn-gold fs-5" id="menuBtn">Explore Digital Menu <i class="fa-solid fa-arrow-right ms-2"></i></a>
+    </div>
+
+    <!-- History & About Section -->
+    <div class="container mb-5">
+        <div class="heritage-card">
+            <div class="row align-items-center g-4">
+                <div class="col-md-6">
+                    <h3 class="gold-text fw-bold mb-3" id="histTitle"><i class="fa-solid fa-landmark"></i> Our Culinary History</h3>
+                    <p class="text-secondary leading-relaxed" id="histText">
+                        Founded in 2010, 'The Royal Spice' began with a passion for preserving traditional royal recipes. Over the past 15 years, our master chefs have blended authentic hand-ground spices with premium ingredients to offer an unmatchable dining experience.
+                    </p>
+                    <p class="text-secondary" id="histSubText">
+                        Every dish tells a story of heritage, passion, and uncompromising quality.
+                    </p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🌿</div>
-                    <h4 style="color: #f39c12; margin-bottom: 8px;" id="f2_title">100% Fresh & Pure</h4>
-                    <p style="font-size: 13px; color: #ccc;" id="f2_desc">Hygienic kitchen with premium quality ingredients.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h4 style="color: #f39c12; margin-bottom: 8px;" id="f3_title">Fast Service</h4>
-                    <p style="font-size: 13px; color: #ccc;" id="f3_desc">Quick table service & seamless digital menu ordering.</p>
+                <div class="col-md-6 text-center">
+                    <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=600&q=80" class="img-fluid rounded-3 border border-secondary shadow" alt="Hotel Interior">
                 </div>
             </div>
-
-            <!-- About Section -->
-            <div style="background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 25px; text-align: left; margin-top: 30px; border-left: 4px solid #f39c12;">
-                <h3 style="color: #f39c12; margin-bottom: 10px;" id="aboutTitle">✨ About Our Culinary Heritage</h3>
-                <p style="font-size: 14px; color: #ddd; line-height: 1.8;" id="aboutDesc">
-                    At 'The Royal Spice', we take pride in serving exquisite delicacies prepared by world-class chefs.
-                </p>
-                
-                <h3 style="color: #f39c12; margin-bottom: 10px; margin-top: 15px;" id="infoTitle">📍 Location & Timings</h3>
-                <p style="font-size: 14px; color: #ddd; line-height: 1.8;" id="infoDesc">
-                    🕒 <strong>Hours:</strong> 11:00 AM - 11:00 PM (Open All Days)<br>
-                    📍 <strong>Address:</strong> Main Boulevard, Royal Heritage Square, City Center.
-                </p>
-            </div>
-
-            <!-- Statistics Bar -->
-            <div class="stats-bar">
-                <div class="stat-item">
-                    <h2>15+</h2>
-                    <p id="st1">Years of Legacy</p>
-                </div>
-                <div class="stat-item">
-                    <h2>50+</h2>
-                    <p id="st2">Special Dishes</p>
-                </div>
-                <div class="stat-item">
-                    <h2>10k+</h2>
-                    <p id="st3">Happy Guests</p>
-                </div>
-            </div>
-
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer>
-        <p>© 2026 The Royal Spice Restaurant System. All Rights Reserved.</p>
+    <!-- Features Section -->
+    <div class="container py-4">
+        <div class="row text-center g-4">
+            <div class="col-md-4">
+                <div class="p-4 bg-dark rounded-3 border border-secondary">
+                    <div class="fs-1 gold-text mb-2"><i class="fa-solid fa-utensils"></i></div>
+                    <h5 class="fw-bold gold-text" id="f1_t">Master Chefs</h5>
+                    <p class="text-secondary small mb-0" id="f1_d">Prepared using authentic traditional recipes & royal spices.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 bg-dark rounded-3 border border-secondary">
+                    <div class="fs-1 gold-text mb-2"><i class="fa-solid fa-leaf"></i></div>
+                    <h5 class="fw-bold gold-text" id="f2_t">100% Fresh & Pure</h5>
+                    <p class="text-secondary small mb-0" id="f2_d">Hygienic open kitchen with highest standards of quality.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 bg-dark rounded-3 border border-secondary">
+                    <div class="fs-1 gold-text mb-2"><i class="fa-solid fa-bolt"></i></div>
+                    <h5 class="fw-bold gold-text" id="f3_t">Instant Table Order</h5>
+                    <p class="text-secondary small mb-0" id="f3_d">Seamless digital ordering directly sent to our kitchen.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="text-center py-4 text-secondary border-top border-secondary mt-5 small">
+        <p class="mb-0">© 2026 The Royal Spice Fine Dining. All Rights Reserved.</p>
     </footer>
 
-    <!-- JavaScript for Language Switching -->
     <script>
         let currentLang = 'en';
-
-        function toggleLanguage() {
-            if (currentLang === 'en') {
-                document.getElementById('welcomeHeading').innerText = "द रॉयल स्पाइस मध्ये आपले स्वागत आहे 👑";
-                document.getElementById('welcomeSub').innerText = "अस्सल चव आणि शाही आदरातिथ्याचा अनुभव घ्या";
-                document.getElementById('exploreBtn').innerText = "डिजिटल मेनु पहा 📜";
-
-                document.getElementById('f1_title').innerText = "मास्टर शेफ";
-                document.getElementById('f1_desc').innerText = "अस्सल मसाल्यांनी आणि ताज्या भाज्यांनी बनवलेले अन्न.";
-                document.getElementById('f2_title').innerText = "१००% शुद्ध व ताजे";
-                document.getElementById('f2_desc').innerText = "अत्यंत स्वच्छ आणि आरोग्यदायी वातावरणात बनवलेले जेवण.";
-                document.getElementById('f3_title').innerText = "जलद सेवा";
-                document.getElementById('f3_desc').innerText = "उत्तम टेबल सर्व्हिस आणि सोपी डिजिटल मेनु सुविधा.";
-
-                document.getElementById('aboutTitle').innerText = "✨ आमच्या हॉटेलबद्दल माहिती";
-                document.getElementById('aboutDesc').innerText = "'द रॉयल स्पाइस' मध्ये आम्ही तुम्हाला शुद्ध, ताज्या आणि अस्सल मसाल्यांनी बनवलेले स्वादिष्ट पदार्थ पुरवतो.";
-                document.getElementById('infoTitle').innerText = "📍 वेळ आणि पत्ता";
-                document.getElementById('infoDesc').innerHTML = "🕒 <strong>वेळ:</strong> सकाळी ११:०० ते रात्री ११:०० (दररोज)<br>📍 <strong>पत्ता:</strong> मुख्य रस्ता, रॉयल हेरिटेज स्क्वेअर, सिटी सेंटर.";
-
-                document.getElementById('st1').innerText = "वर्षांची परंपरा";
-                document.getElementById('st2').innerText = "खास डिशेस";
-                document.getElementById('st3').innerText = "आनंदी ग्राहक";
-
+        function toggleLang() {
+            if(currentLang === 'en') {
+                document.getElementById('heroTitle').innerText = "द रॉयल स्पाइस मध्ये आपले स्वागत आहे";
+                document.getElementById('heroSub').innerText = "अस्सल चव आणि शाही आदरातिथ्याचा अनोखा अनुभव";
+                document.getElementById('menuBtn').innerText = "डिजिटल मेनु पहा 📜";
+                document.getElementById('histTitle').innerHTML = '<i class="fa-solid fa-landmark"></i> आमचा इतिहास व परंपरा';
+                document.getElementById('histText').innerText = "२०१० मध्ये स्थापन झालेले 'द रॉयल स्पाइस' हे हॉटेल आपल्या खास शाही पाककृतींसाठी प्रसिद्ध आहे. गेल्या १५ वर्षांपासून आमचे शेफ अस्सल हाताने वाटलेल्या मसाल्यांचा वापर करून उत्कृष्ट मेजवानी देतात.";
+                document.getElementById('histSubText').innerText = "प्रत्येक डिशमध्ये परंपरेची चव आणि गुणवत्तेची खात्री आहे.";
                 document.getElementById('langBtn').innerText = "English";
                 currentLang = 'mr';
             } else {
-                document.getElementById('welcomeHeading').innerText = "Welcome to The Royal Spice 👑";
-                document.getElementById('welcomeSub').innerText = "Where Culinary Art Meets Royal Hospitality";
-                document.getElementById('exploreBtn').innerText = "Explore Digital Menu 📜";
-
-                document.getElementById('f1_title').innerText = "Master Chefs";
-                document.getElementById('f1_desc').innerText = "Crafted with authentic spices and fresh local ingredients.";
-                document.getElementById('f2_title').innerText = "100% Fresh & Pure";
-                document.getElementById('f2_desc').innerText = "Hygienic kitchen with premium quality ingredients.";
-                document.getElementById('f3_title').innerText = "Fast Service";
-                document.getElementById('f3_desc').innerText = "Quick table service & seamless digital menu ordering.";
-
-                document.getElementById('aboutTitle').innerText = "✨ About Our Culinary Heritage";
-                document.getElementById('aboutDesc').innerText = "At 'The Royal Spice', we take pride in serving exquisite delicacies prepared by world-class chefs.";
-                document.getElementById('infoTitle').innerText = "📍 Location & Timings";
-                document.getElementById('infoDesc').innerHTML = "🕒 <strong>Hours:</strong> 11:00 AM - 11:00 PM (Open All Days)<br>📍 <strong>Address:</strong> Main Boulevard, Royal Heritage Square, City Center.";
-
-                document.getElementById('st1').innerText = "Years of Legacy";
-                document.getElementById('st2').innerText = "Special Dishes";
-                document.getElementById('st3').innerText = "Happy Guests";
-
+                document.getElementById('heroTitle').innerText = "Welcome to The Royal Spice";
+                document.getElementById('heroSub').innerText = "Where Culinary Art Meets Royal Heritage & Hospitality";
+                document.getElementById('menuBtn').innerText = "Explore Digital Menu 📜";
+                document.getElementById('histTitle').innerHTML = '<i class="fa-solid fa-landmark"></i> Our Culinary History';
+                document.getElementById('histText').innerText = "Founded in 2010, 'The Royal Spice' began with a passion for preserving traditional royal recipes. Over the past 15 years, our master chefs have blended authentic hand-ground spices with premium ingredients.";
+                document.getElementById('histSubText').innerText = "Every dish tells a story of heritage, passion, and uncompromising quality.";
                 document.getElementById('langBtn').innerText = "मराठी";
                 currentLang = 'en';
             }
