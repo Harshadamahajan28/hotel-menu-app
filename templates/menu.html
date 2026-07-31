@@ -3,60 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Menu - The Royal Spice</title>
+    <title>Digital Menu | The Royal Spice</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #0d1117; color: #ffffff; font-family: 'Segoe UI', sans-serif; padding-bottom: 90px; }
-        .hero-section { background: linear-gradient(180deg, #161b22 0%, #0d1117 100%); padding: 25px 15px; border-bottom: 1px solid #30363d; text-align: center; }
-        .dish-card { background-color: #161b22; border: 1px solid #30363d; border-radius: 12px; transition: transform 0.2s, border-color 0.2s; }
-        .dish-card:hover { border-color: #f39c12; transform: translateY(-2px); }
-        .cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background-color: #161b22; border-top: 2px solid #f39c12; padding: 12px 20px; z-index: 1000; box-shadow: 0 -4px 15px rgba(0,0,0,0.5); }
-        .btn-cat { border-radius: 20px; font-weight: 600; padding: 6px 16px; font-size: 14px; }
+        .hero-section { background: linear-gradient(180deg, #161b22 0%, #0d1117 100%); padding: 20px 15px; border-bottom: 1px solid #30363d; }
+        .dish-card { background-color: #161b22; border: 1px solid #30363d; border-radius: 12px; }
+        .dish-card:hover { border-color: #f39c12; }
+        .cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background-color: #161b22; border-top: 2px solid #f39c12; padding: 12px 20px; z-index: 1000; }
         .badge-veg { color: #2ea44f; border: 1px solid #2ea44f; padding: 2px 6px; font-size: 11px; border-radius: 4px; }
         .badge-nonveg { color: #f85149; border: 1px solid #f85149; padding: 2px 6px; font-size: 11px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-    <!-- Header Section -->
-    <div class="hero-section mb-4">
-        <h1 class="fw-bold text-warning mb-1"><i class="fa-solid fa-crown"></i> THE ROYAL SPICE</h1>
-        <p class="text-secondary small mb-0"><i class="fa-solid fa-utensils"></i> Fine Dining & Authentic Taste | Table Menu</p>
+    <div class="hero-section text-center mb-4">
+        <div class="d-flex justify-content-between align-items-center container mb-2">
+            <a href="{{ url_for('home') }}" class="text-warning text-decoration-none fw-bold"><i class="fa-solid fa-house"></i> Home</a>
+            <h3 class="fw-bold text-warning m-0"><i class="fa-solid fa-crown"></i> DIGITAL MENU</h3>
+            <div></div>
+        </div>
     </div>
 
     <div class="container">
-        <!-- Category Filter Buttons (Drinks Category Added) -->
+        <!-- Category Buttons -->
         <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap">
-            <button class="btn btn-warning btn-cat" onclick="filterMenu('all')">All Dishes</button>
-            <button class="btn btn-outline-warning btn-cat" onclick="filterMenu('Starters')">Starters</button>
-            <button class="btn btn-outline-warning btn-cat" onclick="filterMenu('Main Course')">Main Course</button>
-            <button class="btn btn-outline-warning btn-cat" onclick="filterMenu('Roti & Breads')">Roti & Breads</button>
-            <button class="btn btn-outline-warning btn-cat" onclick="filterMenu('Desserts')">Desserts</button>
-            <button class="btn btn-outline-warning btn-cat" onclick="filterMenu('Drinks')">Drinks</button>
+            <button class="btn btn-warning rounded-pill btn-sm fw-bold px-3" onclick="filterMenu('all')">All</button>
+            <button class="btn btn-outline-warning rounded-pill btn-sm fw-bold px-3" onclick="filterMenu('Starters')">Starters</button>
+            <button class="btn btn-outline-warning rounded-pill btn-sm fw-bold px-3" onclick="filterMenu('Main Course')">Main Course</button>
+            <button class="btn btn-outline-warning rounded-pill btn-sm fw-bold px-3" onclick="filterMenu('Roti & Breads')">Breads</button>
+            <button class="btn btn-outline-warning rounded-pill btn-sm fw-bold px-3" onclick="filterMenu('Desserts')">Desserts</button>
+            <button class="btn btn-outline-warning rounded-pill btn-sm fw-bold px-3" onclick="filterMenu('Drinks')">Drinks</button>
         </div>
 
-        <!-- Menu Grid -->
-        <div class="row g-3" id="menuGrid">
-            <!-- Dishes loaded dynamically via JS -->
-        </div>
-
-        <!-- ⭐ Customer Feedback Button -->
-        <div class="card card-custom bg-dark border-warning text-center p-4 my-5">
-            <h5 class="text-warning fw-bold mb-2"><i class="fa-solid fa-face-smile"></i> Enjoyed your meal?</h5>
-            <p class="text-secondary small mb-3">Help us improve by sharing your rating and experience with the hotel management!</p>
-            <div>
-                <button class="btn btn-warning fw-bold px-4 py-2" data-bs-toggle="modal" data-bs-target="#feedbackModal">
-                    <i class="fa-solid fa-star me-1"></i> Rate Experience & Give Feedback
-                </button>
-            </div>
-        </div>
+        <div class="row g-3" id="menuGrid"></div>
     </div>
 
-    <!-- Floating Bottom Cart Bar -->
+    <!-- Floating Cart Bar -->
     <div class="cart-bar d-flex justify-content-between align-items-center">
         <div>
-            <span class="text-secondary small">Total Items: <strong class="text-white" id="cartCount">0</strong></span>
+            <span class="text-secondary small">Items: <strong class="text-white" id="cartCount">0</strong></span>
             <h4 class="text-success fw-bold m-0">₹<span id="cartTotal">0</span></h4>
         </div>
         <button class="btn btn-warning btn-lg fw-bold px-4" data-bs-toggle="modal" data-bs-target="#orderModal" id="checkoutBtn" disabled>
@@ -64,32 +51,27 @@
         </button>
     </div>
 
-    <!-- Place Order Modal -->
-    <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
+    <!-- Order Modal -->
+    <div class="modal fade" id="orderModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark text-white border-secondary">
                 <div class="modal-header border-secondary">
-                    <h5 class="modal-title text-warning fw-bold"><i class="fa-solid fa-receipt"></i> Confirm Your Order</h5>
+                    <h5 class="modal-title text-warning fw-bold"><i class="fa-solid fa-receipt"></i> Confirm Order</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label small">Your Name <span class="text-danger">*</span></label>
+                        <label class="form-label small">Your Name *</label>
                         <input type="text" id="cust_name" class="form-control bg-secondary text-white border-0" placeholder="e.g. Rahul Sharma" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small">Table Number <span class="text-danger">*</span></label>
+                        <label class="form-label small">Table Number *</label>
                         <input type="number" id="table_no" class="form-control bg-secondary text-white border-0" placeholder="e.g. 5" required>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label small">Phone Number (Optional)</label>
-                        <input type="tel" id="cust_phone" class="form-control bg-secondary text-white border-0" placeholder="e.g. 9876543210">
-                    </div>
                     <hr class="border-secondary">
-                    <h6 class="fw-bold text-warning">Order Items:</h6>
                     <div id="modalCartItems" class="small text-light opacity-75 mb-3"></div>
                     <div class="d-flex justify-content-between fw-bold fs-5 text-success">
-                        <span>Total Payable:</span>
+                        <span>Total:</span>
                         <span>₹<span id="modalCartTotal">0</span></span>
                     </div>
                 </div>
@@ -100,36 +82,37 @@
         </div>
     </div>
 
-    <!-- Feedback Modal -->
-    <div class="modal fade" id="feedbackModal" tabindex="-1" aria-hidden="true">
+    <!-- 🎉 Order Success Receipt Modal (With ID) -->
+    <div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content bg-dark text-white border-secondary">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title text-warning fw-bold"><i class="fa-solid fa-star"></i> Customer Feedback</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label small">Your Name</label>
-                        <input type="text" id="rev_name" class="form-control bg-secondary text-white border-0" placeholder="Enter your name">
+            <div class="modal-content bg-dark text-white border-success">
+                <div class="modal-body text-center p-4">
+                    <div class="fs-1 text-success mb-2"><i class="fa-solid fa-circle-check"></i></div>
+                    <h4 class="fw-bold text-success mb-1">Order Sent to Kitchen!</h4>
+                    <p class="text-secondary small">Your order has been placed successfully.</p>
+                    
+                    <div class="bg-secondary bg-opacity-25 p-3 rounded-3 my-3 text-start border border-secondary">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary">Order ID:</span>
+                            <strong class="text-warning" id="res_order_id">#ORD-0000</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary">Table No:</span>
+                            <strong class="text-white" id="res_table">0</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-secondary">Customer:</span>
+                            <strong class="text-white" id="res_name">Guest</strong>
+                        </div>
+                        <hr class="border-secondary my-2">
+                        <div id="res_items" class="small text-light mb-2"></div>
+                        <div class="d-flex justify-content-between fw-bold text-success fs-6">
+                            <span>Total Paid:</span>
+                            <span>₹<span id="res_total">0</span></span>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label small">Rating</label>
-                        <select id="rev_rating" class="form-select bg-secondary text-white border-0">
-                            <option value="5">⭐⭐⭐⭐⭐ (5/5) Excellent</option>
-                            <option value="4">⭐⭐⭐⭐ (4/5) Very Good</option>
-                            <option value="3">⭐⭐⭐ (3/5) Good</option>
-                            <option value="2">⭐⭐ (2/5) Average</option>
-                            <option value="1">⭐ (1/5) Poor</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small">Comments / Feedback</label>
-                        <textarea id="rev_comment" class="form-control bg-secondary text-white border-0" rows="3" placeholder="Tell us about the food quality & service..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-warning w-100 fw-bold" onclick="submitReview()">Submit Feedback</button>
+
+                    <button class="btn btn-success fw-bold w-100" onclick="location.reload()">Back to Menu</button>
                 </div>
             </div>
         </div>
@@ -138,33 +121,12 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const dishes = [
-            // Starters
-            { id: 1, name: "Paneer Tikka Starter", price: 220, category: "Starters", type: "veg", desc: "Marinated cottage cheese cubes grilled in tandoor with spices." },
-            { id: 2, name: "Veg Crispy Starter", price: 180, category: "Starters", type: "veg", desc: "Crispy fried assorted vegetables tossed in Indo-Chinese sauce." },
-            { id: 3, name: "Chicken Tikka Starter", price: 260, category: "Starters", type: "nonveg", desc: "Boneless chicken marinated in spiced yogurt and grilled to perfection." },
-            { id: 4, name: "Chicken Tandoori (Half)", price: 290, category: "Starters", type: "nonveg", desc: "Classic tandoor roasted chicken with authentic Indian spices." },
-
-            // Main Course
-            { id: 5, name: "Paneer Butter Masala", price: 240, category: "Main Course", type: "veg", desc: "Rich & creamy cottage cheese gravy cooked in butter and spices." },
-            { id: 6, name: "Veg Kolhapuri", price: 210, category: "Main Course", type: "veg", desc: "Spicy mixed vegetable curry prepared in authentic Kolhapuri style." },
-            { id: 7, name: "Chicken Biryani", price: 280, category: "Main Course", type: "nonveg", desc: "Aromatic basmati rice cooked with juicy chicken & rich spices." },
-            { id: 8, name: "Butter Chicken", price: 310, category: "Main Course", type: "nonveg", desc: "Tender chicken cooked in rich tomato and butter gravy." },
-            { id: 9, name: "Dal Tadka", price: 160, category: "Main Course", type: "veg", desc: "Yellow lentils tempered with garlic, cumin, and ghee." },
-
-            // Roti & Breads
-            { id: 10, name: "Butter Naan", price: 45, category: "Roti & Breads", type: "veg", desc: "Soft refined flour bread baked in tandoor with butter." },
-            { id: 11, name: "Garlic Naan", price: 60, category: "Roti & Breads", type: "veg", desc: "Tandoori naan topped with chopped garlic and coriander." },
-            { id: 12, name: "Tandoori Roti", price: 25, category: "Roti & Breads", type: "veg", desc: "Whole wheat bread baked freshly in clay oven." },
-
-            // Desserts
-            { id: 13, name: "Gulab Jamun (2 Pcs)", price: 90, category: "Desserts", type: "veg", desc: "Classic soft and warm milk-solid dumplings soaked in rose syrup." },
-            { id: 14, name: "Sizzling Sizzler Brownie", price: 150, category: "Desserts", type: "veg", desc: "Hot chocolate brownie served with vanilla ice cream on sizzler plate." },
-
-            // Drinks (Beverages Replaced)
-            { id: 15, name: "Sol Kadhi", price: 50, category: "Drinks", type: "veg", desc: "Traditional refreshing Konkani drink made with kokum and coconut milk." },
-            { id: 16, name: "Fresh Lime Soda", price: 70, category: "Drinks", type: "veg", desc: "Refreshing sweet and salty lemon juice topped with sparkling soda." },
-            { id: 17, name: "Cold Coffee with Ice Cream", price: 110, category: "Drinks", type: "veg", desc: "Chilled blended coffee served with a scoop of vanilla ice cream." },
-            { id: 18, name: "Sweet Lassi", price: 80, category: "Drinks", type: "veg", desc: "Traditional thick yogurt drink served chilled with malai." }
+            { id: 1, name: "Paneer Tikka Starter", price: 220, category: "Starters", type: "veg", desc: "Marinated cottage cheese grilled in tandoor." },
+            { id: 2, name: "Chicken Tikka Starter", price: 260, category: "Starters", type: "nonveg", desc: "Spiced grilled boneless chicken." },
+            { id: 3, name: "Paneer Butter Masala", price: 240, category: "Main Course", type: "veg", desc: "Creamy cottage cheese curry." },
+            { id: 4, name: "Chicken Biryani", price: 280, category: "Main Course", type: "nonveg", desc: "Aromatic basmati rice cooked with chicken." },
+            { id: 5, name: "Butter Naan", price: 45, category: "Roti & Breads", type: "veg", desc: "Soft tandoori bread with butter." },
+            { id: 6, name: "Gulab Jamun (2 Pcs)", price: 90, category: "Desserts", type: "veg", desc: "Warm sweet milk dumplings." }
         ];
 
         let cart = {};
@@ -173,36 +135,27 @@
             const grid = document.getElementById('menuGrid');
             grid.innerHTML = '';
             items.forEach(dish => {
-                const typeBadge = dish.type === 'veg' 
-                    ? '<span class="badge-veg"><i class="fa-solid fa-circle"></i> VEG</span>' 
-                    : '<span class="badge-nonveg"><i class="fa-solid fa-circle"></i> NON-VEG</span>';
-
+                const badge = dish.type === 'veg' ? '<span class="badge-veg">VEG</span>' : '<span class="badge-nonveg">NON-VEG</span>';
                 grid.innerHTML += `
                     <div class="col-md-6 col-12">
-                        <div class="dish-card p-3 h-100 d-flex flex-column justify-content-between">
+                        <div class="dish-card p-3 d-flex justify-content-between align-items-center">
                             <div>
-                                <div class="d-flex justify-content-between align-items-start mb-1">
-                                    <h5 class="fw-bold text-white m-0">${dish.name}</h5>
-                                    ${typeBadge}
-                                </div>
-                                <p class="text-secondary small mb-2">${dish.desc}</p>
+                                <h6 class="fw-bold m-0">${dish.name} ${badge}</h6>
+                                <p class="text-secondary small mb-1">${dish.desc}</p>
+                                <h6 class="text-success fw-bold m-0">₹${dish.price}</h6>
                             </div>
-                            <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top border-secondary">
-                                <h5 class="text-success fw-bold m-0">₹${dish.price}</h5>
-                                <div class="d-flex align-items-center gap-2">
-                                    <button class="btn btn-sm btn-outline-warning fw-bold px-3" onclick="changeQty(${dish.id}, -1)">-</button>
-                                    <span class="fw-bold text-warning fs-6 px-1" id="qty-${dish.id}">0</span>
-                                    <button class="btn btn-sm btn-warning fw-bold px-3" onclick="changeQty(${dish.id}, 1)">+</button>
-                                </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <button class="btn btn-sm btn-outline-warning fw-bold" onclick="changeQty(${dish.id}, -1)">-</button>
+                                <span class="fw-bold text-warning" id="qty-${dish.id}">0</span>
+                                <button class="btn btn-sm btn-warning fw-bold" onclick="changeQty(${dish.id}, 1)">+</button>
                             </div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
         }
 
         function filterMenu(cat) {
-            if (cat === 'all') renderMenu(dishes);
+            if(cat === 'all') renderMenu(dishes);
             else renderMenu(dishes.filter(d => d.category === cat));
         }
 
@@ -213,86 +166,62 @@
         }
 
         function updateCart() {
-            let total = 0;
-            let count = 0;
-            let itemsHTML = '';
-
+            let total = 0, count = 0, itemsHTML = '';
             for (let id in cart) {
                 const dish = dishes.find(d => d.id == id);
                 if (dish) {
                     total += dish.price * cart[id];
                     count += cart[id];
-                    itemsHTML += `<div class="d-flex justify-content-between mb-1"><span>${dish.name} (x${cart[id]})</span><strong class="text-success">₹${dish.price * cart[id]}</strong></div>`;
+                    itemsHTML += `<div class="d-flex justify-content-between"><span>${dish.name} x${cart[id]}</span><strong>₹${dish.price * cart[id]}</strong></div>`;
                 }
-                const qtyElem = document.getElementById(`qty-${id}`);
-                if (qtyElem) qtyElem.innerText = cart[id];
+                if(document.getElementById(`qty-${id}`)) document.getElementById(`qty-${id}`).innerText = cart[id];
             }
-
-            dishes.forEach(d => {
-                if (!cart[d.id]) {
-                    const qtyElem = document.getElementById(`qty-${d.id}`);
-                    if (qtyElem) qtyElem.innerText = 0;
-                }
-            });
-
+            dishes.forEach(d => { if(!cart[d.id] && document.getElementById(`qty-${d.id}`)) document.getElementById(`qty-${d.id}`).innerText = 0; });
             document.getElementById('cartTotal').innerText = total;
             document.getElementById('cartCount').innerText = count;
             document.getElementById('modalCartTotal').innerText = total;
-            document.getElementById('modalCartItems').innerHTML = itemsHTML || 'No items selected';
+            document.getElementById('modalCartItems').innerHTML = itemsHTML;
             document.getElementById('checkoutBtn').disabled = count === 0;
         }
 
         async function submitOrder() {
-            const name = document.getElementById('cust_name').value;
-            const table = document.getElementById('table_no').value;
-            const phone = document.getElementById('cust_phone').value;
+            const customer_name = document.getElementById('cust_name').value;
+            const table_no = document.getElementById('table_no').value;
+            if (!customer_name || !table_no) { alert('Please enter Name & Table Number!'); return; }
 
-            if (!name || !table) {
-                alert('Please enter Name and Table Number!');
-                return;
-            }
-
-            let orderItems = [];
+            let items = [];
             let total = 0;
             for (let id in cart) {
                 const dish = dishes.find(d => d.id == id);
-                if (dish) {
-                    orderItems.push({ name: dish.name, price: dish.price, qty: cart[id] });
-                    total += dish.price * cart[id];
+                items.push({ name: dish.name, qty: cart[id], price: dish.price });
+                total += dish.price * cart[id];
+            }
+
+            try {
+                const res = await fetch('/api/order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customer_name, table_no, items, total })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    // Hide Order Modal
+                    bootstrap.Modal.getInstance(document.getElementById('orderModal')).hide();
+                    
+                    // Set Receipt Data
+                    document.getElementById('res_order_id').innerText = '#' + data.order_id;
+                    document.getElementById('res_table').innerText = table_no;
+                    document.getElementById('res_name').innerText = customer_name;
+                    document.getElementById('res_total').innerText = total;
+                    
+                    let itemSummary = '';
+                    items.forEach(i => itemSummary += `<div>• ${i.name} (x${i.qty})</div>`);
+                    document.getElementById('res_items').innerHTML = itemSummary;
+
+                    // Show Success Modal
+                    new bootstrap.Modal(document.getElementById('successModal')).show();
                 }
-            }
-
-            const res = await fetch('/api/order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, table_no: table, phone, items: orderItems, total })
-            });
-
-            const data = await res.json();
-            if (data.success) {
-                alert('🎉 Order Placed Successfully! Order #' + data.order_id);
-                location.reload();
-            }
-        }
-
-        async function submitReview() {
-            const name = document.getElementById('rev_name').value || 'Guest';
-            const rating = document.getElementById('rev_rating').value;
-            const comment = document.getElementById('rev_comment').value;
-
-            if(!comment) {
-                alert('Please enter a brief feedback comment.');
-                return;
-            }
-
-            await fetch('/api/submit-review', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ name, rating, comment })
-            });
-
-            alert('Thank you for your valuable feedback! 🌸');
-            location.reload();
+            } catch(e) { alert('Order Failed!'); }
         }
 
         renderMenu(dishes);
