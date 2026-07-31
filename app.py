@@ -3,9 +3,8 @@ import datetime
 
 app = Flask(__name__)
 
-# ऑर्डर्स साठवण्यासाठी मेमरी (In-Memory Database)
 orders = []
-order_counter = 1  # Order ID #1 पासून सुरू होईल
+order_counter = 1
 
 @app.route('/')
 @app.route('/home')
@@ -24,7 +23,7 @@ def admin():
 def analytics():
     return render_template('analytics.html')
 
-# API: नवीन ऑर्डर सबमिट करण्यासाठी (#1, #2, #3...)
+# API: नवीन ऑर्डर सबमिट करण्यासाठी (तारीख YYYY-MM-DD फॉरमॅटमध्ये साठवली जाईल)
 @app.route('/api/order', methods=['POST'])
 def place_order():
     global order_counter
@@ -34,7 +33,11 @@ def place_order():
 
     order_id = f"{order_counter}"
     order_counter += 1
-    now = datetime.datetime.now().strftime("%I:%M %p, %d %b %Y")
+    
+    # वेळ आणि तारीख स्वतंत्रपणे साठवणे
+    now_obj = datetime.datetime.now()
+    date_str = now_obj.strftime("%Y-%m-%d")  # उदा. 2026-07-31
+    time_str = now_obj.strftime("%I:%M %p")   # उदा. 08:30 PM
 
     new_order = {
         'id': order_id,
@@ -43,46 +46,52 @@ def place_order():
         'phone': data.get('phone', 'N/A'),
         'items': data['items'],
         'total': float(data['total']),
-        'time': now,
+        'date': date_str,
+        'time': time_str,
         'status': 'Pending ⏳'
     }
 
     orders.insert(0, new_order)
     return jsonify({'success': True, 'order_id': order_id, 'order': new_order})
 
-# API: Admin साठी सर्व ऑर्डर्स मिळवण्यासाठी
 @app.route('/api/admin/orders', methods=['GET'])
 def get_admin_orders():
     return jsonify({'success': True, 'orders': orders})
 
-# API: ऑर्डर स्टेटस बदलण्यासाठी (Pending -> Completed)
 @app.route('/api/admin/complete_order', methods=['POST'])
 def complete_order():
     data = request.json
     order_id = str(data.get('order_id'))
-    
     for ord in orders:
         if str(ord['id']) == order_id:
             ord['status'] = 'Completed ✅'
             return jsonify({'success': True})
-            
     return jsonify({'success': False, 'error': 'Order not found'}), 404
 
-# API: Analytics साठी सर्व आकडेवारी (Live Data) मिळवण्यासाठी
+# 🎯 Date-wise Analytics API (निवडलेल्या तारखेनुसार डेटा फिल्टर करणे)
 @app.route('/api/admin/analytics_data', methods=['GET'])
 def get_analytics():
-    total_orders = len(orders)
-    total_revenue = sum(ord['total'] for ord in orders)
-    pending_orders = sum(1 for ord in orders if 'Pending' in ord['status'])
-    completed_orders = sum(1 for ord in orders if 'Completed' in ord['status'])
+    selected_date = request.args.get('date')  # URL मधून तारीख घेणे
+    
+    # जर तारीख पाठवली असेल तर त्या तारखेच्या ऑर्डर्स फिल्टर करा
+    if selected_date:
+        filtered_orders = [ord for ord in orders if ord.get('date') == selected_date]
+    else:
+        filtered_orders = orders
+
+    total_orders = len(filtered_orders)
+    total_revenue = sum(ord['total'] for ord in filtered_orders)
+    pending_orders = sum(1 for ord in filtered_orders if 'Pending' in ord['status'])
+    completed_orders = sum(1 for ord in filtered_orders if 'Completed' in ord['status'])
 
     return jsonify({
         'success': True,
+        'selected_date': selected_date,
         'total_orders': total_orders,
         'total_revenue': total_revenue,
         'pending_orders': pending_orders,
         'completed_orders': completed_orders,
-        'orders': orders
+        'orders': filtered_orders
     })
 
 if __name__ == '__main__':
