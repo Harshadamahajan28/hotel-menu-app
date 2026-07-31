@@ -3,136 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business Analytics - The Royal Spice</title>
+    <title>Analytics Dashboard | The Royal Spice</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #0d1117; color: #ffffff; font-family: 'Segoe UI', sans-serif; }
-        .card-custom { background-color: #161b22; border: 1px solid #30363d; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-        .stat-icon { font-size: 2.2rem; }
-        .table-custom { color: #ffffff !important; }
-        .table-custom thead th { background-color: #21262d !important; color: #f39c12 !important; border-bottom: 2px solid #f39c12 !important; padding: 14px; }
-        .table-custom td { padding: 14px; vertical-align: middle; }
-        .badge-completed { background-color: #2ea44f; color: #ffffff; padding: 6px 14px; border-radius: 20px; font-weight: 600; display: inline-block; }
-        .badge-pending { background-color: #d29922; color: #000000; padding: 6px 14px; border-radius: 20px; font-weight: 700; display: inline-block; }
-        .badge-item { background-color: #21262d; color: #58a6ff; border: 1px solid #388bfd; margin: 2px; padding: 5px 10px; font-size: 13px; }
-        .star-yellow { color: #f39c12; }
+        body { background-color: #0d1117; color: #fff; font-family: 'Segoe UI', sans-serif; }
+        .stat-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; }
+        .order-table-card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 20px; }
     </style>
 </head>
 <body>
 
-    <div class="container py-4">
-        <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary flex-wrap gap-2">
+    <nav class="navbar navbar-dark bg-dark border-bottom border-secondary mb-4">
+        <div class="container">
+            <span class="navbar-brand fw-bold text-info"><i class="fa-solid fa-chart-line me-2"></i> Sales & Orders Analytics</span>
             <div>
-                <h2 class="fw-bold text-warning m-0"><i class="fa-solid fa-chart-line"></i> Business Analytics Dashboard</h2>
-                <span class="text-light opacity-75">Sales, Orders & Customer Ratings Tracker</span>
-            </div>
-            
-            <div class="d-flex align-items-center gap-2">
-                <label for="dateFilter" class="fw-bold text-warning small text-nowrap">Filter Date:</label>
-                <input type="date" id="dateFilter" class="form-control bg-dark text-white border-secondary" onchange="loadAnalytics()">
-                <button class="btn btn-sm btn-outline-warning text-nowrap" onclick="resetDateFilter()">Show All</button>
-            </div>
-
-            <div>
-                <a href="/admin" class="btn btn-outline-warning me-2"><i class="fa-solid fa-kitchen-set"></i> Kitchen Admin</a>
-                <a href="/logout" class="btn btn-outline-danger"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                <a href="/admin" class="btn btn-outline-warning btn-sm fw-bold me-2"><i class="fa-solid fa-arrow-left me-1"></i> Admin Dashboard</a>
+                <button onclick="loadAnalytics()" class="btn btn-info btn-sm fw-bold"><i class="fa-solid fa-rotate"></i> Refresh</button>
             </div>
         </div>
+    </nav>
 
-        <!-- 5 Stat Cards -->
+    <div class="container">
+        <!-- 📊 आकडेवारी कार्ड्स -->
         <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="card card-custom p-3 border-start border-success border-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="text-uppercase fw-bold text-success small">Total Revenue</span>
-                            <h2 class="text-white fw-bold mt-2 mb-0">₹<span id="totalRevenue">0</span></h2>
-                        </div>
-                        <i class="fa-solid fa-indian-rupee-sign text-success stat-icon"></i>
-                    </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card text-center">
+                    <div class="fs-2 text-warning mb-1"><i class="fa-solid fa-receipt"></i></div>
+                    <h3 class="fw-bold m-0" id="totalOrders">0</h3>
+                    <p class="text-secondary small mb-0">Total Orders</p>
                 </div>
             </div>
-
-            <div class="col-md-3">
-                <div class="card card-custom p-3 border-start border-warning border-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="text-uppercase fw-bold text-warning small">Total Orders</span>
-                            <h2 class="text-white fw-bold mt-2 mb-0"><span id="totalOrders">0</span></h2>
-                        </div>
-                        <i class="fa-solid fa-receipt text-warning stat-icon"></i>
-                    </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card text-center">
+                    <div class="fs-2 text-success mb-1"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                    <h3 class="fw-bold text-success m-0">₹<span id="totalRevenue">0</span></h3>
+                    <p class="text-secondary small mb-0">Total Revenue</p>
                 </div>
             </div>
-
-            <div class="col-md-3">
-                <div class="card card-custom p-3 border-start border-info border-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="text-uppercase fw-bold text-info small">Completed</span>
-                            <h2 class="text-white fw-bold mt-2 mb-0"><span id="completedOrders">0</span></h2>
-                        </div>
-                        <i class="fa-solid fa-circle-check text-info stat-icon"></i>
-                    </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card text-center">
+                    <div class="fs-2 text-warning mb-1"><i class="fa-solid fa-clock"></i></div>
+                    <h3 class="fw-bold text-warning m-0" id="pendingOrders">0</h3>
+                    <p class="text-secondary small mb-0">Pending Orders</p>
                 </div>
             </div>
-
-            <div class="col-md-3">
-                <div class="card card-custom p-3 border-start border-primary border-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <span class="text-uppercase fw-bold text-primary small">Avg Rating</span>
-                            <h2 class="text-white fw-bold mt-2 mb-0"><span id="avgRating">5.0</span> ⭐</h2>
-                        </div>
-                        <i class="fa-solid fa-star text-warning stat-icon"></i>
-                    </div>
+            <div class="col-md-3 col-6">
+                <div class="stat-card text-center">
+                    <div class="fs-2 text-info mb-1"><i class="fa-solid fa-circle-check"></i></div>
+                    <h3 class="fw-bold text-info m-0" id="completedOrders">0</h3>
+                    <p class="text-secondary small mb-0">Completed Orders</p>
                 </div>
             </div>
         </div>
 
-        <!-- Breakdown Section -->
-        <div class="row g-4 mb-4">
-            <!-- Top Dishes List -->
-            <div class="col-md-4">
-                <div class="card card-custom p-3 mb-4">
-                    <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-fire text-danger"></i> Top Selling Dishes</h5>
-                    <ul class="list-group list-group-flush bg-transparent" id="topDishesList">
-                        <li class="list-group-item bg-transparent text-light opacity-50 text-center py-3">No data available</li>
-                    </ul>
-                </div>
-
-                <!-- Customer Reviews Card -->
-                <div class="card card-custom p-3">
-                    <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-comments"></i> Customer Feedback</h5>
-                    <div style="max-height: 250px; overflow-y: auto;" id="reviewsList">
-                        <p class="text-center text-secondary small py-3">No customer reviews yet.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Complete Order History Table -->
-            <div class="col-md-8">
-                <div class="card card-custom p-3">
-                    <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-list-check"></i> Orders History (<span id="displayDateLabel">All Time</span>)</h5>
-                    <div class="table-responsive">
-                        <table class="table table-custom align-middle m-0">
-                            <thead>
-                                <tr>
-                                    <th>Order ID / Date</th>
-                                    <th>Customer / Table</th>
-                                    <th>Ordered Items</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="analyticsTable">
-                                <tr><td colspan="5" class="text-center py-4 text-light opacity-50">Loading orders...</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+        <!-- 📑 ऑर्डर्सची संपूर्ण यादी (Order History Table) -->
+        <div class="order-table-card">
+            <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-list"></i> Recent Orders History</h5>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle">
+                    <thead>
+                        <tr class="text-secondary">
+                            <th>Order ID</th>
+                            <th>Table No</th>
+                            <th>Customer Name</th>
+                            <th>Total Amount</th>
+                            <th>Status</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analyticsTableBody">
+                        <tr><td colspan="6" class="text-center text-secondary py-4">Loading analytics...</td></tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -140,115 +83,49 @@
     <script>
         async function loadAnalytics() {
             try {
-                const selectedDate = document.getElementById('dateFilter').value;
-                document.getElementById('displayDateLabel').innerText = selectedDate ? selectedDate : 'All Time';
-
-                const url = selectedDate ? `/api/orders?date=${selectedDate}` : '/api/orders';
-                const res = await fetch(url);
+                const res = await fetch('/api/admin/analytics_data');
                 const data = await res.json();
+                
+                if(data.success) {
+                    // Update Stat Numbers
+                    document.getElementById('totalOrders').innerText = data.total_orders;
+                    document.getElementById('totalRevenue').innerText = data.total_revenue;
+                    document.getElementById('pendingOrders').innerText = data.pending_orders;
+                    document.getElementById('completedOrders').innerText = data.completed_orders;
 
-                document.getElementById('totalRevenue').innerText = data.stats.total_revenue || 0;
-                document.getElementById('totalOrders').innerText = data.stats.total_orders || 0;
-                document.getElementById('completedOrders').innerText = data.stats.completed_orders || 0;
+                    // Update Table
+                    const tableBody = document.getElementById('analyticsTableBody');
+                    tableBody.innerHTML = '';
 
-                const tbody = document.getElementById('analyticsTable');
-                const topDishesList = document.getElementById('topDishesList');
+                    if(data.orders.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary py-4">No orders placed yet.</td></tr>';
+                        return;
+                    }
 
-                if (!data.orders || data.orders.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-light opacity-50">No orders found.</td></tr>';
-                    topDishesList.innerHTML = '<li class="list-group-item bg-transparent text-light opacity-50 text-center py-3">No Sales Yet</li>';
-                } else {
-                    tbody.innerHTML = '';
-                    let dishCountMap = {};
+                    data.orders.forEach(ord => {
+                        const statusBadge = ord.status.includes('Pending') 
+                            ? `<span class="badge bg-warning text-dark">${ord.status}</span>`
+                            : `<span class="badge bg-success">${ord.status}</span>`;
 
-                    data.orders.forEach(order => {
-                        const statusBadge = order.status === 'Completed' 
-                            ? '<span class="badge-completed"><i class="fa-solid fa-check me-1"></i> Completed</span>' 
-                            : '<span class="badge-pending"><i class="fa-solid fa-hourglass-half me-1"></i> Pending</span>';
-
-                        let itemsHTML = '';
-                        if (order.items && order.items.length > 0) {
-                            order.items.forEach(item => {
-                                itemsHTML += `<span class="badge badge-item">${item.name} (x${item.qty || 1})</span> `;
-                                dishCountMap[item.name] = (dishCountMap[item.name] || 0) + (item.qty || 1);
-                            });
-                        }
-
-                        const orderDateStr = order.date ? `<br><small class="text-warning">${order.date}</small>` : '';
-
-                        tbody.innerHTML += `
+                        tableBody.innerHTML += `
                             <tr>
-                                <td><strong class="text-warning">#${order.id}</strong>${orderDateStr}<br><small class="text-light opacity-50">${order.time || ''}</small></td>
-                                <td><strong class="text-white">${order.customer_name}</strong><br><small class="text-info">Table: ${order.table_no}</small></td>
-                                <td>${itemsHTML}</td>
-                                <td class="text-success fw-bold fs-6">₹${order.total}</td>
+                                <td><strong class="text-warning">#${ord.id}</strong></td>
+                                <td>Table ${ord.table_no}</td>
+                                <td>${ord.customer_name}</td>
+                                <td class="text-success fw-bold">₹${ord.total}</td>
                                 <td>${statusBadge}</td>
+                                <td class="text-secondary small">${ord.time}</td>
                             </tr>
                         `;
                     });
-
-                    topDishesList.innerHTML = '';
-                    const sortedDishes = Object.entries(dishCountMap).sort((a, b) => b[1] - a[1]);
-
-                    sortedDishes.slice(0, 5).forEach(([dishName, count], index) => {
-                        topDishesList.innerHTML += `
-                            <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center border-secondary">
-                                <div>
-                                    <span class="badge bg-warning text-dark fw-bold me-2">#${index + 1}</span>
-                                    <strong>${dishName}</strong>
-                                </div>
-                                <span class="badge bg-primary rounded-pill">${count} Sold</span>
-                            </li>
-                        `;
-                    });
                 }
-
-                // Load Reviews
-                loadReviews();
-
-            } catch (err) {
-                console.error("Analytics fetch error:", err);
-            }
-        }
-
-        async function loadReviews() {
-            try {
-                const res = await fetch('/api/reviews');
-                const data = await res.json();
-
-                document.getElementById('avgRating').innerText = data.avg_rating || '5.0';
-                const reviewsList = document.getElementById('reviewsList');
-
-                if (!data.reviews || data.reviews.length === 0) {
-                    reviewsList.innerHTML = '<p class="text-center text-secondary small py-3">No customer reviews yet.</p>';
-                    return;
-                }
-
-                reviewsList.innerHTML = '';
-                data.reviews.forEach(r => {
-                    let stars = '⭐'.repeat(r.rating);
-                    reviewsList.innerHTML += `
-                        <div class="p-2 mb-2 rounded" style="background: #21262d;">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <strong class="text-warning small">${r.name}</strong>
-                                <span class="small">${stars}</span>
-                            </div>
-                            <p class="mb-0 text-light opacity-75 small">${r.comment || 'No comment'}</p>
-                            <small class="text-secondary" style="font-size: 10px;">${r.date}</small>
-                        </div>
-                    `;
-                });
             } catch(e) {
-                console.error(e);
+                console.error('Error loading analytics:', e);
             }
         }
 
-        function resetDateFilter() {
-            document.getElementById('dateFilter').value = '';
-            loadAnalytics();
-        }
-
-        setInterval(loadAnalytics, 5000);
+        // दर ३ सेकंदांनी अ‍ॅनालिटिक्स आपोआप रिफ्रेश होईल
+        setInterval(loadAnalytics, 3000);
         loadAnalytics();
     </script>
 </body>
