@@ -6,21 +6,28 @@ import datetime
 app = Flask(__name__)
 app.secret_key = "royal_spice_secret_key"
 
-# MongoDB Fixed Connection String
-MONGO_URI = "mongodb+srv://admin:admin123@cluster0.gcG8b15.mongodb.net/hotel_database?retryWrites=true"
+# Render Environment Variables मधून सुरक्षितपणे MONGO_URI मिळवा
+MONGO_URI = os.getenv("MONGO_URI")
 
-try:
-    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-    # Check connection
-    client.admin.command('ping')
-    db = client['hotel_database']
-    orders_collection = db['orders']
-    reviews_collection = db['reviews']
-    print("SUCCESS: Connected to MongoDB Database!")
-    use_mongodb = True
-except Exception as e:
-    print(f"ERROR: Could not connect to MongoDB: {e}")
-    use_mongodb = False
+use_mongodb = False
+orders_collection = None
+reviews_collection = None
+
+if MONGO_URI:
+    try:
+        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+        # Check connection
+        client.admin.command('ping')
+        db = client['hotel_database']
+        orders_collection = db['orders']
+        reviews_collection = db['reviews']
+        print("SUCCESS: Connected to MongoDB Database!")
+        use_mongodb = True
+    except Exception as e:
+        print(f"ERROR: Could not connect to MongoDB: {e}")
+        use_mongodb = False
+else:
+    print("WARNING: MONGO_URI Environment Variable is missing!")
 
 # Fallback Memory (Only if DB Fails)
 memory_orders = []
