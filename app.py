@@ -6,8 +6,8 @@ import datetime
 app = Flask(__name__)
 app.secret_key = "royal_spice_secret_key"
 
-# MongoDB Connection String (Fallback included)
-MONGO_URI = os.getenv("MONGO_URI", "mongodb+srv://admin:admin123@cluster0.gcG8b15.mongodb.net/hotel_database?retryWrites=true")
+# Read MONGO_URI safely from Render Environment Variables
+MONGO_URI = os.getenv("MONGO_URI")
 
 use_mongodb = False
 orders_collection = None
@@ -15,7 +15,7 @@ reviews_collection = None
 
 if MONGO_URI:
     try:
-        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=3000)
+        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
         client.admin.command('ping')
         db = client['hotel_database']
         orders_collection = db['orders']
@@ -30,9 +30,10 @@ if MONGO_URI:
 memory_orders = []
 memory_reviews = []
 
-# Support both 'home' and 'index' endpoints for templates
+# Support 'index', 'home', and 'menu' endpoints to prevent BuildError
 @app.route('/', endpoint='index')
 @app.route('/home', endpoint='home')
+@app.route('/menu', endpoint='menu')
 def index():
     return render_template('index.html')
 
