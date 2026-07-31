@@ -6,7 +6,7 @@ import datetime
 app = Flask(__name__)
 app.secret_key = "royal_spice_secret_key"
 
-# Render Environment Variables मधून सुरक्षितपणे MONGO_URI मिळवा
+# Read MONGO_URI safely from Render Environment Variables
 MONGO_URI = os.getenv("MONGO_URI")
 
 use_mongodb = False
@@ -16,7 +16,6 @@ reviews_collection = None
 if MONGO_URI:
     try:
         client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-        # Check connection
         client.admin.command('ping')
         db = client['hotel_database']
         orders_collection = db['orders']
@@ -86,7 +85,7 @@ def place_order():
     if use_mongodb:
         orders_collection.insert_one(order_data)
         if '_id' in order_data:
-            del order_data['_id'] # Remove ObjectId for JSON compatibility
+            del order_data['_id']
     else:
         memory_orders.append(order_data)
 
