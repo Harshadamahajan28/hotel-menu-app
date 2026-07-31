@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analytics Dashboard | The Royal Spice</title>
+    <title>Date-wise Analytics | The Royal Spice</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -16,16 +16,27 @@
 
     <nav class="navbar navbar-dark bg-dark border-bottom border-secondary mb-4">
         <div class="container">
-            <span class="navbar-brand fw-bold text-info"><i class="fa-solid fa-chart-line me-2"></i> Sales & Orders Analytics</span>
-            <div>
-                <a href="/admin" class="btn btn-outline-warning btn-sm fw-bold me-2"><i class="fa-solid fa-arrow-left me-1"></i> Admin Dashboard</a>
-                <button onclick="loadAnalytics()" class="btn btn-info btn-sm fw-bold"><i class="fa-solid fa-rotate"></i> Refresh</button>
-            </div>
+            <span class="navbar-brand fw-bold text-info"><i class="fa-solid fa-chart-line me-2"></i> Date-wise Sales Analytics</span>
+            <a href="/admin" class="btn btn-outline-warning btn-sm fw-bold"><i class="fa-solid fa-arrow-left me-1"></i> Admin Dashboard</a>
         </div>
     </nav>
 
     <div class="container">
-        <!-- 📊 आकडेवारी कार्ड्स -->
+        <!-- 📅 Date Picker Filter Section -->
+        <div class="card bg-dark border-secondary p-3 mb-4">
+            <div class="row align-items-center g-3">
+                <div class="col-md-4 col-12">
+                    <label class="form-label text-warning fw-bold mb-1"><i class="fa-solid fa-calendar-days me-1"></i> Select Date to View Report:</label>
+                    <input type="date" id="filterDate" class="form-control bg-secondary text-white border-0" onchange="loadAnalytics()">
+                </div>
+                <div class="col-md-8 col-12 d-flex align-items-end gap-2">
+                    <button class="btn btn-info fw-bold" onclick="loadAnalytics()"><i class="fa-solid fa-filter me-1"></i> Filter Data</button>
+                    <button class="btn btn-outline-secondary fw-bold text-white" onclick="resetDate()"><i class="fa-solid fa-rotate me-1"></i> Show Today</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📊 Stat Cards -->
         <div class="row g-3 mb-4">
             <div class="col-md-3 col-6">
                 <div class="stat-card text-center">
@@ -57,9 +68,9 @@
             </div>
         </div>
 
-        <!-- 📑 ऑर्डर्सची संपूर्ण यादी (Order History Table) -->
+        <!-- 📑 Order History Table -->
         <div class="order-table-card">
-            <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-list"></i> Recent Orders History</h5>
+            <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-list"></i> Order Details for Selected Date</h5>
             <div class="table-responsive">
                 <table class="table table-dark table-hover align-middle">
                     <thead>
@@ -67,13 +78,14 @@
                             <th>Order ID</th>
                             <th>Table No</th>
                             <th>Customer Name</th>
+                            <th>Items</th>
                             <th>Total Amount</th>
                             <th>Status</th>
                             <th>Time</th>
                         </tr>
                     </thead>
                     <tbody id="analyticsTableBody">
-                        <tr><td colspan="6" class="text-center text-secondary py-4">Loading analytics...</td></tr>
+                        <tr><td colspan="7" class="text-center text-secondary py-4">Select a date to view orders</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -81,24 +93,27 @@
     </div>
 
     <script>
+        // आजची तारीख बाय-डिफॉल्ट सेट करणे (YYYY-MM-DD)
+        document.getElementById('filterDate').valueAsDate = new Date();
+
         async function loadAnalytics() {
+            const selectedDate = document.getElementById('filterDate').value;
+            
             try {
-                const res = await fetch('/api/admin/analytics_data');
+                const res = await fetch(`/api/admin/analytics_data?date=${selectedDate}`);
                 const data = await res.json();
                 
                 if(data.success) {
-                    // Update Stat Numbers
                     document.getElementById('totalOrders').innerText = data.total_orders;
                     document.getElementById('totalRevenue').innerText = data.total_revenue;
                     document.getElementById('pendingOrders').innerText = data.pending_orders;
                     document.getElementById('completedOrders').innerText = data.completed_orders;
 
-                    // Update Table
                     const tableBody = document.getElementById('analyticsTableBody');
                     tableBody.innerHTML = '';
 
                     if(data.orders.length === 0) {
-                        tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary py-4">No orders placed yet.</td></tr>';
+                        tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-secondary py-4">No orders found for ${selectedDate}</td></tr>`;
                         return;
                     }
 
@@ -107,11 +122,14 @@
                             ? `<span class="badge bg-warning text-dark">${ord.status}</span>`
                             : `<span class="badge bg-success">${ord.status}</span>`;
 
+                        let itemDetails = ord.items.map(i => `${i.name} (x${i.qty})`).join(', ');
+
                         tableBody.innerHTML += `
                             <tr>
                                 <td><strong class="text-warning">#${ord.id}</strong></td>
                                 <td>Table ${ord.table_no}</td>
                                 <td>${ord.customer_name}</td>
+                                <td class="small text-light">${itemDetails}</td>
                                 <td class="text-success fw-bold">₹${ord.total}</td>
                                 <td>${statusBadge}</td>
                                 <td class="text-secondary small">${ord.time}</td>
@@ -124,8 +142,12 @@
             }
         }
 
-        // दर ३ सेकंदांनी अ‍ॅनालिटिक्स आपोआप रिफ्रेश होईल
-        setInterval(loadAnalytics, 3000);
+        function resetDate() {
+            document.getElementById('filterDate').valueAsDate = new Date();
+            loadAnalytics();
+        }
+
+        // पेज लोड झाल्यावर आजचा डेटा दाखवा
         loadAnalytics();
     </script>
 </body>
