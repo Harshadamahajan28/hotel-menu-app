@@ -5,39 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Royal Spice Hotel</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f9fa; }
-        .hero-section { background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4'); background-size: cover; color: white; padding: 60px 0; text-align: center; }
-        .card { border-radius: 12px; transition: 0.3s; }
-        .card:hover { transform: translateY(-5px); }
-    </style>
 </head>
-<body>
+<body class="bg-light">
 
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <nav class="navbar navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="/">👑 Royal Spice</a>
-            <div class="ms-auto">
-                <a href="#menu-section" class="btn btn-outline-warning me-2">📜 Menu</a>
-                <a href="/login" class="btn btn-warning">Admin Login</a>
-            </div>
+            <a class="navbar-brand fw-bold" href="/">👑 Royal Spice Menu</a>
+            <a href="/login" class="btn btn-outline-light btn-sm">Admin Login</a>
         </div>
     </nav>
 
-    <!-- Hero Header -->
-    <div class="hero-section">
-        <h1>Welcome to Royal Spice</h1>
-        <p>Delicious Food, Right at Your Table!</p>
-        <a href="#menu-section" class="btn btn-warning btn-lg mt-3">View Menu & Order</a>
-    </div>
-
-    <!-- Main Content Area -->
-    <div class="container my-5">
-        <div class="row mb-4">
+    <div class="container my-4">
+        <div class="row g-3 mb-4">
             <div class="col-md-6">
-                <label for="tableName" class="form-label fw-bold">Select Table Number:</label>
-                <select id="tableName" class="form-select form-select-lg">
+                <label class="form-label fw-bold">Select Table Number:</label>
+                <select id="tableName" class="form-select">
                     <option value="Table 1">Table 1</option>
                     <option value="Table 2">Table 2</option>
                     <option value="Table 3">Table 3</option>
@@ -46,47 +28,44 @@
                 </select>
             </div>
             <div class="col-md-6">
-                <label for="custName" class="form-label fw-bold">Your Name:</label>
-                <input type="text" id="custName" class="form-control form-control-lg" placeholder="Enter your name">
+                <label class="form-label fw-bold">Your Name:</label>
+                <input type="text" id="custName" class="form-control" placeholder="Enter name">
             </div>
         </div>
 
-        <!-- Menu Section -->
-        <h2 id="menu-section" class="fw-bold mb-4 border-bottom pb-2">Our Delicious Menu</h2>
-        <div class="row g-4" id="menuItems">
-            <!-- Items loaded via JS -->
+        <h3 class="fw-bold mb-3">Menu Items</h3>
+        <div class="row g-3">
             <div class="col-md-4">
                 <div class="card p-3 shadow-sm">
                     <h5>Paneer Butter Masala</h5>
-                    <p class="text-muted">₹ 220</p>
-                    <button class="btn btn-primary" onclick="addToCart('Paneer Butter Masala', 220)">Add to Order</button>
+                    <p class="text-muted mb-2">₹ 220</p>
+                    <button class="btn btn-primary btn-sm" onclick="addToCart('Paneer Butter Masala', 220)">Add</button>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card p-3 shadow-sm">
                     <h5>Butter Roti</h5>
-                    <p class="text-muted">₹ 25</p>
-                    <button class="btn btn-primary" onclick="addToCart('Butter Roti', 25)">Add to Order</button>
+                    <p class="text-muted mb-2">₹ 25</p>
+                    <button class="btn btn-primary btn-sm" onclick="addToCart('Butter Roti', 25)">Add</button>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="card p-3 shadow-sm">
                     <h5>Veg Biryani</h5>
-                    <p class="text-muted">₹ 180</p>
-                    <button class="btn btn-primary" onclick="addToCart('Veg Biryani', 180)">Add to Order</button>
+                    <p class="text-muted mb-2">₹ 180</p>
+                    <button class="btn btn-primary btn-sm" onclick="addToCart('Veg Biryani', 180)">Add</button>
                 </div>
             </div>
         </div>
 
-        <!-- Cart Summary -->
-        <div class="card mt-5 p-4 shadow">
-            <h4 class="fw-bold">Your Cart Order</h4>
-            <ul id="cartList" class="list-group list-group-flush my-3">
-                <li class="list-group-item text-muted">No items added yet.</li>
+        <div class="card my-4 p-3 shadow-sm">
+            <h4 class="fw-bold">Cart</h4>
+            <ul id="cartList" class="list-group list-group-flush my-2">
+                <li class="list-group-item text-muted">No items added.</li>
             </ul>
             <div class="d-flex justify-content-between align-items-center">
                 <h5>Total: ₹ <span id="cartTotal">0</span></h5>
-                <button class="btn btn-success btn-lg" onclick="placeOrder()">Submit Order 🚀</button>
+                <button class="btn btn-success" onclick="placeOrder()">Place Order</button>
             </div>
         </div>
     </div>
@@ -106,7 +85,7 @@
             let total = 0;
 
             if (cart.length === 0) {
-                list.innerHTML = '<li class="list-group-item text-muted">No items added yet.</li>';
+                list.innerHTML = '<li class="list-group-item text-muted">No items added.</li>';
             } else {
                 cart.forEach((item, index) => {
                     total += item.price;
@@ -129,7 +108,7 @@
             let custName = document.getElementById('custName').value || 'Guest';
 
             if (cart.length === 0) {
-                alert("Please add at least one item to order!");
+                alert("Please add at least one item!");
                 return;
             }
 
