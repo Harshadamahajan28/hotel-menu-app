@@ -3,262 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Royal Spice Hotel</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <title>The Royal Spice | Fine Dining & Hospitality</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; }
-        .navbar { background-color: #1a1a1a !important; padding: 15px 0; }
-        .hero { background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4') center/cover; color: white; padding: 100px 0; text-align: center; }
-        .hero h1 { font-size: 3.5rem; font-weight: bold; color: #ffc107; }
-        .section-title { font-weight: 800; color: #333; text-transform: uppercase; margin-bottom: 30px; text-align: center; }
-        .menu-category { background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 30px; }
-        .menu-category h4 { border-bottom: 2px solid #ffc107; padding-bottom: 10px; margin-bottom: 20px; color: #444; font-weight: bold; }
-        .item-card { display: flex; justify-content: space-between; align-items: center; padding: 15px; border: 1px solid #eee; border-radius: 8px; margin-bottom: 15px; transition: 0.3s; }
-        .item-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-color: #ffc107; }
-        .cart-box { background: white; border-radius: 10px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 90px; }
-        .veg-icon { color: green; font-weight: bold; border: 1px solid green; padding: 0 5px; border-radius: 4px; font-size: 11px; margin-right: 8px;}
-        .non-veg-icon { color: red; font-weight: bold; border: 1px solid red; padding: 0 5px; border-radius: 4px; font-size: 11px; margin-right: 8px;}
+        .features-grid {
+            display: flex;
+            gap: 20px;
+            margin: 30px 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 12px;
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            transition: 0.3s ease;
+        }
+
+        .feature-card:hover {
+            background: rgba(243, 156, 18, 0.15);
+            border-color: #f39c12;
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 25px;
+            border: 1px solid rgba(243, 156, 18, 0.3);
+        }
+
+        .stat-item h2 {
+            color: #f39c12;
+            font-size: 24px;
+            margin-bottom: 2px;
+        }
+
+        .stat-item p {
+            font-size: 12px;
+            color: #bbb;
+            margin-bottom: 0;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 13px;
+            color: #888;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Professional Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold text-warning" href="/">👑 Royal Spice</a>
-            <a href="/login" class="btn btn-outline-light btn-sm ms-auto fw-bold px-3">Admin Login</a>
-        </div>
-    </nav>
+    <!-- Header Navigation (Only Customer Links Included) -->
+    <header>
+        <div class="logo">👑 The Royal Spice</div>
+        <nav>
+            <a href="{{ url_for('home') }}">Home</a>
+            <a href="{{ url_for('menu') }}">Digital Menu</a>
+            <button onclick="toggleLanguage()" id="langBtn" style="background: #f39c12; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; cursor: pointer; margin-left: 10px;">मराठी</button>
+        </nav>
+    </header>
 
-    <!-- Hero Section -->
-    <div class="hero">
-        <div class="container">
-            <h1>Experience Fine Dining</h1>
-            <p class="lead mb-4">Authentic Flavors, Delivered Right to Your Table</p>
-            <a href="#menu-section" class="btn btn-warning btn-lg fw-bold px-5 rounded-pill shadow">Explore Menu</a>
-        </div>
-    </div>
+    <!-- Main Hero Section -->
+    <div class="hero-section" style="height: auto; padding: 60px 20px;">
+        <div class="container" style="max-width: 900px; margin: 0 auto; text-align: center;">
+            <span style="background: rgba(243, 156, 18, 0.2); color: #f39c12; padding: 5px 15px; border-radius: 20px; font-size: 13px; font-weight: bold;">
+                ✨ Authentic Fine Dining Experience
+            </span>
 
-    <div class="container my-5" id="menu-section">
-        <h2 class="section-title">Our Exquisite Menu</h2>
-        
-        <div class="row">
-            <!-- Left Side: Menu Items -->
-            <div class="col-lg-8">
+            <h1 id="welcomeHeading" style="font-size: 38px; margin-top: 15px;">Welcome to The Royal Spice 👑</h1>
+            <p id="welcomeSub" style="font-size: 18px; color: #e0e0e0;">Where Culinary Art Meets Royal Hospitality</p>
+
+            <div style="margin: 25px 0;">
+                <a href="{{ url_for('menu') }}" class="btn btn-primary" id="exploreBtn" style="display: inline-block; text-decoration: none; background: #f39c12; color: #fff; padding: 12px 28px; border-radius: 25px; font-weight: bold;">Explore Digital Menu 📜</a>
+            </div>
+
+            <!-- 3 Key Features -->
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">👨‍🍳</div>
+                    <h4 style="color: #f39c12; margin-bottom: 8px;" id="f1_title">Master Chefs</h4>
+                    <p style="font-size: 13px; color: #ccc;" id="f1_desc">Crafted with authentic spices and fresh local ingredients.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌿</div>
+                    <h4 style="color: #f39c12; margin-bottom: 8px;" id="f2_title">100% Fresh & Pure</h4>
+                    <p style="font-size: 13px; color: #ccc;" id="f2_desc">Hygienic kitchen with premium quality ingredients.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h4 style="color: #f39c12; margin-bottom: 8px;" id="f3_title">Fast Service</h4>
+                    <p style="font-size: 13px; color: #ccc;" id="f3_desc">Quick table service & seamless digital menu ordering.</p>
+                </div>
+            </div>
+
+            <!-- About Section -->
+            <div style="background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 25px; text-align: left; margin-top: 30px; border-left: 4px solid #f39c12;">
+                <h3 style="color: #f39c12; margin-bottom: 10px;" id="aboutTitle">✨ About Our Culinary Heritage</h3>
+                <p style="font-size: 14px; color: #ddd; line-height: 1.8;" id="aboutDesc">
+                    At 'The Royal Spice', we take pride in serving exquisite delicacies prepared by world-class chefs.
+                </p>
                 
-                <!-- Veg / Non-Veg Tabs -->
-                <ul class="nav nav-pills mb-4 justify-content-center" id="pills-tab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active fw-bold px-4 fs-5" id="pills-veg-tab" data-bs-toggle="pill" data-bs-target="#pills-veg" type="button" role="tab">🟢 Pure Veg</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link fw-bold px-4 ms-3 fs-5" id="pills-nonveg-tab" data-bs-toggle="pill" data-bs-target="#pills-nonveg" type="button" role="tab">🔴 Non-Veg</button>
-                    </li>
-                </ul>
+                <h3 style="color: #f39c12; margin-bottom: 10px; margin-top: 15px;" id="infoTitle">📍 Location & Timings</h3>
+                <p style="font-size: 14px; color: #ddd; line-height: 1.8;" id="infoDesc">
+                    🕒 <strong>Hours:</strong> 11:00 AM - 11:00 PM (Open All Days)<br>
+                    📍 <strong>Address:</strong> Main Boulevard, Royal Heritage Square, City Center.
+                </p>
+            </div>
 
-                <div class="tab-content" id="pills-tabContent">
-                    
-                    <!-- VEG SECTION -->
-                    <div class="tab-pane fade show active" id="pills-veg" role="tabpanel">
-                        <!-- Veg Starters -->
-                        <div class="menu-category">
-                            <h4>🍲 Starters</h4>
-                            <div class="item-card">
-                                <div><h5 class="mb-1"><span class="veg-icon">V</span>Paneer Tikka</h5><p class="text-muted mb-0">₹ 220</p></div>
-                                <button class="btn btn-outline-success fw-bold px-3" onclick="addToCart('Paneer Tikka', 220)">ADD +</button>
-                            </div>
-                            <div class="item-card">
-                                <div><h5 class="mb-1"><span class="veg-icon">V</span>Crispy Veg</h5><p class="text-muted mb-0">₹ 180</p></div>
-                                <button class="btn btn-outline-success fw-bold px-3" onclick="addToCart('Crispy Veg', 180)">ADD +</button>
-                            </div>
-                        </div>
-                        <!-- Veg Main Course -->
-                        <div class="menu-category">
-                            <h4>🍛 Main Course</h4>
-                            <div class="item-card">
-                                <div><h5 class="mb-1"><span class="veg-icon">V</span>Paneer Butter Masala</h5><p class="text-muted mb-0">₹ 250</p></div>
-                                <button class="btn btn-outline-success fw-bold px-3" onclick="addToCart('Paneer Butter Masala', 250)">ADD +</button>
-                            </div>
-                            <div class="item-card">
-                                <div><h5 class="mb-1"><span class="veg-icon">V</span>Veg Kolhapuri & Roti</h5><p class="text-muted mb-0">₹ 210</p></div>
-                                <button class="btn btn-outline-success fw-bold px-3" onclick="addToCart('Veg Kolhapuri', 210)">ADD +</button>
-                            </div>
-                        </div>
-                        <!-- Veg Desserts -->
-                        <div class="menu-category">
-                            <h4>🍨 Desserts</h4>
-                            <div class="item-card">
-                                <div><h5 class="mb-1"><span class="veg-icon">V</span>Gulab Jamun (2 pcs)</h5><p class="text-muted mb-0">₹ 80</p></div>
-                                <button class="btn btn-outline-success fw-bold px-3" onclick="addToCart('Gulab Jamun', 80)">ADD +</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- NON-VEG SECTION -->
-                    <div class="tab-pane fade" id="pills-nonveg" role="tabpanel">
-                        <!-- Non-Veg Starters -->
-                        <div class="menu-category">
-                            <h4>🍗 Starters</h4>
-                            <div class="item-card">
-                                <div><h5 class="mb-1"><span class="non-veg-icon">NV</span>Chicken Tikka</h5><p class="text-muted mb-0">₹ 280</p></div>
-                                <button class="btn btn-outline-danger fw-bold px-3" onclick="addToCart('Chicken Tikka', 280)">ADD +</button>
-                            </div>
-                        </div>
-                        <!-- Non-Veg Main Course -->
-                        <div class="menu-category">
-                            <h4>🍛 Main Course</h4>
-                            <div class="item-card">
-                                <div><h5 class="mb-1"><span class="non-veg-icon">NV</span>Butter Chicken</h5><p class="text-muted mb-0">₹ 320</p></div>
-                                <button class="btn btn-outline-danger fw-bold px-3" onclick="addToCart('Butter Chicken', 320)">ADD +</button>
-                            </div>
-                            <div class="item-card">
-                                <div><h5 class="mb-1"><span class="non-veg-icon">NV</span>Mutton Biryani</h5><p class="text-muted mb-0">₹ 380</p></div>
-                                <button class="btn btn-outline-danger fw-bold px-3" onclick="addToCart('Mutton Biryani', 380)">ADD +</button>
-                            </div>
-                        </div>
-                        <!-- Desserts -->
-                        <div class="menu-category">
-                            <h4>🍨 Desserts</h4>
-                            <div class="item-card">
-                                <div><h5 class="mb-1"><span class="veg-icon">V</span>Brownie with Ice Cream</h5><p class="text-muted mb-0">₹ 150</p></div>
-                                <button class="btn btn-outline-success fw-bold px-3" onclick="addToCart('Brownie with Ice Cream', 150)">ADD +</button>
-                            </div>
-                        </div>
-                    </div>
-
+            <!-- Statistics Bar -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <h2>15+</h2>
+                    <p id="st1">Years of Legacy</p>
+                </div>
+                <div class="stat-item">
+                    <h2>50+</h2>
+                    <p id="st2">Special Dishes</p>
+                </div>
+                <div class="stat-item">
+                    <h2>10k+</h2>
+                    <p id="st3">Happy Guests</p>
                 </div>
             </div>
 
-            <!-- Right Side: Cart Section -->
-            <div class="col-lg-4">
-                <div class="cart-box">
-                    <h4 class="fw-bold mb-4 text-center border-bottom pb-3">🛒 Your Cart</h4>
-                    <ul id="cartList" class="list-group list-group-flush mb-4">
-                        <li class="list-group-item text-muted text-center py-4">Your cart is empty.<br><small>Add some delicious food!</small></li>
-                    </ul>
-                    <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded border">
-                        <h5 class="fw-bold mb-0">Total Bill:</h5>
-                        <h3 class="fw-bold text-success mb-0">₹ <span id="cartTotal">0</span></h3>
-                    </div>
-                    <!-- This button triggers the popup modal -->
-                    <button class="btn btn-warning w-100 py-3 fw-bold text-dark fs-5 shadow" onclick="openOrderModal()">Place Order 🚀</button>
-                </div>
-            </div>
         </div>
     </div>
 
-    <!-- 🌟 Order Popup Modal (Ask Table No. on Click) -->
-    <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
-          <div class="modal-header bg-dark text-warning border-0">
-            <h5 class="modal-title fw-bold">🍽️ Confirm Your Table</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body p-4">
-            <div class="mb-4">
-                <label class="form-label fw-bold text-secondary">Select Table Number <span class="text-danger">*</span></label>
-                <select id="tableName" class="form-select form-select-lg shadow-sm">
-                    <option value="" disabled selected>-- Select Your Table --</option>
-                    <option value="Table 1">Table 1</option>
-                    <option value="Table 2">Table 2</option>
-                    <option value="Table 3">Table 3</option>
-                    <option value="Table 4">Table 4</option>
-                    <option value="Table 5">Table 5</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label class="form-label fw-bold text-secondary">Your Name (Optional)</label>
-                <input type="text" id="custName" class="form-control form-control-lg shadow-sm" placeholder="e.g. Rahul">
-            </div>
-          </div>
-          <div class="modal-footer border-0 bg-light">
-            <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancel</button>
-            <button type="button" class="btn btn-success px-4 fw-bold shadow-sm" onclick="submitFinalOrder()">Confirm Order ✅</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Footer -->
+    <footer>
+        <p>© 2026 The Royal Spice Restaurant System. All Rights Reserved.</p>
+    </footer>
 
+    <!-- JavaScript for Language Switching -->
     <script>
-        let cart = [];
-        const orderModal = new bootstrap.Modal(document.getElementById('orderModal'));
+        let currentLang = 'en';
 
-        function addToCart(name, price) {
-            cart.push({ item_name: name, price: price });
-            updateCartUI();
-        }
+        function toggleLanguage() {
+            if (currentLang === 'en') {
+                document.getElementById('welcomeHeading').innerText = "द रॉयल स्पाइस मध्ये आपले स्वागत आहे 👑";
+                document.getElementById('welcomeSub').innerText = "अस्सल चव आणि शाही आदरातिथ्याचा अनुभव घ्या";
+                document.getElementById('exploreBtn').innerText = "डिजिटल मेनु पहा 📜";
 
-        function updateCartUI() {
-            let list = document.getElementById('cartList');
-            let totalSpan = document.getElementById('cartTotal');
-            list.innerHTML = '';
-            let total = 0;
+                document.getElementById('f1_title').innerText = "मास्टर शेफ";
+                document.getElementById('f1_desc').innerText = "अस्सल मसाल्यांनी आणि ताज्या भाज्यांनी बनवलेले अन्न.";
+                document.getElementById('f2_title').innerText = "१००% शुद्ध व ताजे";
+                document.getElementById('f2_desc').innerText = "अत्यंत स्वच्छ आणि आरोग्यदायी वातावरणात बनवलेले जेवण.";
+                document.getElementById('f3_title').innerText = "जलद सेवा";
+                document.getElementById('f3_desc').innerText = "उत्तम टेबल सर्व्हिस आणि सोपी डिजिटल मेनु सुविधा.";
 
-            if (cart.length === 0) {
-                list.innerHTML = '<li class="list-group-item text-muted text-center py-4">Your cart is empty.</li>';
+                document.getElementById('aboutTitle').innerText = "✨ आमच्या हॉटेलबद्दल माहिती";
+                document.getElementById('aboutDesc').innerText = "'द रॉयल स्पाइस' मध्ये आम्ही तुम्हाला शुद्ध, ताज्या आणि अस्सल मसाल्यांनी बनवलेले स्वादिष्ट पदार्थ पुरवतो.";
+                document.getElementById('infoTitle').innerText = "📍 वेळ आणि पत्ता";
+                document.getElementById('infoDesc').innerHTML = "🕒 <strong>वेळ:</strong> सकाळी ११:०० ते रात्री ११:०० (दररोज)<br>📍 <strong>पत्ता:</strong> मुख्य रस्ता, रॉयल हेरिटेज स्क्वेअर, सिटी सेंटर.";
+
+                document.getElementById('st1').innerText = "वर्षांची परंपरा";
+                document.getElementById('st2').innerText = "खास डिशेस";
+                document.getElementById('st3').innerText = "आनंदी ग्राहक";
+
+                document.getElementById('langBtn').innerText = "English";
+                currentLang = 'mr';
             } else {
-                cart.forEach((item, index) => {
-                    total += item.price;
-                    list.innerHTML += `
-                    <li class="list-group-item d-flex justify-content-between align-items-center px-1">
-                        <span class="fw-semibold text-dark">${item.item_name}</span>
-                        <div>
-                            <span class="fw-bold me-3 text-secondary">₹${item.price}</span>
-                            <button class="btn btn-sm btn-outline-danger fw-bold" onclick="removeFromCart(${index})" title="Remove">✖</button>
-                        </div>
-                    </li>`;
-                });
+                document.getElementById('welcomeHeading').innerText = "Welcome to The Royal Spice 👑";
+                document.getElementById('welcomeSub').innerText = "Where Culinary Art Meets Royal Hospitality";
+                document.getElementById('exploreBtn').innerText = "Explore Digital Menu 📜";
+
+                document.getElementById('f1_title').innerText = "Master Chefs";
+                document.getElementById('f1_desc').innerText = "Crafted with authentic spices and fresh local ingredients.";
+                document.getElementById('f2_title').innerText = "100% Fresh & Pure";
+                document.getElementById('f2_desc').innerText = "Hygienic kitchen with premium quality ingredients.";
+                document.getElementById('f3_title').innerText = "Fast Service";
+                document.getElementById('f3_desc').innerText = "Quick table service & seamless digital menu ordering.";
+
+                document.getElementById('aboutTitle').innerText = "✨ About Our Culinary Heritage";
+                document.getElementById('aboutDesc').innerText = "At 'The Royal Spice', we take pride in serving exquisite delicacies prepared by world-class chefs.";
+                document.getElementById('infoTitle').innerText = "📍 Location & Timings";
+                document.getElementById('infoDesc').innerHTML = "🕒 <strong>Hours:</strong> 11:00 AM - 11:00 PM (Open All Days)<br>📍 <strong>Address:</strong> Main Boulevard, Royal Heritage Square, City Center.";
+
+                document.getElementById('st1').innerText = "Years of Legacy";
+                document.getElementById('st2').innerText = "Special Dishes";
+                document.getElementById('st3').innerText = "Happy Guests";
+
+                document.getElementById('langBtn').innerText = "मराठी";
+                currentLang = 'en';
             }
-            totalSpan.innerText = total;
-        }
-
-        function removeFromCart(index) {
-            cart.splice(index, 1);
-            updateCartUI();
-        }
-
-        function openOrderModal() {
-            if (cart.length === 0) {
-                alert("Please add at least one item to your cart before placing an order!");
-                return;
-            }
-            orderModal.show(); // Opens the table number popup
-        }
-
-        function submitFinalOrder() {
-            let tableNo = document.getElementById('tableName').value;
-            let custName = document.getElementById('custName').value || 'Guest';
-
-            if (!tableNo) {
-                alert("Please select a Table Number!");
-                return;
-            }
-
-            fetch('/api/order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    table_no: tableNo,
-                    customer_name: custName,
-                    items: cart,
-                    total: parseInt(document.getElementById('cartTotal').innerText)
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    orderModal.hide();
-                    alert("🎉 Order Placed Successfully! The kitchen has received your order.");
-                    cart = [];
-                    updateCartUI();
-                    document.getElementById('tableName').value = '';
-                    document.getElementById('custName').value = '';
-                } else {
-                    alert("Error placing order.");
-                }
-            });
         }
     </script>
 </body>
