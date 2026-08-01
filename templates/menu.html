@@ -8,35 +8,37 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #0d1117; color: #ffffff; font-family: 'Segoe UI', sans-serif; padding-bottom: 90px; }
-        .hero-section { background: linear-gradient(180deg, #161b22 0%, #0d1117 100%); padding: 20px 15px; border-bottom: 1px solid #30363d; }
-        .dish-card { background-color: #161b22; border: 1px solid #30363d; border-radius: 12px; }
+        .hero-section { background: linear-gradient(180deg, #161b22 0%, #0d1117 100%); padding: 15px; border-bottom: 1px solid #30363d; }
+        .dish-card { background-color: #161b22; border: 1px solid #30363d; border-radius: 12px; transition: 0.2s; }
         .dish-card:hover { border-color: #f39c12; }
         .cart-bar { position: fixed; bottom: 0; left: 0; right: 0; background-color: #161b22; border-top: 2px solid #f39c12; padding: 12px 20px; z-index: 1000; }
-        .badge-veg { color: #2ea44f; border: 1px solid #2ea44f; padding: 2px 6px; font-size: 11px; border-radius: 4px; }
-        .badge-nonveg { color: #f85149; border: 1px solid #f85149; padding: 2px 6px; font-size: 11px; border-radius: 4px; }
+        .badge-veg { color: #2ea44f; border: 1px solid #2ea44f; padding: 2px 6px; font-size: 10px; border-radius: 4px; }
+        .badge-nonveg { color: #f85149; border: 1px solid #f85149; padding: 2px 6px; font-size: 10px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-    <div class="hero-section text-center mb-4">
-        <div class="d-flex justify-content-between align-items-center container mb-2">
+    <!-- Header -->
+    <div class="hero-section text-center mb-3">
+        <div class="d-flex justify-content-between align-items-center container">
             <a href="{{ url_for('home') }}" class="text-warning text-decoration-none fw-bold"><i class="fa-solid fa-house"></i> Home</a>
-            <h3 class="fw-bold text-warning m-0"><i class="fa-solid fa-crown"></i> DIGITAL MENU</h3>
+            <h4 class="fw-bold text-warning m-0"><i class="fa-solid fa-crown"></i> DIGITAL MENU</h4>
             <div></div>
         </div>
     </div>
 
     <div class="container">
-        <!-- Category Buttons -->
-        <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap">
-            <button class="btn btn-warning rounded-pill btn-sm fw-bold px-3" onclick="filterMenu('all')">All</button>
-            <button class="btn btn-outline-warning rounded-pill btn-sm fw-bold px-3" onclick="filterMenu('Starters')">Starters</button>
-            <button class="btn btn-outline-warning rounded-pill btn-sm fw-bold px-3" onclick="filterMenu('Main Course')">Main Course</button>
-            <button class="btn btn-outline-warning rounded-pill btn-sm fw-bold px-3" onclick="filterMenu('Roti & Breads')">Breads</button>
-            <button class="btn btn-outline-warning rounded-pill btn-sm fw-bold px-3" onclick="filterMenu('Desserts')">Desserts</button>
-            <button class="btn btn-outline-warning rounded-pill btn-sm fw-bold px-3" onclick="filterMenu('Drinks')">Drinks</button>
+        <!-- Category Filters -->
+        <div class="d-flex justify-content-start justify-content-md-center gap-2 mb-4 overflow-auto pb-2">
+            <button class="btn btn-warning rounded-pill btn-sm fw-bold px-3 text-nowrap" onclick="filterMenu('all')">All Items</button>
+            <button class="btn btn-outline-warning rounded-pill btn-sm fw-bold px-3 text-nowrap" onclick="filterMenu('Starters')">Starters</button>
+            <button class="btn btn-outline-warning rounded-pill btn-sm fw-bold px-3 text-nowrap" onclick="filterMenu('Main Course')">Main Course</button>
+            <button class="btn btn-outline-warning rounded-pill btn-sm fw-bold px-3 text-nowrap" onclick="filterMenu('Breads')">Roti & Breads</button>
+            <button class="btn btn-outline-warning rounded-pill btn-sm fw-bold px-3 text-nowrap" onclick="filterMenu('Rice')">Rice & Biryani</button>
+            <button class="btn btn-outline-warning rounded-pill btn-sm fw-bold px-3 text-nowrap" onclick="filterMenu('Desserts')">Desserts & Drinks</button>
         </div>
 
+        <!-- Dishes Grid -->
         <div class="row g-3" id="menuGrid"></div>
     </div>
 
@@ -56,13 +58,13 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark text-white border-secondary">
                 <div class="modal-header border-secondary">
-                    <h5 class="modal-title text-warning fw-bold"><i class="fa-solid fa-receipt"></i> Confirm Order</h5>
+                    <h5 class="modal-title text-warning fw-bold"><i class="fa-solid fa-receipt"></i> Confirm Table Order</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label small">Your Name *</label>
-                        <input type="text" id="cust_name" class="form-control bg-secondary text-white border-0" placeholder="e.g. Rahul Sharma" required>
+                    <div class="mb-2">
+                        <label class="form-label small">Customer Name *</label>
+                        <input type="text" id="cust_name" class="form-control bg-secondary text-white border-0" placeholder="Enter your name" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label small">Table Number *</label>
@@ -71,7 +73,7 @@
                     <hr class="border-secondary">
                     <div id="modalCartItems" class="small text-light opacity-75 mb-3"></div>
                     <div class="d-flex justify-content-between fw-bold fs-5 text-success">
-                        <span>Total:</span>
+                        <span>Total Payable:</span>
                         <span>₹<span id="modalCartTotal">0</span></span>
                     </div>
                 </div>
@@ -82,37 +84,33 @@
         </div>
     </div>
 
-    <!-- 🎉 Order Success Receipt Modal (With ID) -->
+    <!-- Success Modal -->
     <div class="modal fade" id="successModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark text-white border-success">
                 <div class="modal-body text-center p-4">
                     <div class="fs-1 text-success mb-2"><i class="fa-solid fa-circle-check"></i></div>
                     <h4 class="fw-bold text-success mb-1">Order Sent to Kitchen!</h4>
-                    <p class="text-secondary small">Your order has been placed successfully.</p>
+                    <p class="text-secondary small">Your food is being prepared.</p>
                     
                     <div class="bg-secondary bg-opacity-25 p-3 rounded-3 my-3 text-start border border-secondary">
                         <div class="d-flex justify-content-between mb-1">
                             <span class="text-secondary">Order ID:</span>
-                            <strong class="text-warning" id="res_order_id">#ORD-0000</strong>
+                            <strong class="text-warning" id="res_order_id">#0</strong>
                         </div>
                         <div class="d-flex justify-content-between mb-1">
                             <span class="text-secondary">Table No:</span>
                             <strong class="text-white" id="res_table">0</strong>
                         </div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="text-secondary">Customer:</span>
-                            <strong class="text-white" id="res_name">Guest</strong>
-                        </div>
                         <hr class="border-secondary my-2">
                         <div id="res_items" class="small text-light mb-2"></div>
-                        <div class="d-flex justify-content-between fw-bold text-success fs-6">
-                            <span>Total Paid:</span>
+                        <div class="d-flex justify-content-between fw-bold text-success">
+                            <span>Total Amount:</span>
                             <span>₹<span id="res_total">0</span></span>
                         </div>
                     </div>
 
-                    <button class="btn btn-success fw-bold w-100" onclick="location.reload()">Back to Menu</button>
+                    <button class="btn btn-success fw-bold w-100" onclick="location.reload()">Done / New Order</button>
                 </div>
             </div>
         </div>
@@ -120,35 +118,87 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // 📜 डिशेसची मोठी यादी (Half/Full & Spice Options सह)
         const dishes = [
-            { id: 1, name: "Paneer Tikka Starter", price: 220, category: "Starters", type: "veg", desc: "Marinated cottage cheese grilled in tandoor." },
-            { id: 2, name: "Chicken Tikka Starter", price: 260, category: "Starters", type: "nonveg", desc: "Spiced grilled boneless chicken." },
-            { id: 3, name: "Paneer Butter Masala", price: 240, category: "Main Course", type: "veg", desc: "Creamy cottage cheese curry." },
-            { id: 4, name: "Chicken Biryani", price: 280, category: "Main Course", type: "nonveg", desc: "Aromatic basmati rice cooked with chicken." },
-            { id: 5, name: "Butter Naan", price: 45, category: "Roti & Breads", type: "veg", desc: "Soft tandoori bread with butter." },
-            { id: 6, name: "Gulab Jamun (2 Pcs)", price: 90, category: "Desserts", type: "veg", desc: "Warm sweet milk dumplings." }
+            // STARTERS
+            { id: 101, name: "Paneer Crispy", category: "Starters", type: "veg", halfPrice: 130, fullPrice: 220, hasTaste: true },
+            { id: 102, name: "Paneer Chilli", category: "Starters", type: "veg", halfPrice: 140, fullPrice: 240, hasTaste: true },
+            { id: 103, name: "Veg Hara Bhara Kabab", category: "Starters", type: "veg", halfPrice: 110, fullPrice: 190, hasTaste: true },
+            { id: 104, name: "Chicken Chilli Starter", category: "Starters", type: "nonveg", halfPrice: 160, fullPrice: 270, hasTaste: true },
+            { id: 105, name: "Chicken 65", category: "Starters", type: "nonveg", halfPrice: 170, fullPrice: 280, hasTaste: true },
+            
+            // MAIN COURSE VEG
+            { id: 201, name: "Paneer Butter Masala", category: "Main Course", type: "veg", halfPrice: 150, fullPrice: 260, hasTaste: true },
+            { id: 202, name: "Paneer Kadhai", category: "Main Course", type: "veg", halfPrice: 160, fullPrice: 270, hasTaste: true },
+            { id: 203, name: "Veg Kolhapuri", category: "Main Course", type: "veg", halfPrice: 130, fullPrice: 220, hasTaste: true },
+            { id: 204, name: "Dal Tadka", category: "Main Course", type: "veg", halfPrice: 100, fullPrice: 170, hasTaste: true },
+
+            // MAIN COURSE NON-VEG
+            { id: 205, name: "Chicken Butter Masala", category: "Main Course", type: "nonveg", halfPrice: 180, fullPrice: 310, hasTaste: true },
+            { id: 206, name: "Chicken Curry / Handi", category: "Main Course", type: "nonveg", halfPrice: 170, fullPrice: 290, hasTaste: true },
+            { id: 207, name: "Mutton Curry", category: "Main Course", type: "nonveg", halfPrice: 220, fullPrice: 380, hasTaste: true },
+
+            // RICE & BIRYANI
+            { id: 301, name: "Veg Dum Biryani", category: "Rice", type: "veg", halfPrice: 120, fullPrice: 200, hasTaste: true },
+            { id: 302, name: "Chicken Dum Biryani", category: "Rice", type: "nonveg", halfPrice: 160, fullPrice: 270, hasTaste: true },
+            { id: 303, name: "Jeera Rice", category: "Rice", type: "veg", halfPrice: 80, fullPrice: 130, hasTaste: false },
+
+            // BREADS
+            { id: 401, name: "Butter Tandoori Roti", category: "Breads", type: "veg", halfPrice: null, fullPrice: 25, hasTaste: false },
+            { id: 402, name: "Butter Naan", category: "Breads", type: "veg", halfPrice: null, fullPrice: 45, hasTaste: false },
+            { id: 403, name: "Garlic Naan", category: "Breads", type: "veg", halfPrice: null, fullPrice: 60, hasTaste: false },
+
+            // DESSERTS & DRINKS
+            { id: 501, name: "Gulab Jamun (2 Pcs)", category: "Desserts", type: "veg", halfPrice: null, fullPrice: 70, hasTaste: false },
+            { id: 502, name: "Cold Drinks (300ml)", category: "Desserts", type: "veg", halfPrice: null, fullPrice: 40, hasTaste: false },
+            { id: 503, name: "Masala Taak / Lassi", category: "Desserts", type: "veg", halfPrice: null, fullPrice: 50, hasTaste: false }
         ];
 
-        let cart = {};
+        let cart = [];
 
         function renderMenu(items) {
             const grid = document.getElementById('menuGrid');
             grid.innerHTML = '';
             items.forEach(dish => {
                 const badge = dish.type === 'veg' ? '<span class="badge-veg">VEG</span>' : '<span class="badge-nonveg">NON-VEG</span>';
+                
+                // Half/Full Radio HTML
+                let portionHTML = '';
+                if(dish.halfPrice) {
+                    portionHTML = `
+                        <div class="btn-group btn-group-sm w-100 my-2" role="group">
+                            <input type="radio" class="btn-check" name="portion-${dish.id}" id="half-${dish.id}" value="Half" checked>
+                            <label class="btn btn-outline-warning" for="half-${dish.id}">Half (₹${dish.halfPrice})</label>
+                            
+                            <input type="radio" class="btn-check" name="portion-${dish.id}" id="full-${dish.id}" value="Full">
+                            <label class="btn btn-outline-warning" for="full-${dish.id}">Full (₹${dish.fullPrice})</label>
+                        </div>`;
+                } else {
+                    portionHTML = `<div class="text-success fw-bold my-2">Full Plate: ₹${dish.fullPrice}</div>`;
+                }
+
+                // Taste Option HTML
+                let tasteHTML = '';
+                if(dish.hasTaste) {
+                    tasteHTML = `
+                        <select class="form-select form-select-sm bg-dark text-warning border-secondary mb-2" id="taste-${dish.id}">
+                            <option value="Medium 🫑">Taste: Medium 🫑</option>
+                            <option value="Spicy 🌶️">Taste: Spicy 🌶️</option>
+                            <option value="Jain 🌿">Taste: Jain (No Onion-Garlic) 🌿</option>
+                        </select>`;
+                }
+
                 grid.innerHTML += `
                     <div class="col-md-6 col-12">
-                        <div class="dish-card p-3 d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="fw-bold m-0">${dish.name} ${badge}</h6>
-                                <p class="text-secondary small mb-1">${dish.desc}</p>
-                                <h6 class="text-success fw-bold m-0">₹${dish.price}</h6>
+                        <div class="dish-card p-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="fw-bold m-0 text-white">${dish.name} ${badge}</h6>
                             </div>
-                            <div class="d-flex align-items-center gap-2">
-                                <button class="btn btn-sm btn-outline-warning fw-bold" onclick="changeQty(${dish.id}, -1)">-</button>
-                                <span class="fw-bold text-warning" id="qty-${dish.id}">0</span>
-                                <button class="btn btn-sm btn-warning fw-bold" onclick="changeQty(${dish.id}, 1)">+</button>
-                            </div>
+                            ${portionHTML}
+                            ${tasteHTML}
+                            <button class="btn btn-warning btn-sm fw-bold w-100" onclick="addToCart(${dish.id})">
+                                <i class="fa-solid fa-plus me-1"></i> Add Item
+                            </button>
                         </div>
                     </div>`;
             });
@@ -159,29 +209,70 @@
             else renderMenu(dishes.filter(d => d.category === cat));
         }
 
-        function changeQty(id, change) {
-            cart[id] = (cart[id] || 0) + change;
-            if (cart[id] <= 0) delete cart[id];
-            updateCart();
+        function addToCart(dishId) {
+            const dish = dishes.find(d => d.id === dishId);
+            let portion = "Full";
+            let price = dish.fullPrice;
+
+            if(dish.halfPrice) {
+                const isHalf = document.getElementById(`half-${dishId}`).checked;
+                portion = isHalf ? "Half" : "Full";
+                price = isHalf ? dish.halfPrice : dish.fullPrice;
+            }
+
+            let taste = "";
+            const tasteElem = document.getElementById(`taste-${dishId}`);
+            if(tasteElem) taste = tasteElem.value;
+
+            // मोजणे किंवा अपडेट करणे
+            const cartIndex = cart.findIndex(c => c.id === dishId && c.portion === portion && c.taste === taste);
+            if(cartIndex > -1) {
+                cart[cartIndex].qty += 1;
+            } else {
+                cart.push({
+                    id: dish.id,
+                    name: dish.name,
+                    portion: portion,
+                    taste: taste,
+                    price: price,
+                    qty: 1
+                });
+            }
+            updateCartBar();
         }
 
-        function updateCart() {
+        function updateCartBar() {
             let total = 0, count = 0, itemsHTML = '';
-            for (let id in cart) {
-                const dish = dishes.find(d => d.id == id);
-                if (dish) {
-                    total += dish.price * cart[id];
-                    count += cart[id];
-                    itemsHTML += `<div class="d-flex justify-content-between"><span>${dish.name} x${cart[id]}</span><strong>₹${dish.price * cart[id]}</strong></div>`;
-                }
-                if(document.getElementById(`qty-${id}`)) document.getElementById(`qty-${id}`).innerText = cart[id];
-            }
-            dishes.forEach(d => { if(!cart[d.id] && document.getElementById(`qty-${d.id}`)) document.getElementById(`qty-${d.id}`).innerText = 0; });
+            cart.forEach((item, index) => {
+                total += item.price * item.qty;
+                count += item.qty;
+                const tasteStr = item.taste ? ` [${item.taste}]` : '';
+                itemsHTML += `
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div>
+                            <strong>${item.name}</strong> (${item.portion})${tasteStr}
+                            <br><small class="text-success">₹${item.price} x ${item.qty}</small>
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-danger px-2 py-0" onclick="removeItem(${index})">-</button>
+                        </div>
+                    </div>`;
+            });
+
             document.getElementById('cartTotal').innerText = total;
             document.getElementById('cartCount').innerText = count;
             document.getElementById('modalCartTotal').innerText = total;
-            document.getElementById('modalCartItems').innerHTML = itemsHTML;
+            document.getElementById('modalCartItems').innerHTML = itemsHTML || 'No items in cart';
             document.getElementById('checkoutBtn').disabled = count === 0;
+        }
+
+        function removeItem(index) {
+            if(cart[index].qty > 1) {
+                cart[index].qty -= 1;
+            } else {
+                cart.splice(index, 1);
+            }
+            updateCartBar();
         }
 
         async function submitOrder() {
@@ -189,13 +280,13 @@
             const table_no = document.getElementById('table_no').value;
             if (!customer_name || !table_no) { alert('Please enter Name & Table Number!'); return; }
 
-            let items = [];
-            let total = 0;
-            for (let id in cart) {
-                const dish = dishes.find(d => d.id == id);
-                items.push({ name: dish.name, qty: cart[id], price: dish.price });
-                total += dish.price * cart[id];
-            }
+            let items = cart.map(c => ({
+                name: `${c.name} (${c.portion})${c.taste ? ' - ' + c.taste : ''}`,
+                qty: c.qty,
+                price: c.price
+            }));
+
+            let total = cart.reduce((sum, i) => sum + (i.price * i.qty), 0);
 
             try {
                 const res = await fetch('/api/order', {
@@ -205,20 +296,16 @@
                 });
                 const data = await res.json();
                 if(data.success) {
-                    // Hide Order Modal
                     bootstrap.Modal.getInstance(document.getElementById('orderModal')).hide();
                     
-                    // Set Receipt Data
                     document.getElementById('res_order_id').innerText = '#' + data.order_id;
                     document.getElementById('res_table').innerText = table_no;
-                    document.getElementById('res_name').innerText = customer_name;
                     document.getElementById('res_total').innerText = total;
                     
                     let itemSummary = '';
                     items.forEach(i => itemSummary += `<div>• ${i.name} (x${i.qty})</div>`);
                     document.getElementById('res_items').innerHTML = itemSummary;
 
-                    // Show Success Modal
                     new bootstrap.Modal(document.getElementById('successModal')).show();
                 }
             } catch(e) { alert('Order Failed!'); }
