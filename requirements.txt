@@ -3,3 +3,4 @@ pymongo
 dnspython
 gunicorn
 pytz
+psycopg2-binary
