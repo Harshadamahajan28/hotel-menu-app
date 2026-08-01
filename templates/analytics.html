@@ -22,16 +22,16 @@
     </nav>
 
     <div class="container">
-        <!-- 📅 Date Picker Filter Section -->
+        <!-- 📅 Date Picker Filter -->
         <div class="card bg-dark border-secondary p-3 mb-4">
             <div class="row align-items-center g-3">
-                <div class="col-md-4 col-12">
-                    <label class="form-label text-warning fw-bold mb-1"><i class="fa-solid fa-calendar-days me-1"></i> Select Date to View Report:</label>
+                <div class="col-md-5 col-12">
+                    <label class="form-label text-warning fw-bold mb-1"><i class="fa-solid fa-calendar-days me-1"></i> Select Date:</label>
                     <input type="date" id="filterDate" class="form-control bg-secondary text-white border-0" onchange="loadAnalytics()">
                 </div>
-                <div class="col-md-8 col-12 d-flex align-items-end gap-2">
+                <div class="col-md-7 col-12 d-flex align-items-end gap-2">
                     <button class="btn btn-info fw-bold" onclick="loadAnalytics()"><i class="fa-solid fa-filter me-1"></i> Filter Data</button>
-                    <button class="btn btn-outline-secondary fw-bold text-white" onclick="resetDate()"><i class="fa-solid fa-rotate me-1"></i> Show Today</button>
+                    <button class="btn btn-outline-light fw-bold" onclick="showAllData()"><i class="fa-solid fa-list me-1"></i> Show All Dates</button>
                 </div>
             </div>
         </div>
@@ -70,22 +70,22 @@
 
         <!-- 📑 Order History Table -->
         <div class="order-table-card">
-            <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-list"></i> Order Details for Selected Date</h5>
+            <h5 class="fw-bold text-warning mb-3"><i class="fa-solid fa-list"></i> Order Details</h5>
             <div class="table-responsive">
                 <table class="table table-dark table-hover align-middle">
                     <thead>
                         <tr class="text-secondary">
                             <th>Order ID</th>
-                            <th>Table No</th>
+                            <th>Table</th>
                             <th>Customer Name</th>
                             <th>Items</th>
-                            <th>Total Amount</th>
+                            <th>Amount</th>
                             <th>Status</th>
-                            <th>Time</th>
+                            <th>Date & Time</th>
                         </tr>
                     </thead>
                     <tbody id="analyticsTableBody">
-                        <tr><td colspan="7" class="text-center text-secondary py-4">Select a date to view orders</td></tr>
+                        <tr><td colspan="7" class="text-center text-secondary py-4">Loading...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -93,14 +93,22 @@
     </div>
 
     <script>
-        // आजची तारीख बाय-डिफॉल्ट सेट करणे (YYYY-MM-DD)
+        // बाय-डिफॉल्ट आजची तारीख सेट करणे
         document.getElementById('filterDate').valueAsDate = new Date();
 
         async function loadAnalytics() {
             const selectedDate = document.getElementById('filterDate').value;
-            
+            fetchData(`/api/admin/analytics_data?date=${selectedDate}`);
+        }
+
+        function showAllData() {
+            document.getElementById('filterDate').value = '';
+            fetchData('/api/admin/analytics_data');
+        }
+
+        async function fetchData(url) {
             try {
-                const res = await fetch(`/api/admin/analytics_data?date=${selectedDate}`);
+                const res = await fetch(url);
                 const data = await res.json();
                 
                 if(data.success) {
@@ -113,7 +121,7 @@
                     tableBody.innerHTML = '';
 
                     if(data.orders.length === 0) {
-                        tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-secondary py-4">No orders found for ${selectedDate}</td></tr>`;
+                        tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-secondary py-4">No orders found for selected date.</td></tr>`;
                         return;
                     }
 
@@ -122,32 +130,24 @@
                             ? `<span class="badge bg-warning text-dark">${ord.status}</span>`
                             : `<span class="badge bg-success">${ord.status}</span>`;
 
-                        let itemDetails = ord.items.map(i => `${i.name} (x${i.qty})`).join(', ');
-
                         tableBody.innerHTML += `
                             <tr>
                                 <td><strong class="text-warning">#${ord.id}</strong></td>
                                 <td>Table ${ord.table_no}</td>
                                 <td>${ord.customer_name}</td>
-                                <td class="small text-light">${itemDetails}</td>
+                                <td class="small text-light">${ord.items}</td>
                                 <td class="text-success fw-bold">₹${ord.total}</td>
                                 <td>${statusBadge}</td>
-                                <td class="text-secondary small">${ord.time}</td>
+                                <td class="text-secondary small">${ord.date} (${ord.time})</td>
                             </tr>
                         `;
                     });
                 }
             } catch(e) {
-                console.error('Error loading analytics:', e);
+                console.error('Error:', e);
             }
         }
 
-        function resetDate() {
-            document.getElementById('filterDate').valueAsDate = new Date();
-            loadAnalytics();
-        }
-
-        // पेज लोड झाल्यावर आजचा डेटा दाखवा
         loadAnalytics();
     </script>
 </body>
