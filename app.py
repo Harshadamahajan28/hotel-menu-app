@@ -83,6 +83,21 @@ def place_order():
 
     return jsonify({'success': True, 'order_id': order_id, 'date': date_str, 'time': time_str})
 
+# 🗑️ ग्राहकाने ऑर्डर Cancel/Delete केल्यावर Neon PostgreSQL मधून ऑर्डर हटवण्यासाठी API Route
+@app.route('/api/order/cancel/<int:order_id>', methods=['DELETE'])
+def cancel_order(order_id):
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM orders WHERE id = %s', (order_id,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({'success': True, 'message': 'Order deleted successfully'})
+    except Exception as e:
+        print("Delete Order Error:", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/admin/orders', methods=['GET'])
 def get_admin_orders():
     conn = get_db_connection()
