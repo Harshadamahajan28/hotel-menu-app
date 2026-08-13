@@ -168,7 +168,7 @@
     <!-- Header Navbar -->
     <div class="hero-section sticky-top mb-4">
         <div class="container d-flex justify-content-between align-items-center">
-            <a href="{{ url_for('home') }}" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold">
+            <a href="{{ url_for('home') if 'home' in endpoints else '#' }}" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold">
                 <i class="fa-solid fa-arrow-left me-1"></i> Home
             </a>
             <div class="text-center">
@@ -273,9 +273,16 @@
                         <h4 style="text-align:right; margin:0; font-weight:bold;">Total: ₹<span id="pTotal">0</span></h4>
                         <p style="text-align:center; font-size:11px; margin-top:15px; color:#555;">*** Thank You! Visit Again ***</p>
                     </div>
+
+                    <!-- ⏱️ १० मिनिटांचा लाइव्ह टाइमर बॉक्स -->
+                    <div class="alert alert-dark border-secondary text-center mt-3 mb-0 py-2">
+                        <small class="text-warning fw-bold d-block mb-1" id="timerNotice">⏱️ You can cancel order within 10 mins:</small>
+                        <span id="cancelTimer" class="fs-5 fw-bold text-danger">10:00</span>
+                    </div>
                 </div>
                 <div class="modal-footer border-secondary justify-content-between">
-                    <button type="button" class="btn btn-outline-danger fw-bold btn-sm" onclick="cancelOrder()">
+                    <!-- 🗑️ १० मिनिटांच्या टायमरसह डिलीट बटण -->
+                    <button type="button" class="btn btn-outline-danger fw-bold btn-sm" id="btnCancelOrder" onclick="cancelOrder()">
                         <i class="fa-solid fa-trash me-1"></i> Delete / Cancel Order
                     </button>
 
@@ -333,6 +340,7 @@
         ];
 
         let cart = [];
+        let cancelTimerInterval = null;
 
         function renderMenu(items) {
             const grid = document.getElementById('menuGrid');
@@ -496,9 +504,47 @@
                     });
                     document.getElementById('pItemsList').innerHTML = pItemsHTML;
 
+                    // ⏱️ १० मिनिटांचा (६०० सेकंद) काउंटडाऊन सुरू करा
+                    start10MinTimer(600);
+
                     new bootstrap.Modal(document.getElementById('pdfReceiptModal')).show();
                 }
             } catch(e) { alert('Order Failed!'); }
+        }
+
+        // ⏱️ १० मिनिटांचा (600 seconds) काउंटडाऊन टायमर चालवणारे फंक्शन
+        function start10MinTimer(durationInSeconds) {
+            let timer = durationInSeconds;
+            const timerElem = document.getElementById('cancelTimer');
+            const cancelBtn = document.getElementById('btnCancelOrder');
+            const timerNotice = document.getElementById('timerNotice');
+
+            if (!timerElem || !cancelBtn) return;
+
+            cancelBtn.disabled = false;
+            cancelBtn.classList.remove('btn-secondary');
+            cancelBtn.classList.add('btn-outline-danger');
+
+            if(cancelTimerInterval) clearInterval(cancelTimerInterval);
+
+            cancelTimerInterval = setInterval(() => {
+                let minutes = parseInt(timer / 60, 10);
+                let seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                timerElem.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(cancelTimerInterval);
+                    timerElem.textContent = "Time Expired!";
+                    if(timerNotice) timerNotice.textContent = "⚠️ Order cannot be cancelled now (Kitchen preparing):";
+                    cancelBtn.disabled = true;
+                    cancelBtn.classList.remove('btn-outline-danger');
+                    cancelBtn.classList.add('btn-secondary');
+                }
+            }, 1000);
         }
 
         async function cancelOrder() {
@@ -516,7 +562,7 @@
                         alert("तुमची ऑर्डर यशस्वीरित्या रद्द (Delete) करण्यात आली आहे!");
                         location.reload();
                     } else {
-                        alert("ऑर्डर डिलीट करता आली नाही: " + (data.message || 'त्रुटी आली आहे'));
+                        alert("ऑर्डर डिलीट करता आली नाही: " + (data.error || data.message || 'त्रुटी आली आहे'));
                     }
                 } catch (e) {
                     alert("ऑर्डर रद्द करताना सर्व्हर एरर आला!");
