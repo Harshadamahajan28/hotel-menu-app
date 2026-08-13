@@ -6,7 +6,10 @@ import psycopg2
 app = Flask(__name__)
 app.secret_key = "royal_spice_secret_key"
 
-DATABASE_URL = os.environ.get('DATABASE_URL', 'your_neon_postgres_db_url_here')
+DATABASE_URL = os.environ.get(
+    'DATABASE_URL',
+    'postgresql://neondb_owner:npg_tp1sR2xCcloF@ep-solitary-water-ayecuz6l.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require'
+)
 
 def get_db_connection():
     return psycopg2.connect(DATABASE_URL)
