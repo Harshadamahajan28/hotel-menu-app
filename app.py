@@ -1,11 +1,15 @@
 from flask import Flask, render_template, request, jsonify
 import psycopg2
 import datetime
+import os
 
 app = Flask(__name__)
 
-# 🔗 Neon PostgreSQL Database Connection URL
-DATABASE_URL = "postgresql://neondb_owner:npg_tp1sR2xCcloF@ep-solitary-water-ayecuz6l.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require"
+# 🔗 Neon PostgreSQL Database Connection URL (Environment Variable or Default)
+DATABASE_URL = os.environ.get(
+    'DATABASE_URL',
+    "postgresql://neondb_owner:npg_tp1sR2xCcloF@ep-solitary-water-ayecuz6l.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require"
+)
 
 def get_db_connection():
     conn = psycopg2.connect(DATABASE_URL)
@@ -83,17 +87,52 @@ def place_order():
 
     return jsonify({'success': True, 'order_id': order_id, 'date': date_str, 'time': time_str})
 
-# 🗑️ ग्राहकाने ऑर्डर Cancel/Delete केल्यावर Neon PostgreSQL मधून ऑर्डर हटवण्यासाठी API Route
+# 🗑️ १० मिनिटांचे Security Check असलेले Order Delete/Cancel API Route
 @app.route('/api/order/cancel/<int:order_id>', methods=['DELETE'])
 def cancel_order(order_id):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
+        
+        # १. ऑर्डरची तारीख व वेळ आधी शोधा
+        cursor.execute('SELECT order_date, order_time FROM orders WHERE id = %s', (order_id,))
+        order = cursor.fetchone()
+        
+        if not order:
+            cursor.close()
+            conn.close()
+            return jsonify({'success': False, 'error': 'ऑर्डर सापडली नाही!'}), 404
+
+        order_date_str, order_time_str = str(order[0]), str(order[1])
+        
+        # २. वेळेची तुलना करण्यासाठी वेळ ऑब्जेक्टमध्ये रूपांतर करा
+        order_datetime_str = f"{order_date_str} {order_time_str}"
+        order_datetime = datetime.datetime.strptime(order_datetime_str, "%Y-%m-%d %I:%M %p")
+        
+        # आत्ताची भारतीय वेळ
+        utc_now = datetime.datetime.now(datetime.timezone.utc)
+        ist_now = (utc_now + datetime.timedelta(hours=5, minutes=30)).replace(tzinfo=None)
+
+        # वेळेतील फरक (मिनिटांमध्ये)
+        time_diff_minutes = (ist_now - order_datetime).total_seconds() / 60
+
+        # 🛑 १० मिनिटांपेक्षा जास्त वेळ झाला असल्यास Cancel करू देऊ नका
+        if time_diff_minutes > 10:
+            cursor.close()
+            conn.close()
+            return jsonify({
+                'success': False, 
+                'error': 'ऑर्डर देऊन १० मिनिटांपेक्षा जास्त वेळ झाला आहे. किचनमध्ये स्वयंपाक सुरू असल्याने आता ऑर्डर डिलीट करता येणार नाही!'
+            }), 400
+
+        # ✅ १० मिनिटांच्या आत असल्यास डिलीट करा
         cursor.execute('DELETE FROM orders WHERE id = %s', (order_id,))
         conn.commit()
         cursor.close()
         conn.close()
+        
         return jsonify({'success': True, 'message': 'Order deleted successfully'})
+        
     except Exception as e:
         print("Delete Order Error:", e)
         return jsonify({'success': False, 'error': str(e)}), 500
@@ -150,9 +189,11 @@ def get_analytics():
     total_revenue, pending_count, completed_count = 0, 0, 0
 
     for row in rows:
-        total_revenue += row[4]
-        if 'Pending' in row[7]: pending_count += 1
-        elif 'Completed' in row[7]: completed_count += 1
+        total_revenue += float(row[4]) if row[4] else 0.0
+        status_val = str(row[7]) if row[7] else ''
+        
+        if 'Pending' in status_val: pending_count += 1
+        elif 'Completed' in status_val: completed_count += 1
 
         orders_list.append({
             'id': row[0], 'customer_name': row[1], 'table_no': row[2], 'items': row[3],
