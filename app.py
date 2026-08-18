@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, jsonify
-import psycopg2
-import datetime
 import os
+import datetime
+import psycopg2
+from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
@@ -52,7 +52,7 @@ def init_db():
         default_menu = [
             ('Paneer Butter Masala', 140.0, 260.0, 'Main Course'),
             ('Veg Kolhapuri', 120.0, 220.0, 'Main Course'),
-            ('Butter Naan', 0.0, 40.0, 'Breads'), # Half नसेल तर 0.0
+            ('Butter Naan', 0.0, 40.0, 'Breads'),
             ('Veg Biryani', 100.0, 180.0, 'Rice'),
             ('Jeera Rice', 70.0, 120.0, 'Rice'),
             ('Cold Drink', 0.0, 30.0, 'Beverages')
@@ -65,6 +65,7 @@ def init_db():
         print("Database Initialized Successfully with Half/Full Prices!")
     except Exception as e:
         print("Database Init Error:", e)
+
 init_db()
 
 # अचूक भारतीय वेळ (IST: UTC + 5:30)
@@ -90,13 +91,13 @@ def admin():
 def analytics():
     return render_template('analytics.html')
 
-# 📜 Menu Items मिळवण्यासाठी API Route (menu.html आणि admin.html साठी)
+# 📜 Menu Items मिळवण्यासाठी API Route
 @app.route('/api/menu', methods=['GET'])
 def get_menu():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT id, name,half_price,price,full_ category FROM menu_items ORDER BY id ASC')
+        cursor.execute('SELECT id, name, half_price, full_price, category FROM menu_items ORDER BY id ASC')
         rows = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -107,7 +108,7 @@ def get_menu():
                 'id': row[0],
                 'name': row[1],
                 'half_price': row[2],
-                'full_price':row[3],
+                'full_price': row[3],
                 'category': row[4]
             })
 
@@ -115,20 +116,21 @@ def get_menu():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-# ✏️ Admin साठी Menu Item ची Price Update करण्याचे API Route (New Feature)
+# ✏️ Admin साठी Menu Item ची Price Update करण्याचे API Route
 @app.route('/api/admin/update_item', methods=['POST'])
 def update_item():
     try:
         data = request.json
         item_id = data.get('id')
-        new_half_price = float(data.get('half_price',0))
-         new_full_price = float(data.get('full_price',0))
-        if not item_id 
+        new_half_price = float(data.get('half_price', 0))
+        new_full_price = float(data.get('full_price', 0))
+
+        if not item_id:
             return jsonify({'success': False, 'error': 'Invalid parameters'}), 400
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute('UPDATE menu_items SET half_price = %s,full_price = %s WHERE id = %s', (new_half_price, new_full_price, item_id))
+        cursor.execute('UPDATE menu_items SET half_price = %s, full_price = %s WHERE id = %s', (new_half_price, new_full_price, item_id))
         conn.commit()
         cursor.close()
         conn.close()
@@ -160,7 +162,7 @@ def place_order():
 
     return jsonify({'success': True, 'order_id': order_id, 'date': date_str, 'time': time_str})
 
-# 🗑️ १० मिनिटांचे Security Check असलेले Order Delete/Cancel API Route
+# 🗑️ ۱۰ मिनिटांचे Security Check असलेले Order Delete/Cancel API Route
 @app.route('/api/order/cancel/<int:order_id>', methods=['DELETE'])
 def cancel_order(order_id):
     try:
