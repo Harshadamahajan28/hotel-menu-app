@@ -117,13 +117,13 @@ def get_menu():
 
 # ✏️ Admin साठी Menu Item ची Price Update करण्याचे API Route (New Feature)
 @app.route('/api/admin/update_item', methods=['POST'])
-def update_item_price():
+def update_item():
     try:
         data = request.json
         item_id = data.get('id')
         new_half_price = float(data.get('half_price',0))
          new_full_price = float(data.get('full_price',0))
-        if not item_id or new_price < 0:
+        if not item_id 
             return jsonify({'success': False, 'error': 'Invalid parameters'}), 400
 
         conn = get_db_connection()
@@ -135,7 +135,6 @@ def update_item_price():
 
         return jsonify({'success': True, 'message': 'Price updated successfully'})
     except Exception as e:
-        print("Update Price Error:", e)
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/order', methods=['POST'])
