@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard | Kitchen Orders</title>
+    <title>Admin Dashboard | Kitchen Orders & Menu</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #0d1117; color: #fff; font-family: 'Segoe UI', sans-serif; }
         .order-card { background: #161b22; border: 1px solid #30363d; border-radius: 10px; }
+        .table-dark-custom { background-color: #161b22; color: #fff; border: 1px solid #30363d; }
 
         /* 🖨️ बिल प्रिंटिंगसाठी खास फॉरमॅट स्टाइल */
         @media print {
@@ -30,14 +31,48 @@
             <span class="navbar-brand fw-bold text-warning"><i class="fa-solid fa-utensils"></i> Kitchen Admin Dashboard</span>
             <div>
                 <a href="/analytics" class="btn btn-outline-info btn-sm fw-bold me-2"><i class="fa-solid fa-chart-line"></i> Analytics</a>
-                <button onclick="fetchOrders()" class="btn btn-warning btn-sm fw-bold"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                <button onclick="fetchOrders(); fetchMenuItems();" class="btn btn-warning btn-sm fw-bold"><i class="fa-solid fa-rotate"></i> Refresh</button>
             </div>
         </div>
     </nav>
 
-    <div class="container no-print">
-        <h4 class="fw-bold text-warning mb-3"><i class="fa-solid fa-list-check"></i> Live Orders</h4>
-        <div class="row g-3" id="ordersContainer"></div>
+    <div class="container no-print mb-4">
+        <!-- 📌 Section Navigation Buttons -->
+        <div class="d-flex gap-2 mb-4">
+            <button class="btn btn-warning fw-bold" id="btnLiveOrders" onclick="switchTab('orders')">
+                <i class="fa-solid fa-list-check me-1"></i> Live Orders
+            </button>
+            <button class="btn btn-outline-warning fw-bold" id="btnMenuManage" onclick="switchTab('menu')">
+                <i class="fa-solid fa-pen-to-square me-1"></i> Manage Menu Prices
+            </button>
+        </div>
+
+        <!-- 1️⃣ Live Orders Section -->
+        <div id="ordersSection">
+            <h4 class="fw-bold text-warning mb-3"><i class="fa-solid fa-list-check"></i> Live Orders</h4>
+            <div class="row g-3" id="ordersContainer"></div>
+        </div>
+
+        <!-- 2️⃣ Menu Price Management Section (New Feature) -->
+        <div id="menuSection" style="display: none;">
+            <h4 class="fw-bold text-warning mb-3"><i class="fa-solid fa-tags"></i> Update Menu Prices</h4>
+            <div class="table-responsive order-card p-3">
+                <table class="table table-dark table-hover align-middle mb-0">
+                    <thead>
+                        <tr class="text-warning border-secondary">
+                            <th>ID</th>
+                            <th>Item Name</th>
+                            <th>Current Price (₹)</th>
+                            <th>New Price (₹)</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="menuItemsContainer">
+                        <!-- JS द्वारे मेनू आयटम्स लोड होतील -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <!-- 🧾 प्रिंट होणारे लपवलेले बिल (Hidden Receipt) -->
@@ -79,6 +114,23 @@
     <script>
         let allOrders = [];
 
+        // Tab Switcher (Live Orders ⇄ Manage Prices)
+        function switchTab(tab) {
+            if(tab === 'orders') {
+                document.getElementById('ordersSection').style.display = 'block';
+                document.getElementById('menuSection').style.display = 'none';
+                document.getElementById('btnLiveOrders').className = 'btn btn-warning fw-bold';
+                document.getElementById('btnMenuManage').className = 'btn btn-outline-warning fw-bold';
+            } else {
+                document.getElementById('ordersSection').style.display = 'none';
+                document.getElementById('menuSection').style.display = 'block';
+                document.getElementById('btnLiveOrders').className = 'btn btn-outline-warning fw-bold';
+                document.getElementById('btnMenuManage').className = 'btn btn-warning fw-bold';
+                fetchMenuItems();
+            }
+        }
+
+        // Live Orders Fetch करणे
         async function fetchOrders() {
             try {
                 const res = await fetch('/api/admin/orders');
@@ -131,6 +183,7 @@
             } catch(e) { console.error('Failed to load orders'); }
         }
 
+        // Order Complete करणे
         async function markCompleted(orderId) {
             try {
                 const res = await fetch('/api/admin/complete_order', {
@@ -143,7 +196,64 @@
             } catch(e) { alert('Failed to update status'); }
         }
 
-        // 🖨️ बिल प्रिंट करण्याचे नवीन फंक्शन
+        // ✏️ Menu Items Fetch करणे (Price Update साठी)
+        async function fetchMenuItems() {
+            try {
+                const res = await fetch('/api/menu'); // तुमचा मेनू Get करायचा API Endpoint
+                const data = await res.json();
+                const tbody = document.getElementById('menuItemsContainer');
+                tbody.innerHTML = '';
+
+                if(!data.menu || data.menu.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary">No menu items found.</td></tr>';
+                    return;
+                }
+
+                data.menu.forEach(item => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>#${item.id}</td>
+                            <td class="fw-bold">${item.name}</td>
+                            <td class="text-warning fw-bold">₹${item.price}</td>
+                            <td style="width: 150px;">
+                                <input type="number" id="price_input_${item.id}" class="form-control form-control-sm bg-dark text-white border-secondary" value="${item.price}">
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-warning fw-bold" onclick="updateItemPrice(${item.id})">
+                                    <i class="fa-solid fa-floppy-disk me-1"></i> Save
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch(e) { console.error('Failed to load menu items'); }
+        }
+
+        // 💾 Price Update API पाठवणे
+        async function updateItemPrice(itemId) {
+            const newPrice = document.getElementById(`price_input_${itemId}`).value;
+            if(!newPrice || newPrice <= 0) {
+                alert('कृपया योग्य किंमत टाका!');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/admin/update_item', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: itemId, price: newPrice })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    alert('किंमत यशस्विपणे अपडेट झाली! ✅');
+                    fetchMenuItems();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch(e) { alert('Failed to update price'); }
+        }
+
+        // 🖨️ बिल प्रिंट करण्याचे फंक्शन
         function printBill(orderId) {
             const ord = allOrders.find(o => o.id === orderId);
             if(!ord) return;
