@@ -47,7 +47,7 @@ def init_db():
         ''')
         
         # जर मेनू टेबल रिकामे असेल तर डिफॉल्ट आयटम्स इन्सर्ट करा
-        cursor.execute('SELECT COUNT(*) FROM menu_items')
+       # cursor.execute('SELECT COUNT(*) FROM menu_items')
         if cursor.fetchone()[0] == 0:
             default_menu = [
                 ('Paneer Butter Masala', 260.0, 'Main Course'),
@@ -62,6 +62,7 @@ def init_db():
         conn.commit()
         cursor.close()
         conn.close()
+        print("database Initialization Successfully!!")
     except Exception as e:
         print("Database Init Error:", e)
 
