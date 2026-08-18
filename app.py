@@ -36,9 +36,10 @@ def init_db():
             )
         ''')
         
-        # 2. Menu Items Table (नवीन जोडलेले - प्राईस अपडेटसाठी)
+        # 2. जुना चुकीचा टेबल काढून नवीन तयार करणे
+        cursor.execute('DROP TABLE IF EXISTS menu_items CASCADE;')
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS menu_items (
+            CREATE TABLE menu_items (
                 id SERIAL PRIMARY KEY,
                 name TEXT NOT NULL,
                 price REAL NOT NULL,
@@ -46,26 +47,23 @@ def init_db():
             )
         ''')
         
-        # जर मेनू टेबल रिकामे असेल तर डिफॉल्ट आयटम्स इन्सर्ट करा
-       # cursor.execute('SELECT COUNT(*) FROM menu_items')
-        if cursor.fetchone()[0] == 0:
-            default_menu = [
-                ('Paneer Butter Masala', 260.0, 'Main Course'),
-                ('Veg Kolhapuri', 220.0, 'Main Course'),
-                ('Butter Naan', 40.0, 'Breads'),
-                ('Veg Biryani', 180.0, 'Rice'),
-                ('Jeera Rice', 120.0, 'Rice'),
-                ('Cold Drink', 30.0, 'Beverages')
-            ]
-            cursor.executemany('INSERT INTO menu_items (name, price, category) VALUES (%s, %s, %s)', default_menu)
+        # 3. मेनू आयटम्स इन्सर्ट करणे (इथे fetchone वापरलेले नाही)
+        default_menu = [
+            ('Paneer Butter Masala', 260.0, 'Main Course'),
+            ('Veg Kolhapuri', 220.0, 'Main Course'),
+            ('Butter Naan', 40.0, 'Breads'),
+            ('Veg Biryani', 180.0, 'Rice'),
+            ('Jeera Rice', 120.0, 'Rice'),
+            ('Cold Drink', 30.0, 'Beverages')
+        ]
+        cursor.executemany('INSERT INTO menu_items (name, price, category) VALUES (%s, %s, %s)', default_menu)
         
         conn.commit()
         cursor.close()
         conn.close()
-        print("database Initialization Successfully!!")
+        print("Database Initialized Successfully!")
     except Exception as e:
         print("Database Init Error:", e)
-
 init_db()
 
 # अचूक भारतीय वेळ (IST: UTC + 5:30)
