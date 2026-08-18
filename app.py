@@ -5,7 +5,7 @@ import os
 
 app = Flask(__name__)
 
-# 🔗 Neon PostgreSQL Database Connection URL (Environment Variable or Default)
+# 🔗 Neon PostgreSQL Database Connection URL
 DATABASE_URL = os.environ.get(
     'DATABASE_URL',
     "postgresql://neondb_owner:npg_tp1sR2xCcloF@ep-solitary-water-ayecuz6l.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require"
@@ -15,11 +15,13 @@ def get_db_connection():
     conn = psycopg2.connect(DATABASE_URL)
     return conn
 
-# Database Table ऑटोमॅटिक तयार करणे
+# Database Tables ऑटोमॅटिक तयार करणे (Orders + Menu Table)
 def init_db():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
+        
+        # 1. Orders Table
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS orders (
                 id SERIAL PRIMARY KEY,
@@ -33,6 +35,30 @@ def init_db():
                 status TEXT
             )
         ''')
+        
+        # 2. Menu Items Table (नवीन जोडलेले - प्राईस अपडेटसाठी)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS menu_items (
+                id SERIAL PRIMARY KEY,
+                name TEXT NOT NULL,
+                price REAL NOT NULL,
+                category TEXT
+            )
+        ''')
+        
+        # जर मेनू टेबल रिकामे असेल तर डिफॉल्ट आयटम्स इन्सर्ट करा
+        cursor.execute('SELECT COUNT(*) FROM menu_items')
+        if cursor.fetchone()[0] == 0:
+            default_menu = [
+                ('Paneer Butter Masala', 260.0, 'Main Course'),
+                ('Veg Kolhapuri', 220.0, 'Main Course'),
+                ('Butter Naan', 40.0, 'Breads'),
+                ('Veg Biryani', 180.0, 'Rice'),
+                ('Jeera Rice', 120.0, 'Rice'),
+                ('Cold Drink', 30.0, 'Beverages')
+            ]
+            cursor.executemany('INSERT INTO menu_items (name, price, category) VALUES (%s, %s, %s)', default_menu)
+        
         conn.commit()
         cursor.close()
         conn.close()
@@ -64,6 +90,53 @@ def admin():
 def analytics():
     return render_template('analytics.html')
 
+# 📜 Menu Items मिळवण्यासाठी API Route (menu.html आणि admin.html साठी)
+@app.route('/api/menu', methods=['GET'])
+def get_menu():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT id, name, price, category FROM menu_items ORDER BY id ASC')
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+
+        menu_list = []
+        for row in rows:
+            menu_list.append({
+                'id': row[0],
+                'name': row[1],
+                'price': row[2],
+                'category': row[3]
+            })
+
+        return jsonify({'success': True, 'menu': menu_list})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# ✏️ Admin साठी Menu Item ची Price Update करण्याचे API Route (New Feature)
+@app.route('/api/admin/update_item', methods=['POST'])
+def update_item_price():
+    try:
+        data = request.json
+        item_id = data.get('id')
+        new_price = float(data.get('price'))
+
+        if not item_id or new_price < 0:
+            return jsonify({'success': False, 'error': 'Invalid parameters'}), 400
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('UPDATE menu_items SET price = %s WHERE id = %s', (new_price, item_id))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+        return jsonify({'success': True, 'message': 'Price updated successfully'})
+    except Exception as e:
+        print("Update Price Error:", e)
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 @app.route('/api/order', methods=['POST'])
 def place_order():
     data = request.json
@@ -94,7 +167,6 @@ def cancel_order(order_id):
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # १. ऑर्डरची तारीख व वेळ आधी शोधा
         cursor.execute('SELECT order_date, order_time FROM orders WHERE id = %s', (order_id,))
         order = cursor.fetchone()
         
@@ -104,19 +176,14 @@ def cancel_order(order_id):
             return jsonify({'success': False, 'error': 'ऑर्डर सापडली नाही!'}), 404
 
         order_date_str, order_time_str = str(order[0]), str(order[1])
-        
-        # २. वेळेची तुलना करण्यासाठी वेळ ऑब्जेक्टमध्ये रूपांतर करा
         order_datetime_str = f"{order_date_str} {order_time_str}"
         order_datetime = datetime.datetime.strptime(order_datetime_str, "%Y-%m-%d %I:%M %p")
         
-        # आत्ताची भारतीय वेळ
         utc_now = datetime.datetime.now(datetime.timezone.utc)
         ist_now = (utc_now + datetime.timedelta(hours=5, minutes=30)).replace(tzinfo=None)
 
-        # वेळेतील फरक (मिनिटांमध्ये)
         time_diff_minutes = (ist_now - order_datetime).total_seconds() / 60
 
-        # 🛑 १० मिनिटांपेक्षा जास्त वेळ झाला असल्यास Cancel करू देऊ नका
         if time_diff_minutes > 10:
             cursor.close()
             conn.close()
@@ -125,7 +192,6 @@ def cancel_order(order_id):
                 'error': 'ऑर्डर देऊन १० मिनिटांपेक्षा जास्त वेळ झाला आहे. किचनमध्ये स्वयंपाक सुरू असल्याने आता ऑर्डर डिलीट करता येणार नाही!'
             }), 400
 
-        # ✅ १० मिनिटांच्या आत असल्यास डिलीट करा
         cursor.execute('DELETE FROM orders WHERE id = %s', (order_id,))
         conn.commit()
         cursor.close()
