@@ -168,7 +168,7 @@
     <!-- Header Navbar -->
     <div class="hero-section sticky-top mb-4">
         <div class="container d-flex justify-content-between align-items-center">
-            <a href="{{ url_for('home') if 'home' in endpoints else '#' }}" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold">
+            <a href="/" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold">
                 <i class="fa-solid fa-arrow-left me-1"></i> Home
             </a>
             <div class="text-center">
@@ -189,11 +189,16 @@
             <button class="btn btn-filter text-nowrap" onclick="filterMenu('Main Course', this)"><i class="fa-solid fa-bowl-food me-1"></i> Main Course</button>
             <button class="btn btn-filter text-nowrap" onclick="filterMenu('Breads', this)"><i class="fa-solid fa-bread-slice me-1"></i> Roti & Breads</button>
             <button class="btn btn-filter text-nowrap" onclick="filterMenu('Rice', this)"><i class="fa-solid fa-bowl-rice me-1"></i> Rice & Biryani</button>
-            <button class="btn btn-filter text-nowrap" onclick="filterMenu('Desserts', this)"><i class="fa-solid fa-ice-cream me-1"></i> Desserts & Drinks</button>
+            <button class="btn btn-filter text-nowrap" onclick="filterMenu('Beverages', this)"><i class="fa-solid fa-ice-cream me-1"></i> Desserts & Drinks</button>
         </div>
 
         <!-- Dishes Grid -->
-        <div class="row g-3" id="menuGrid"></div>
+        <div class="row g-3" id="menuGrid">
+            <div class="text-center text-secondary py-5">
+                <i class="fa-solid fa-spinner fa-spin fa-2x text-warning mb-2"></i>
+                <p>Loading Latest Menu Prices...</p>
+            </div>
+        </div>
     </div>
 
     <!-- Floating Cart Bar -->
@@ -299,52 +304,45 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const dishes = [
-            // STARTERS
-            { id: 101, name: "Paneer Crispy", category: "Starters", type: "veg", halfPrice: 130, fullPrice: 220, hasTaste: true },
-            { id: 102, name: "Paneer Chilli", category: "Starters", type: "veg", halfPrice: 140, fullPrice: 240, hasTaste: true },
-            { id: 103, name: "Veg Hara Bhara Kabab", category: "Starters", type: "veg", halfPrice: 110, fullPrice: 190, hasTaste: true },
-            { id: 104, name: "Chicken Chilli Starter", category: "Starters", type: "nonveg", halfPrice: 160, fullPrice: 270, hasTaste: true },
-            { id: 105, name: "Chicken 65", category: "Starters", type: "nonveg", halfPrice: 170, fullPrice: 280, hasTaste: true },
-            
-            // MAIN COURSE VEG
-            { id: 201, name: "Paneer Butter Masala", category: "Main Course", type: "veg", halfPrice: 150, fullPrice: 260, hasTaste: true },
-            { id: 202, name: "Paneer Kadhai", category: "Main Course", type: "veg", halfPrice: 160, fullPrice: 270, hasTaste: true },
-            { id: 203, name: "Veg Kolhapuri", category: "Main Course", type: "veg", halfPrice: 130, fullPrice: 220, hasTaste: true },
-            { id: 204, name: "Dal Tadka", category: "Main Course", type: "veg", halfPrice: 100, fullPrice: 170, hasTaste: true },
-
-            // MAIN COURSE NON-VEG
-            { id: 205, name: "Chicken Butter Masala", category: "Main Course", type: "nonveg", halfPrice: 180, fullPrice: 310, hasTaste: true },
-            { id: 206, name: "Chicken Curry / Handi", category: "Main Course", type: "nonveg", halfPrice: 170, fullPrice: 290, hasTaste: true },
-            { id: 207, name: "Mutton Curry", category: "Main Course", type: "nonveg", halfPrice: 220, fullPrice: 380, hasTaste: true },
-
-            // RICE & BIRYANI
-            { id: 301, name: "Veg Dum Biryani", category: "Rice", type: "veg", halfPrice: 120, fullPrice: 200, hasTaste: true },
-            { id: 302, name: "Chicken Dum Biryani", category: "Rice", type: "nonveg", halfPrice: 160, fullPrice: 270, hasTaste: true },
-            { id: 303, name: "Jeera Rice", category: "Rice", type: "veg", halfPrice: 80, fullPrice: 130, hasTaste: false },
-
-            // BREADS
-            { id: 401, name: "Butter Tandoori Roti", category: "Breads", type: "veg", halfPrice: null, fullPrice: 25, hasTaste: false },
-            { id: 402, name: "Butter Naan", category: "Breads", type: "veg", halfPrice: null, fullPrice: 45, hasTaste: false },
-            { id: 403, name: "Garlic Naan", category: "Breads", type: "veg", halfPrice: null, fullPrice: 60, hasTaste: false },
-
-            // DESSERTS & DRINKS
-            { id: 501, name: "Gulab Jamun (2 Pcs)", category: "Desserts", type: "veg", halfPrice: null, fullPrice: 70, hasTaste: false },
-            { id: 502, name: "Rasmalai (2 Pcs)", category: "Desserts", type: "veg", halfPrice: null, fullPrice: 90, hasTaste: false },
-            { id: 503, name: "Sizzling Brownie with Ice Cream", category: "Desserts", type: "veg", halfPrice: null, fullPrice: 160, hasTaste: false },
-            { id: 504, name: "Vanilla Ice Cream with Choco Dip", category: "Desserts", type: "veg", halfPrice: null, fullPrice: 80, hasTaste: false },
-            { id: 505, name: "Cold Coffee with Ice Cream", category: "Desserts", type: "veg", halfPrice: null, fullPrice: 90, hasTaste: false },
-            { id: 506, name: "Sweet / Salted Lassi", category: "Desserts", type: "veg", halfPrice: null, fullPrice: 60, hasTaste: false },
-            { id: 507, name: "Fresh Lime Soda", category: "Desserts", type: "veg", halfPrice: null, fullPrice: 50, hasTaste: false },
-            { id: 508, name: "Cold Drinks (300ml)", category: "Desserts", type: "veg", halfPrice: null, fullPrice: 40, hasTaste: false }
-        ];
-
+        let dishes = [];
         let cart = [];
         let cancelTimerInterval = null;
+
+        // 🔗 Database मधून नवीन दर फॅच करणारे फंक्शन
+        async function fetchMenuFromDB() {
+            try {
+                const response = await fetch('/api/menu');
+                const data = await response.json();
+                
+                if (data.success && data.menu) {
+                    dishes = data.menu.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        category: item.category || 'Main Course',
+                        type: (item.name.toLowerCase().includes('chicken') || item.name.toLowerCase().includes('mutton')) ? 'nonveg' : 'veg',
+                        halfPrice: item.half_price > 0 ? item.half_price : null,
+                        fullPrice: item.full_price,
+                        hasTaste: !['Breads', 'Desserts', 'Beverages'].includes(item.category)
+                    }));
+                    renderMenu(dishes);
+                } else {
+                    document.getElementById('menuGrid').innerHTML = `<div class="text-center text-danger py-4">Menu लोड करताना त्रुटी आली.</div>`;
+                }
+            } catch (error) {
+                console.error("Error loading menu:", error);
+                document.getElementById('menuGrid').innerHTML = `<div class="text-center text-danger py-4">सर्व्हरशी संपर्क होऊ शकला नाही.</div>`;
+            }
+        }
 
         function renderMenu(items) {
             const grid = document.getElementById('menuGrid');
             grid.innerHTML = '';
+
+            if(items.length === 0) {
+                grid.innerHTML = `<div class="text-center text-secondary py-4">कोणतेही आयटम सापडले नाहीत.</div>`;
+                return;
+            }
+
             items.forEach(dish => {
                 const badge = dish.type === 'veg' ? '<span class="badge-veg-dot"></span>' : '<span class="badge-nonveg-dot"></span>';
                 
@@ -396,7 +394,7 @@
                 btn.classList.add('active');
             }
             if(cat === 'all') renderMenu(dishes);
-            else renderMenu(dishes.filter(d => d.category === cat));
+            else renderMenu(dishes.filter(d => d.category.toLowerCase() === cat.toLowerCase()));
         }
 
         function addToCart(dishId) {
@@ -504,7 +502,6 @@
                     });
                     document.getElementById('pItemsList').innerHTML = pItemsHTML;
 
-                    // ⏱️ १० मिनिटांचा (६०० सेकंद) काउंटडाऊन सुरू करा
                     start10MinTimer(600);
 
                     new bootstrap.Modal(document.getElementById('pdfReceiptModal')).show();
@@ -512,7 +509,6 @@
             } catch(e) { alert('Order Failed!'); }
         }
 
-        // ⏱️ १० मिनिटांचा (600 seconds) काउंटडाऊन टायमर चालवणारे फंक्शन
         function start10MinTimer(durationInSeconds) {
             let timer = durationInSeconds;
             const timerElem = document.getElementById('cancelTimer');
@@ -585,7 +581,8 @@
             html2pdf().set(opt).from(element).save();
         }
 
-        renderMenu(dishes);
+        // 🚀 पेज लोड होताच डेटाबेस मधून लाईव्ह मेनू फॅच होईल
+        fetchMenuFromDB();
     </script>
 </body>
 </html>
