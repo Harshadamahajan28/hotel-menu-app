@@ -107,7 +107,7 @@ def get_menu():
                 'id': row[0],
                 'name': row[1],
                 'half_price': row[2],
-                'full_price':row[3]
+                'full_price':row[3],
                 'category': row[4]
             })
 
