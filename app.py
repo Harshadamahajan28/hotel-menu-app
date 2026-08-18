@@ -96,7 +96,7 @@ def get_menu():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT id, name, price, category FROM menu_items ORDER BY id ASC')
+        cursor.execute('SELECT id, name,half_price,price,full_ category FROM menu_items ORDER BY id ASC')
         rows = cursor.fetchall()
         cursor.close()
         conn.close()
@@ -106,8 +106,9 @@ def get_menu():
             menu_list.append({
                 'id': row[0],
                 'name': row[1],
-                'price': row[2],
-                'category': row[3]
+                'half_price': row[2],
+                'full_price':row[3]
+                'category': row[4]
             })
 
         return jsonify({'success': True, 'menu': menu_list})
@@ -120,14 +121,14 @@ def update_item_price():
     try:
         data = request.json
         item_id = data.get('id')
-        new_price = float(data.get('price'))
-
+        new_half_price = float(data.get('half_price',0))
+         new_full_price = float(data.get('full_price',0))
         if not item_id or new_price < 0:
             return jsonify({'success': False, 'error': 'Invalid parameters'}), 400
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute('UPDATE menu_items SET price = %s WHERE id = %s', (new_price, item_id))
+        cursor.execute('UPDATE menu_items SET half_price = %s,full_price = %s WHERE id = %s', (new_half_price, new_full_price, item_id))
         conn.commit()
         cursor.close()
         conn.close()
