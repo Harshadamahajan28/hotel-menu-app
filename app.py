@@ -36,32 +36,33 @@ def init_db():
             )
         ''')
         
-        # 2. जुना चुकीचा टेबल काढून नवीन तयार करणे
+        # 2. Half आणि Full दोन्ही प्राईससाठी Menu Table
         cursor.execute('DROP TABLE IF EXISTS menu_items CASCADE;')
         cursor.execute('''
             CREATE TABLE menu_items (
                 id SERIAL PRIMARY KEY,
                 name TEXT NOT NULL,
-                price REAL NOT NULL,
+                half_price REAL DEFAULT 0.0,
+                full_price REAL NOT NULL,
                 category TEXT
             )
         ''')
         
-        # 3. मेनू आयटम्स इन्सर्ट करणे (इथे fetchone वापरलेले नाही)
+        # 3. Default Menu Data (Name, Half Price, Full Price, Category)
         default_menu = [
-            ('Paneer Butter Masala', 260.0, 'Main Course'),
-            ('Veg Kolhapuri', 220.0, 'Main Course'),
-            ('Butter Naan', 40.0, 'Breads'),
-            ('Veg Biryani', 180.0, 'Rice'),
-            ('Jeera Rice', 120.0, 'Rice'),
-            ('Cold Drink', 30.0, 'Beverages')
+            ('Paneer Butter Masala', 140.0, 260.0, 'Main Course'),
+            ('Veg Kolhapuri', 120.0, 220.0, 'Main Course'),
+            ('Butter Naan', 0.0, 40.0, 'Breads'), # Half नसेल तर 0.0
+            ('Veg Biryani', 100.0, 180.0, 'Rice'),
+            ('Jeera Rice', 70.0, 120.0, 'Rice'),
+            ('Cold Drink', 0.0, 30.0, 'Beverages')
         ]
-        cursor.executemany('INSERT INTO menu_items (name, price, category) VALUES (%s, %s, %s)', default_menu)
+        cursor.executemany('INSERT INTO menu_items (name, half_price, full_price, category) VALUES (%s, %s, %s, %s)', default_menu)
         
         conn.commit()
         cursor.close()
         conn.close()
-        print("Database Initialized Successfully!")
+        print("Database Initialized Successfully with Half/Full Prices!")
     except Exception as e:
         print("Database Init Error:", e)
 init_db()
