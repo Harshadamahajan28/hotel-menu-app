@@ -53,17 +53,18 @@
             <div class="row g-3" id="ordersContainer"></div>
         </div>
 
-        <!-- 2️⃣ Menu Price Management Section (New Feature) -->
+        <!-- 2️⃣ Menu Price Management Section (Half / Full Updated) -->
         <div id="menuSection" style="display: none;">
-            <h4 class="fw-bold text-warning mb-3"><i class="fa-solid fa-tags"></i> Update Menu Prices</h4>
+            <h4 class="fw-bold text-warning mb-3"><i class="fa-solid fa-tags"></i> Update Menu Prices (Half / Full)</h4>
             <div class="table-responsive order-card p-3">
                 <table class="table table-dark table-hover align-middle mb-0">
                     <thead>
                         <tr class="text-warning border-secondary">
                             <th>ID</th>
                             <th>Item Name</th>
-                            <th>Current Price (₹)</th>
-                            <th>New Price (₹)</th>
+                            <th>Category</th>
+                            <th>Half Price (₹)</th>
+                            <th>Full Price (₹)</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -196,16 +197,16 @@
             } catch(e) { alert('Failed to update status'); }
         }
 
-        // ✏️ Menu Items Fetch करणे (Price Update साठी)
+        // ✏️ Menu Items Fetch करणे (Half & Full Price)
         async function fetchMenuItems() {
             try {
-                const res = await fetch('/api/menu'); // तुमचा मेनू Get करायचा API Endpoint
+                const res = await fetch('/api/menu');
                 const data = await res.json();
                 const tbody = document.getElementById('menuItemsContainer');
                 tbody.innerHTML = '';
 
                 if(!data.menu || data.menu.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary">No menu items found.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-secondary">No menu items found.</td></tr>';
                     return;
                 }
 
@@ -214,9 +215,12 @@
                         <tr>
                             <td>#${item.id}</td>
                             <td class="fw-bold">${item.name}</td>
-                            <td class="text-warning fw-bold">₹${item.price}</td>
-                            <td style="width: 150px;">
-                                <input type="number" id="price_input_${item.id}" class="form-control form-control-sm bg-dark text-white border-secondary" value="${item.price}">
+                            <td><span class="badge bg-secondary">${item.category || 'General'}</span></td>
+                            <td style="width: 130px;">
+                                <input type="number" id="half_price_${item.id}" class="form-control form-control-sm bg-dark text-white border-secondary" value="${item.half_price || 0}">
+                            </td>
+                            <td style="width: 130px;">
+                                <input type="number" id="full_price_${item.id}" class="form-control form-control-sm bg-dark text-white border-secondary" value="${item.full_price || 0}">
                             </td>
                             <td>
                                 <button class="btn btn-sm btn-warning fw-bold" onclick="updateItemPrice(${item.id})">
@@ -229,11 +233,13 @@
             } catch(e) { console.error('Failed to load menu items'); }
         }
 
-        // 💾 Price Update API पाठवणे
+        // 💾 Price Update API पाठवणे (Half & Full)
         async function updateItemPrice(itemId) {
-            const newPrice = document.getElementById(`price_input_${itemId}`).value;
-            if(!newPrice || newPrice <= 0) {
-                alert('कृपया योग्य किंमत टाका!');
+            const halfPrice = document.getElementById(`half_price_${itemId}`).value;
+            const fullPrice = document.getElementById(`full_price_${itemId}`).value;
+
+            if(!fullPrice || fullPrice < 0) {
+                alert('कृपया कमीत कमी Full Price योग्य टाका!');
                 return;
             }
 
@@ -241,7 +247,11 @@
                 const res = await fetch('/api/admin/update_item', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: itemId, price: newPrice })
+                    body: JSON.stringify({ 
+                        id: itemId, 
+                        half_price: parseFloat(halfPrice) || 0,
+                        full_price: parseFloat(fullPrice) || 0 
+                    })
                 });
                 const data = await res.json();
                 if(data.success) {
