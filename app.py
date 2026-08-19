@@ -79,7 +79,7 @@ def init_db():
 
     ('Gulab Jamun', 0.0, 60.0, 'Desserts'),
     ('Rasmalai', 0.0, 90.0, 'Desserts'),
-    ('Ice Cream', 0.0, 70.0, 'Desserts'),
+    ('Ice Cream', 0.0, 70.0, 'Desserts')
 ]
         cursor.executemany('INSERT INTO menu_items (name, half_price, full_price, category) VALUES (%s, %s, %s, %s)', default_menu)
         
