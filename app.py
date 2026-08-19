@@ -49,14 +49,38 @@ def init_db():
         ''')
         
         # 3. Default Menu Data (Name, Half Price, Full Price, Category)
-        default_menu = [
-            ('Paneer Butter Masala', 140.0, 260.0, 'Main Course'),
-            ('Veg Kolhapuri', 120.0, 220.0, 'Main Course'),
-            ('Butter Naan', 0.0, 40.0, 'Breads'),
-            ('Veg Biryani', 100.0, 180.0, 'Rice'),
-            ('Jeera Rice', 70.0, 120.0, 'Rice'),
-            ('Cold Drink', 0.0, 30.0, 'Beverages')
-        ]
+       default_menu = [
+    ('Paneer Butter Masala', 140.0, 260.0, 'Main Course'),
+    ('Veg Kolhapuri', 120.0, 220.0, 'Main Course'),
+    ('Dal Tadka', 90.0, 160.0, 'Main Course'),
+    ('Chole Masala', 100.0, 180.0, 'Main Course'),
+    ('Malai Kofta', 150.0, 270.0, 'Main Course'),
+    ('Palak Paneer', 140.0, 250.0, 'Main Course'),
+
+    ('Butter Naan', 0.0, 40.0, 'Breads'),
+    ('Garlic Naan', 0.0, 50.0, 'Breads'),
+    ('Tandoori Roti', 0.0, 20.0, 'Breads'),
+    ('Lachha Paratha', 0.0, 45.0, 'Breads'),
+
+    ('Veg Biryani', 100.0, 180.0, 'Rice'),
+    ('Jeera Rice', 70.0, 120.0, 'Rice'),
+    ('Veg Pulao', 90.0, 160.0, 'Rice'),
+    ('Curd Rice', 60.0, 100.0, 'Rice'),
+
+    ('Cold Drink', 0.0, 30.0, 'Beverages'),
+    ('Masala Chaas', 0.0, 40.0, 'Beverages'),
+    ('Sweet Lassi', 0.0, 60.0, 'Beverages'),
+    ('Fresh Lime Soda', 0.0, 50.0, 'Beverages'),
+
+    ('Paneer Tikka', 130.0, 240.0, 'Starters'),
+    ('Veg Manchurian', 110.0, 200.0, 'Starters'),
+    ('Crispy Corn', 100.0, 180.0, 'Starters'),
+    ('Spring Roll', 90.0, 160.0, 'Starters'),
+
+    ('Gulab Jamun', 0.0, 60.0, 'Desserts'),
+    ('Rasmalai', 0.0, 90.0, 'Desserts'),
+    ('Ice Cream', 0.0, 70.0, 'Desserts'),
+]
         cursor.executemany('INSERT INTO menu_items (name, half_price, full_price, category) VALUES (%s, %s, %s, %s)', default_menu)
         
         conn.commit()
