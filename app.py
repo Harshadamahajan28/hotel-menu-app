@@ -37,9 +37,8 @@ def init_db():
         ''')
         
         # 2. Half आणि Full दोन्ही प्राईससाठी Menu Table
-        cursor.execute('DROP TABLE IF EXISTS menu_items CASCADE;')
         cursor.execute('''
-            CREATE TABLE menu_items (
+            CREATE TABLE IF NOT EXISTS menu_items (
                 id SERIAL PRIMARY KEY,
                 name TEXT NOT NULL,
                 half_price REAL DEFAULT 0.0,
@@ -48,41 +47,43 @@ def init_db():
             )
         ''')
         
-        # 3. Default Menu Data (Name, Half Price, Full Price, Category)
-default_menu = [
-    # Starters
-    ('Paneer Tikka', 130.0, 240.0, 'Starters'),
-    ('Veg Crispy', 110.0, 200.0, 'Starters'),
-    ('Hara Bhara Kabab', 100.0, 190.0, 'Starters'),
-    
-    # Main Course
-    ('Paneer Butter Masala', 140.0, 260.0, 'Main Course'),
-    ('Paneer Kadhai', 140.0, 260.0, 'Main Course'),
-    ('Veg Kolhapuri', 120.0, 220.0, 'Main Course'),
-    ('Veg Maratha', 130.0, 230.0, 'Main Course'),
-    ('Dal Tadka', 90.0, 160.0, 'Main Course'),
-    ('Dal Fry', 80.0, 150.0, 'Main Course'),
-    ('Kaju Masala', 150.0, 280.0, 'Main Course'),
-    
-    # Breads
-    ('Roti', 0.0, 20.0, 'Breads'),
-    ('Butter Roti', 0.0, 25.0, 'Breads'),
-    ('Butter Naan', 0.0, 40.0, 'Breads'),
-    ('Garlic Naan', 0.0, 50.0, 'Breads'),
-    
-    # Rice
-    ('Veg Biryani', 100.0, 180.0, 'Rice'),
-    ('Jeera Rice', 70.0, 120.0, 'Rice'),
-    ('Steam Rice', 60.0, 100.0, 'Rice'),
-    ('Dal Khichdi', 90.0, 160.0, 'Rice'),
-    
-    # Beverages & Desserts
-    ('Cold Drink', 0.0, 30.0, 'Beverages'),
-    ('Masala Taak', 0.0, 20.0, 'Beverages'),
-    ('Gulab Jamun', 0.0, 50.0, 'Desserts'),
-    ('Vanilla Ice Cream', 0.0, 60.0, 'Desserts')
-]
-        cursor.executemany('INSERT INTO menu_items (name, half_price, full_price, category) VALUES (%s, %s, %s, %s)', default_menu)
+        # 3. टेबल रिकामा असल्यास Default Menu Data टाका
+        cursor.execute("SELECT COUNT(*) FROM menu_items")
+        if cursor.fetchone()[0] == 0:
+            default_menu = [
+                # Starters
+                ('Paneer Tikka', 130.0, 240.0, 'Starters'),
+                ('Veg Crispy', 110.0, 200.0, 'Starters'),
+                ('Hara Bhara Kabab', 100.0, 190.0, 'Starters'),
+                
+                # Main Course
+                ('Paneer Butter Masala', 140.0, 260.0, 'Main Course'),
+                ('Paneer Kadhai', 140.0, 260.0, 'Main Course'),
+                ('Veg Kolhapuri', 120.0, 220.0, 'Main Course'),
+                ('Veg Maratha', 130.0, 230.0, 'Main Course'),
+                ('Dal Tadka', 90.0, 160.0, 'Main Course'),
+                ('Dal Fry', 80.0, 150.0, 'Main Course'),
+                ('Kaju Masala', 150.0, 280.0, 'Main Course'),
+                
+                # Breads
+                ('Roti', 0.0, 20.0, 'Breads'),
+                ('Butter Roti', 0.0, 25.0, 'Breads'),
+                ('Butter Naan', 0.0, 40.0, 'Breads'),
+                ('Garlic Naan', 0.0, 50.0, 'Breads'),
+                
+                # Rice
+                ('Veg Biryani', 100.0, 180.0, 'Rice'),
+                ('Jeera Rice', 70.0, 120.0, 'Rice'),
+                ('Steam Rice', 60.0, 100.0, 'Rice'),
+                ('Dal Khichdi', 90.0, 160.0, 'Rice'),
+                
+                # Beverages & Desserts
+                ('Cold Drink', 0.0, 30.0, 'Beverages'),
+                ('Masala Taak', 0.0, 20.0, 'Beverages'),
+                ('Gulab Jamun', 0.0, 50.0, 'Desserts'),
+                ('Vanilla Ice Cream', 0.0, 60.0, 'Desserts')
+            ]
+            cursor.executemany('INSERT INTO menu_items (name, half_price, full_price, category) VALUES (%s, %s, %s, %s)', default_menu)
         
         conn.commit()
         cursor.close()
@@ -187,7 +188,7 @@ def place_order():
 
     return jsonify({'success': True, 'order_id': order_id, 'date': date_str, 'time': time_str})
 
-# 🗑️ ۱۰ मिनिटांचे Security Check असलेले Order Delete/Cancel API Route
+# 🗑️ १० मिनिटांचे Security Check असलेले Order Delete/Cancel API Route
 @app.route('/api/order/cancel/<int:order_id>', methods=['DELETE'])
 def cancel_order(order_id):
     try:
@@ -283,10 +284,12 @@ def get_analytics():
 
     for row in rows:
         total_revenue += float(row[4]) if row[4] else 0.0
-        status_val = str(row[7]) if row[7] else ''
+        status_val = str(row[7]) if row[7] else ''  # Correct Index for Status
         
-        if 'Pending' in status_val: pending_count += 1
-        elif 'Completed' in status_val: completed_count += 1
+        if 'Pending' in status_val: 
+            pending_count += 1
+        elif 'Completed' in status_val: 
+            completed_count += 1
 
         orders_list.append({
             'id': row[0], 'customer_name': row[1], 'table_no': row[2], 'items': row[3],
