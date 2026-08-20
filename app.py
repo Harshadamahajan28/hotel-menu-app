@@ -3,7 +3,7 @@ import datetime
 import psycopg2
 from flask import Flask, render_template, request, jsonify
 
-app = Flask(__name__)
+app = Flask(__name__) 
 
 # 🔗 Neon PostgreSQL Database Connection URL
 DATABASE_URL = os.environ.get(
