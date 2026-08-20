@@ -250,5 +250,34 @@ const allMenuItems = [
             renderMenu(dishes);
         };
     </script>
+    <script>
+async function loadMenuItems() {
+    try {
+        const response = await fetch('/api/menu');
+        const data = await response.json();
+        
+        if (data.success) {
+            const menuContainer = document.getElementById('menu-container');
+            menuContainer.innerHTML = ''; // जुना डेटा क्लिअर करा
+
+            data.menu.forEach(item => {
+                menuContainer.innerHTML += `
+                    <div class="menu-card">
+                        <h3>${item.name}</h3>
+                        <p>वर्ग: ${item.category}</p>
+                        <p>हाफ प्राईस: ₹${item.half_price}</p>
+                        <p>फूल प्राईस: ₹${item.full_price}</p>
+                    </div>
+                `;
+            });
+        }
+    } catch (error) {
+        console.error("Menu loading error:", error);
+    }
+}
+
+// पेज लोड झाल्यावर मेन्यू ऑटोमॅटिक फेच करा
+window.onload = loadMenuItems;
+</script>
 </body>
 </html>
