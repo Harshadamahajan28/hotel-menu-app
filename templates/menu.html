@@ -115,16 +115,92 @@
     </div>
 
     <script>
-        // Fallback Default Menu (जर backend कनेक्ट नसेल तर वापरण्यासाठी)
+        // 📋 प्रत्येक कॅटेगरीमध्ये १५ पदार्थ (एकूण ७५ पदार्थ)
         const defaultMenuItems = [
+            // --- 1. Starters (15 Items) ---
             { id: 1, name: "Paneer Tikka", half_price: 130, full_price: 240, category: "Starters" },
             { id: 2, name: "Paneer Chilli", half_price: 135, full_price: 250, category: "Starters" },
-            { id: 5, name: "Chicken Tikka", half_price: 160, full_price: 300, category: "Starters" },
-            { id: 9, name: "Paneer Butter Masala", half_price: 140, full_price: 260, category: "Main Course" },
-            { id: 14, name: "Butter Chicken", half_price: 170, full_price: 320, category: "Main Course" },
-            { id: 18, name: "Butter Roti", half_price: 0, full_price: 25, category: "Roti & Breads" },
-            { id: 29, name: "Chicken Dum Biryani", half_price: 140, full_price: 260, category: "Rice & Biryani" },
-            { id: 31, name: "Masala Taak (Buttermilk)", half_price: 0, full_price: 25, category: "Desserts & Drinks" }
+            { id: 3, name: "Hara Bhara Kebab", half_price: 100, full_price: 190, category: "Starters" },
+            { id: 4, name: "Veg Crispy", half_price: 110, full_price: 200, category: "Starters" },
+            { id: 5, name: "Veg Manchurian Dry", half_price: 110, full_price: 200, category: "Starters" },
+            { id: 6, name: "Mushroom Tikka", half_price: 140, full_price: 260, category: "Starters" },
+            { id: 7, name: "Cheese Corn Balls", half_price: 130, full_price: 240, category: "Starters" },
+            { id: 8, name: "Chicken Tikka", half_price: 160, full_price: 300, category: "Starters" },
+            { id: 9, name: "Chicken Tandoori", half_price: 220, full_price: 420, category: "Starters" },
+            { id: 10, name: "Chicken Chilli", half_price: 150, full_price: 280, category: "Starters" },
+            { id: 11, name: "Chicken Lollipop", half_price: 140, full_price: 260, category: "Starters" },
+            { id: 12, name: "Chicken Seekh Kebab", half_price: 170, full_price: 320, category: "Starters" },
+            { id: 13, name: "Chicken Malai Tikka", half_price: 180, full_price: 330, category: "Starters" },
+            { id: 14, name: "Fish Fry", half_price: 190, full_price: 360, category: "Starters" },
+            { id: 15, name: "Prawns Koliwada", half_price: 210, full_price: 390, category: "Starters" },
+
+            // --- 2. Main Course (15 Items) ---
+            { id: 16, name: "Paneer Butter Masala", half_price: 140, full_price: 260, category: "Main Course" },
+            { id: 17, name: "Paneer Kadhai", half_price: 140, full_price: 260, category: "Main Course" },
+            { id: 18, name: "Paneer Bhurji", half_price: 150, full_price: 270, category: "Main Course" },
+            { id: 19, name: "Veg Kolhapuri", half_price: 120, full_price: 220, category: "Main Course" },
+            { id: 20, name: "Veg Maratha", half_price: 130, full_price: 240, category: "Main Course" },
+            { id: 21, name: "Dal Tadka", half_price: 90, full_price: 160, category: "Main Course" },
+            { id: 22, name: "Dal Makhani", half_price: 110, full_price: 200, category: "Main Course" },
+            { id: 23, name: "Kaju Curry", half_price: 160, full_price: 290, category: "Main Course" },
+            { id: 24, name: "Butter Chicken", half_price: 170, full_price: 320, category: "Main Course" },
+            { id: 25, name: "Chicken Masala", half_price: 150, full_price: 280, category: "Main Course" },
+            { id: 26, name: "Chicken Handi", half_price: 180, full_price: 340, category: "Main Course" },
+            { id: 27, name: "Chicken Kolhapuri", half_price: 160, full_price: 300, category: "Main Course" },
+            { id: 28, name: "Chicken Curry", half_price: 140, full_price: 260, category: "Main Course" },
+            { id: 29, name: "Mutton Curry", half_price: 200, full_price: 380, category: "Main Course" },
+            { id: 30, name: "Mutton Rogan Josh", half_price: 220, full_price: 410, category: "Main Course" },
+
+            // --- 3. Roti & Breads (15 Items) ---
+            { id: 31, name: "Tandoori Roti", half_price: 0, full_price: 20, category: "Roti & Breads" },
+            { id: 32, name: "Butter Roti", half_price: 0, full_price: 25, category: "Roti & Breads" },
+            { id: 33, name: "Plain Naan", half_price: 0, full_price: 35, category: "Roti & Breads" },
+            { id: 34, name: "Butter Naan", half_price: 0, full_price: 45, category: "Roti & Breads" },
+            { id: 35, name: "Garlic Naan", half_price: 0, full_price: 55, category: "Roti & Breads" },
+            { id: 36, name: "Cheese Garlic Naan", half_price: 0, full_price: 80, category: "Roti & Breads" },
+            { id: 37, name: "Missi Roti", half_price: 0, full_price: 35, category: "Roti & Breads" },
+            { id: 38, name: "Plain Paratha", half_price: 0, full_price: 40, category: "Roti & Breads" },
+            { id: 39, name: "Butter Paratha", half_price: 0, full_price: 50, category: "Roti & Breads" },
+            { id: 40, name: "Aloo Paratha", half_price: 0, full_price: 70, category: "Roti & Breads" },
+            { id: 41, name: "Paneer Paratha", half_price: 0, full_price: 90, category: "Roti & Breads" },
+            { id: 42, name: "Kulcha Plain", half_price: 0, full_price: 40, category: "Roti & Breads" },
+            { id: 43, name: "Onion Kulcha", half_price: 0, full_price: 60, category: "Roti & Breads" },
+            { id: 44, name: "Chapati / Phulka", half_price: 0, full_price: 15, category: "Roti & Breads" },
+            { id: 45, name: "Butter Chapati", half_price: 0, full_price: 20, category: "Roti & Breads" },
+
+            // --- 4. Rice & Biryani (15 Items) ---
+            { id: 46, name: "Steam Rice", half_price: 50, full_price: 90, category: "Rice & Biryani" },
+            { id: 47, name: "Jeera Rice", half_price: 70, full_price: 130, category: "Rice & Biryani" },
+            { id: 48, name: "Dal Khichdi", half_price: 95, full_price: 170, category: "Rice & Biryani" },
+            { id: 49, name: "Palak Khichdi", half_price: 100, full_price: 180, category: "Rice & Biryani" },
+            { id: 50, name: "Veg Dum Biryani", half_price: 110, full_price: 200, category: "Rice & Biryani" },
+            { id: 51, name: "Paneer Biryani", half_price: 130, full_price: 240, category: "Rice & Biryani" },
+            { id: 52, name: "Veg Pulao", half_price: 100, full_price: 180, category: "Rice & Biryani" },
+            { id: 53, name: "Kashmiri Pulao", half_price: 120, full_price: 220, category: "Rice & Biryani" },
+            { id: 54, name: "Chicken Dum Biryani", half_price: 140, full_price: 260, category: "Rice & Biryani" },
+            { id: 55, name: "Chicken Tikka Biryani", half_price: 160, full_price: 290, category: "Rice & Biryani" },
+            { id: 56, name: "Chicken Hyderabadi Biryani", half_price: 150, full_price: 280, category: "Rice & Biryani" },
+            { id: 57, name: "Egg Biryani", half_price: 110, full_price: 200, category: "Rice & Biryani" },
+            { id: 58, name: "Mutton Biryani", half_price: 180, full_price: 340, category: "Rice & Biryani" },
+            { id: 59, name: "Veg Fried Rice", half_price: 90, full_price: 170, category: "Rice & Biryani" },
+            { id: 60, name: "Chicken Fried Rice", half_price: 120, full_price: 220, category: "Rice & Biryani" },
+
+            // --- 5. Desserts & Drinks (15 Items) ---
+            { id: 61, name: "Masala Taak (Buttermilk)", half_price: 0, full_price: 25, category: "Desserts & Drinks" },
+            { id: 62, name: "Sweet Lassi", half_price: 0, full_price: 50, category: "Desserts & Drinks" },
+            { id: 63, name: "Mango Lassi", half_price: 0, full_price: 65, category: "Desserts & Drinks" },
+            { id: 64, name: "Cold Drink (Soft Drink)", half_price: 0, full_price: 30, category: "Desserts & Drinks" },
+            { id: 65, name: "Fresh Lime Soda", half_price: 0, full_price: 45, category: "Desserts & Drinks" },
+            { id: 66, name: "Fresh Lime Water", half_price: 0, full_price: 35, category: "Desserts & Drinks" },
+            { id: 67, name: "Cold Coffee", half_price: 0, full_price: 70, category: "Desserts & Drinks" },
+            { id: 68, name: "Gulab Jamun (2 Pcs)", half_price: 0, full_price: 50, category: "Desserts & Drinks" },
+            { id: 69, name: "Rasgulla (2 Pcs)", half_price: 0, full_price: 50, category: "Desserts & Drinks" },
+            { id: 70, name: "Vanilla Ice Cream", half_price: 0, full_price: 60, category: "Desserts & Drinks" },
+            { id: 71, name: "Chocolate Ice Cream", half_price: 0, full_price: 70, category: "Desserts & Drinks" },
+            { id: 72, name: "Butterscotch Ice Cream", half_price: 0, full_price: 70, category: "Desserts & Drinks" },
+            { id: 73, name: "Matka Kulfi", half_price: 0, full_price: 60, category: "Desserts & Drinks" },
+            { id: 74, name: "Gajar Halwa (Seasonal)", half_price: 0, full_price: 80, category: "Desserts & Drinks" },
+            { id: 75, name: "Sizzling Brownie with Ice Cream", half_price: 0, full_price: 140, category: "Desserts & Drinks" }
         ];
 
         let dishes = [];
@@ -202,7 +278,7 @@
             document.getElementById('checkoutBtn').disabled = false;
         }
 
-        // 🚀 API मधून मेनू लोड करणे
+        // 🚀 API मधून किंवा Static array मधून मेनू लोड करणे
         async function loadMenuItems() {
             try {
                 const response = await fetch('/api/menu');
@@ -214,13 +290,12 @@
                     dishes = processMenuData(defaultMenuItems);
                 }
             } catch (error) {
-                console.error("Menu API Loading Error, fallback menu used:", error);
+                console.error("API Loading error, fallback to static menu:", error);
                 dishes = processMenuData(defaultMenuItems);
             }
             renderMenu(dishes);
         }
 
-        // पेज लोड होताच डेटा आणा
         window.onload = loadMenuItems;
     </script>
 </body>
