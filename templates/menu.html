@@ -90,6 +90,18 @@
             border-top: 1px solid rgba(245, 158, 11, 0.3); 
             padding: 16px 24px; z-index: 1000; 
         }
+        .offcanvas-custom {
+            background: #0f172a;
+            color: #fff;
+            border-left: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .cart-item-card {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -135,131 +147,172 @@
     <!-- Floating Cart Bar -->
     <div class="cart-bar d-flex justify-content-between align-items-center">
         <div>
-            <span class="text-secondary small fw-bold">Cart: <strong class="text-warning" id="cartCount">0 Items</strong></span>
+            <span class="text-secondary small fw-bold">Selected Items: <strong class="text-warning" id="cartCount">0 Items</strong></span>
             <h4 class="text-success fw-bold m-0">₹<span id="cartTotal">0</span></h4>
         </div>
-        <button class="btn btn-warning fw-bold rounded-pill px-4 shadow" id="checkoutBtn" disabled onclick="alert('ऑर्डर सबमिट झाली!')">
-            Place Order <i class="fa-solid fa-arrow-right ms-1"></i>
+        <button class="btn btn-warning fw-bold rounded-pill px-4 shadow" id="viewCartBtn" disabled data-bs-toggle="offcanvas" data-bs-target="#slideCart">
+            View Cart & Order <i class="fa-solid fa-cart-shopping ms-1"></i>
         </button>
     </div>
 
+    <!-- Slide-in Cart Drawer -->
+    <div class="offcanvas offcanvas-end offcanvas-custom" tabindex="-1" id="slideCart" aria-labelledby="slideCartLabel">
+        <div class="offcanvas-header border-bottom border-secondary">
+            <h5 class="offcanvas-title text-warning fw-bold" id="slideCartLabel">
+                <i class="fa-solid fa-basket-shopping me-2"></i>Your Order
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        
+        <div class="offcanvas-body d-flex flex-column justify-content-between">
+            <div id="cartItemsContainer" class="overflow-auto pe-1">
+                <div class="text-center text-secondary py-5">तुमच्या कार्टमध्ये कोणतेही पदार्थ नाहीत.</div>
+            </div>
+
+            <div class="border-top border-secondary pt-3 mt-3">
+                <div class="mb-3">
+                    <label class="form-label text-secondary small fw-bold">Table Number</label>
+                    <input type="number" id="tableNumber" class="form-control bg-dark text-white border-secondary" placeholder="उदा. 05">
+                </div>
+                
+                <div class="d-flex justify-content-between text-white fw-bold fs-5 mb-3">
+                    <span>Total Amount:</span>
+                    <span class="text-success">₹<span id="drawerTotal">0</span></span>
+                </div>
+
+                <button class="btn btn-warning w-100 fw-bold py-2 rounded-3" onclick="submitOrder()">
+                    <i class="fa-solid fa-paper-plane me-1"></i> Send Order
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-        // 📋 default 75 Menu Items
+        // 📋 75 Dishes with Specific Custom Search Keywords for Unsplash Images
         const defaultMenuItems = [
             // --- Starters ---
-            { id: 1, name: "Paneer Tikka", half_price: 130, full_price: 240, category: "Starters" },
-            { id: 2, name: "Paneer Chilli", half_price: 135, full_price: 250, category: "Starters" },
-            { id: 3, name: "Hara Bhara Kebab", half_price: 100, full_price: 190, category: "Starters" },
-            { id: 4, name: "Veg Crispy", half_price: 110, full_price: 200, category: "Starters" },
-            { id: 5, name: "Veg Manchurian Dry", half_price: 110, full_price: 200, category: "Starters" },
-            { id: 6, name: "Mushroom Tikka", half_price: 140, full_price: 260, category: "Starters" },
-            { id: 7, name: "Cheese Corn Balls", half_price: 130, full_price: 240, category: "Starters" },
-            { id: 8, name: "Chicken Tikka", half_price: 160, full_price: 300, category: "Starters" },
-            { id: 9, name: "Chicken Tandoori", half_price: 220, full_price: 420, category: "Starters" },
-            { id: 10, name: "Chicken Chilli", half_price: 150, full_price: 280, category: "Starters" },
-            { id: 11, name: "Chicken Lollipop", half_price: 140, full_price: 260, category: "Starters" },
-            { id: 12, name: "Chicken Seekh Kebab", half_price: 170, full_price: 320, category: "Starters" },
-            { id: 13, name: "Chicken Malai Tikka", half_price: 180, full_price: 330, category: "Starters" },
-            { id: 14, name: "Fish Fry", half_price: 190, full_price: 360, category: "Starters" },
-            { id: 15, name: "Prawns Koliwada", half_price: 210, full_price: 390, category: "Starters" },
+            { id: 1, name: "Paneer Tikka", half_price: 130, full_price: 240, category: "Starters", imgKey: "paneer-tikka" },
+            { id: 2, name: "Paneer Chilli", half_price: 135, full_price: 250, category: "Starters", imgKey: "chilli-paneer" },
+            { id: 3, name: "Hara Bhara Kebab", half_price: 100, full_price: 190, category: "Starters", imgKey: "veg-kebab" },
+            { id: 4, name: "Veg Crispy", half_price: 110, full_price: 200, category: "Starters", imgKey: "crispy-vegetables" },
+            { id: 5, name: "Veg Manchurian Dry", half_price: 110, full_price: 200, category: "Starters", imgKey: "manchurian" },
+            { id: 6, name: "Mushroom Tikka", half_price: 140, full_price: 260, category: "Starters", imgKey: "grilled-mushroom" },
+            { id: 7, name: "Cheese Corn Balls", half_price: 130, full_price: 240, category: "Starters", imgKey: "cheese-balls" },
+            { id: 8, name: "Chicken Tikka", half_price: 160, full_price: 300, category: "Starters", imgKey: "chicken-tikka" },
+            { id: 9, name: "Chicken Tandoori", half_price: 220, full_price: 420, category: "Starters", imgKey: "tandoori-chicken" },
+            { id: 10, name: "Chicken Chilli", half_price: 150, full_price: 280, category: "Starters", imgKey: "chilli-chicken" },
+            { id: 11, name: "Chicken Lollipop", half_price: 140, full_price: 260, category: "Starters", imgKey: "chicken-wings" },
+            { id: 12, name: "Chicken Seekh Kebab", half_price: 170, full_price: 320, category: "Starters", imgKey: "seekh-kebab" },
+            { id: 13, name: "Chicken Malai Tikka", half_price: 180, full_price: 330, category: "Starters", imgKey: "malai-tikka" },
+            { id: 14, name: "Fish Fry", half_price: 190, full_price: 360, category: "Starters", imgKey: "fried-fish" },
+            { id: 15, name: "Prawns Koliwada", half_price: 210, full_price: 390, category: "Starters", imgKey: "fried-prawns" },
 
             // --- Main Course ---
-            { id: 16, name: "Paneer Butter Masala", half_price: 140, full_price: 260, category: "Main Course" },
-            { id: 17, name: "Paneer Kadhai", half_price: 140, full_price: 260, category: "Main Course" },
-            { id: 18, name: "Paneer Bhurji", half_price: 150, full_price: 270, category: "Main Course" },
-            { id: 19, name: "Veg Kolhapuri", half_price: 120, full_price: 220, category: "Main Course" },
-            { id: 20, name: "Veg Maratha", half_price: 130, full_price: 240, category: "Main Course" },
-            { id: 21, name: "Dal Tadka", half_price: 90, full_price: 160, category: "Main Course" },
-            { id: 22, name: "Dal Makhani", half_price: 110, full_price: 200, category: "Main Course" },
-            { id: 23, name: "Kaju Curry", half_price: 160, full_price: 290, category: "Main Course" },
-            { id: 24, name: "Butter Chicken", half_price: 170, full_price: 320, category: "Main Course" },
-            { id: 25, name: "Chicken Masala", half_price: 150, full_price: 280, category: "Main Course" },
-            { id: 26, name: "Chicken Handi", half_price: 180, full_price: 340, category: "Main Course" },
-            { id: 27, name: "Chicken Kolhapuri", half_price: 160, full_price: 300, category: "Main Course" },
-            { id: 28, name: "Chicken Curry", half_price: 140, full_price: 260, category: "Main Course" },
-            { id: 29, name: "Mutton Curry", half_price: 200, full_price: 380, category: "Main Course" },
-            { id: 30, name: "Mutton Rogan Josh", half_price: 220, full_price: 410, category: "Main Course" },
+            { id: 16, name: "Paneer Butter Masala", half_price: 140, full_price: 260, category: "Main Course", imgKey: "paneer-butter-masala" },
+            { id: 17, name: "Paneer Kadhai", half_price: 140, full_price: 260, category: "Main Course", imgKey: "shahi-paneer" },
+            { id: 18, name: "Paneer Bhurji", half_price: 150, full_price: 270, category: "Main Course", imgKey: "paneer-scrambled" },
+            { id: 19, name: "Veg Kolhapuri", half_price: 120, full_price: 220, category: "Main Course", imgKey: "spicy-curry" },
+            { id: 20, name: "Veg Maratha", half_price: 130, full_price: 240, category: "Main Course", imgKey: "mixed-vegetable-curry" },
+            { id: 21, name: "Dal Tadka", half_price: 90, full_price: 160, category: "Main Course", imgKey: "dal-tadka" },
+            { id: 22, name: "Dal Makhani", half_price: 110, full_price: 200, category: "Main Course", imgKey: "dal-makhani" },
+            { id: 23, name: "Kaju Curry", half_price: 160, full_price: 290, category: "Main Course", imgKey: "cashew-curry" },
+            { id: 24, name: "Butter Chicken", half_price: 170, full_price: 320, category: "Main Course", imgKey: "butter-chicken" },
+            { id: 25, name: "Chicken Masala", half_price: 150, full_price: 280, category: "Main Course", imgKey: "chicken-curry" },
+            { id: 26, name: "Chicken Handi", half_price: 180, full_price: 340, category: "Main Course", imgKey: "indian-chicken-gravy" },
+            { id: 27, name: "Chicken Kolhapuri", half_price: 160, full_price: 300, category: "Main Course", imgKey: "spicy-chicken-curry" },
+            { id: 28, name: "Chicken Curry", half_price: 140, full_price: 260, category: "Main Course", imgKey: "chicken-gravy" },
+            { id: 29, name: "Mutton Curry", half_price: 200, full_price: 380, category: "Main Course", imgKey: "mutton-curry" },
+            { id: 30, name: "Mutton Rogan Josh", half_price: 220, full_price: 410, category: "Main Course", imgKey: "rogan-josh" },
 
             // --- Roti & Breads ---
-            { id: 31, name: "Tandoori Roti", half_price: 0, full_price: 20, category: "Roti & Breads" },
-            { id: 32, name: "Butter Roti", half_price: 0, full_price: 25, category: "Roti & Breads" },
-            { id: 33, name: "Plain Naan", half_price: 0, full_price: 35, category: "Roti & Breads" },
-            { id: 34, name: "Butter Naan", half_price: 0, full_price: 45, category: "Roti & Breads" },
-            { id: 35, name: "Garlic Naan", half_price: 0, full_price: 55, category: "Roti & Breads" },
-            { id: 36, name: "Cheese Garlic Naan", half_price: 0, full_price: 80, category: "Roti & Breads" },
-            { id: 37, name: "Missi Roti", half_price: 0, full_price: 35, category: "Roti & Breads" },
-            { id: 38, name: "Plain Paratha", half_price: 0, full_price: 40, category: "Roti & Breads" },
-            { id: 39, name: "Butter Paratha", half_price: 0, full_price: 50, category: "Roti & Breads" },
-            { id: 40, name: "Aloo Paratha", half_price: 0, full_price: 70, category: "Roti & Breads" },
-            { id: 41, name: "Paneer Paratha", half_price: 0, full_price: 90, category: "Roti & Breads" },
-            { id: 42, name: "Kulcha Plain", half_price: 0, full_price: 40, category: "Roti & Breads" },
-            { id: 43, name: "Onion Kulcha", half_price: 0, full_price: 60, category: "Roti & Breads" },
-            { id: 44, name: "Chapati / Phulka", half_price: 0, full_price: 15, category: "Roti & Breads" },
-            { id: 45, name: "Butter Chapati", half_price: 0, full_price: 20, category: "Roti & Breads" },
+            { id: 31, name: "Tandoori Roti", half_price: 0, full_price: 20, category: "Roti & Breads", imgKey: "roti-flatbread" },
+            { id: 32, name: "Butter Roti", half_price: 0, full_price: 25, category: "Roti & Breads", imgKey: "butter-roti" },
+            { id: 33, name: "Plain Naan", half_price: 0, full_price: 35, category: "Roti & Breads", imgKey: "naan-bread" },
+            { id: 34, name: "Butter Naan", half_price: 0, full_price: 45, category: "Roti & Breads", imgKey: "butter-naan" },
+            { id: 35, name: "Garlic Naan", half_price: 0, full_price: 55, category: "Roti & Breads", imgKey: "garlic-naan" },
+            { id: 36, name: "Cheese Garlic Naan", half_price: 0, full_price: 80, category: "Roti & Breads", imgKey: "cheese-naan" },
+            { id: 37, name: "Missi Roti", half_price: 0, full_price: 35, category: "Roti & Breads", imgKey: "indian-flatbread" },
+            { id: 38, name: "Plain Paratha", half_price: 0, full_price: 40, category: "Roti & Breads", imgKey: "paratha" },
+            { id: 39, name: "Butter Paratha", half_price: 0, full_price: 50, category: "Roti & Breads", imgKey: "roti" },
+            { id: 40, name: "Aloo Paratha", half_price: 0, full_price: 70, category: "Roti & Breads", imgKey: "aloo-paratha" },
+            { id: 41, name: "Paneer Paratha", half_price: 0, full_price: 90, category: "Roti & Breads", imgKey: "stuffed-paratha" },
+            { id: 42, name: "Kulcha Plain", half_price: 0, full_price: 40, category: "Roti & Breads", imgKey: "kulcha" },
+            { id: 43, name: "Onion Kulcha", half_price: 0, full_price: 60, category: "Roti & Breads", imgKey: "stuffed-bread" },
+            { id: 44, name: "Chapati / Phulka", half_price: 0, full_price: 15, category: "Roti & Breads", imgKey: "chapati" },
+            { id: 45, name: "Butter Chapati", half_price: 0, full_price: 20, category: "Roti & Breads", imgKey: "flatbread" },
 
             // --- Rice & Biryani ---
-            { id: 46, name: "Steam Rice", half_price: 50, full_price: 90, category: "Rice & Biryani" },
-            { id: 47, name: "Jeera Rice", half_price: 70, full_price: 130, category: "Rice & Biryani" },
-            { id: 48, name: "Dal Khichdi", half_price: 95, full_price: 170, category: "Rice & Biryani" },
-            { id: 49, name: "Palak Khichdi", half_price: 100, full_price: 180, category: "Rice & Biryani" },
-            { id: 50, name: "Veg Dum Biryani", half_price: 110, full_price: 200, category: "Rice & Biryani" },
-            { id: 51, name: "Paneer Biryani", half_price: 130, full_price: 240, category: "Rice & Biryani" },
-            { id: 52, name: "Veg Pulao", half_price: 100, full_price: 180, category: "Rice & Biryani" },
-            { id: 53, name: "Kashmiri Pulao", half_price: 120, full_price: 220, category: "Rice & Biryani" },
-            { id: 54, name: "Chicken Dum Biryani", half_price: 140, full_price: 260, category: "Rice & Biryani" },
-            { id: 55, name: "Chicken Tikka Biryani", half_price: 160, full_price: 290, category: "Rice & Biryani" },
-            { id: 56, name: "Chicken Hyderabadi Biryani", half_price: 150, full_price: 280, category: "Rice & Biryani" },
-            { id: 57, name: "Egg Biryani", half_price: 110, full_price: 200, category: "Rice & Biryani" },
-            { id: 58, name: "Mutton Biryani", half_price: 180, full_price: 340, category: "Rice & Biryani" },
-            { id: 59, name: "Veg Fried Rice", half_price: 90, full_price: 170, category: "Rice & Biryani" },
-            { id: 60, name: "Chicken Fried Rice", half_price: 120, full_price: 220, category: "Rice & Biryani" },
+            { id: 46, name: "Steam Rice", half_price: 50, full_price: 90, category: "Rice & Biryani", imgKey: "steamed-rice" },
+            { id: 47, name: "Jeera Rice", half_price: 70, full_price: 130, category: "Rice & Biryani", imgKey: "cumin-rice" },
+            { id: 48, name: "Dal Khichdi", half_price: 95, full_price: 170, category: "Rice & Biryani", imgKey: "khichdi" },
+            { id: 49, name: "Palak Khichdi", half_price: 100, full_price: 180, category: "Rice & Biryani", imgKey: "spinach-rice" },
+            { id: 50, name: "Veg Dum Biryani", half_price: 110, full_price: 200, category: "Rice & Biryani", imgKey: "veg-biryani" },
+            { id: 51, name: "Paneer Biryani", half_price: 130, full_price: 240, category: "Rice & Biryani", imgKey: "paneer-rice" },
+            { id: 52, name: "Veg Pulao", half_price: 100, full_price: 180, category: "Rice & Biryani", imgKey: "vegetable-pulao" },
+            { id: 53, name: "Kashmiri Pulao", half_price: 120, full_price: 220, category: "Rice & Biryani", imgKey: "sweet-rice" },
+            { id: 54, name: "Chicken Dum Biryani", half_price: 140, full_price: 260, category: "Rice & Biryani", imgKey: "chicken-biryani" },
+            { id: 55, name: "Chicken Tikka Biryani", half_price: 160, full_price: 290, category: "Rice & Biryani", imgKey: "tikka-biryani" },
+            { id: 56, name: "Chicken Hyderabadi Biryani", half_price: 150, full_price: 280, category: "Rice & Biryani", imgKey: "hyderabadi-biryani" },
+            { id: 57, name: "Egg Biryani", half_price: 110, full_price: 200, category: "Rice & Biryani", imgKey: "egg-biryani" },
+            { id: 58, name: "Mutton Biryani", half_price: 180, full_price: 340, category: "Rice & Biryani", imgKey: "mutton-biryani" },
+            { id: 59, name: "Veg Fried Rice", half_price: 90, full_price: 170, category: "Rice & Biryani", imgKey: "fried-rice" },
+            { id: 60, name: "Chicken Fried Rice", half_price: 120, full_price: 220, category: "Rice & Biryani", imgKey: "chicken-fried-rice" },
 
             // --- Desserts & Drinks ---
-            { id: 61, name: "Masala Taak (Buttermilk)", half_price: 0, full_price: 25, category: "Desserts & Drinks" },
-            { id: 62, name: "Sweet Lassi", half_price: 0, full_price: 50, category: "Desserts & Drinks" },
-            { id: 63, name: "Mango Lassi", half_price: 0, full_price: 65, category: "Desserts & Drinks" },
-            { id: 64, name: "Cold Drink (Soft Drink)", half_price: 0, full_price: 30, category: "Desserts & Drinks" },
-            { id: 65, name: "Fresh Lime Soda", half_price: 0, full_price: 45, category: "Desserts & Drinks" },
-            { id: 66, name: "Fresh Lime Water", half_price: 0, full_price: 35, category: "Desserts & Drinks" },
-            { id: 67, name: "Cold Coffee", half_price: 0, full_price: 70, category: "Desserts & Drinks" },
-            { id: 68, name: "Gulab Jamun (2 Pcs)", half_price: 0, full_price: 50, category: "Desserts & Drinks" },
-            { id: 69, name: "Rasgulla (2 Pcs)", half_price: 0, full_price: 50, category: "Desserts & Drinks" },
-            { id: 70, name: "Vanilla Ice Cream", half_price: 0, full_price: 60, category: "Desserts & Drinks" },
-            { id: 71, name: "Chocolate Ice Cream", half_price: 0, full_price: 70, category: "Desserts & Drinks" },
-            { id: 72, name: "Butterscotch Ice Cream", half_price: 0, full_price: 70, category: "Desserts & Drinks" },
-            { id: 73, name: "Matka Kulfi", half_price: 0, full_price: 60, category: "Desserts & Drinks" },
-            { id: 74, name: "Gajar Halwa (Seasonal)", half_price: 0, full_price: 80, category: "Desserts & Drinks" },
-            { id: 75, name: "Sizzling Brownie with Ice Cream", half_price: 0, full_price: 140, category: "Desserts & Drinks" }
+            { id: 61, name: "Masala Taak (Buttermilk)", half_price: 0, full_price: 25, category: "Desserts & Drinks", imgKey: "buttermilk" },
+            { id: 62, name: "Sweet Lassi", half_price: 0, full_price: 50, category: "Desserts & Drinks", imgKey: "lassi" },
+            { id: 63, name: "Mango Lassi", half_price: 0, full_price: 65, category: "Desserts & Drinks", imgKey: "mango-lassi" },
+            { id: 64, name: "Cold Drink (Soft Drink)", half_price: 0, full_price: 30, category: "Desserts & Drinks", imgKey: "soda-drink" },
+            { id: 65, name: "Fresh Lime Soda", half_price: 0, full_price: 45, category: "Desserts & Drinks", imgKey: "lemonade" },
+            { id: 66, name: "Fresh Lime Water", half_price: 0, full_price: 35, category: "Desserts & Drinks", imgKey: "lemon-water" },
+            { id: 67, name: "Cold Coffee", half_price: 0, full_price: 70, category: "Desserts & Drinks", imgKey: "iced-coffee" },
+            { id: 68, name: "Gulab Jamun (2 Pcs)", half_price: 0, full_price: 50, category: "Desserts & Drinks", imgKey: "gulab-jamun" },
+            { id: 69, name: "Rasgulla (2 Pcs)", half_price: 0, full_price: 50, category: "Desserts & Drinks", imgKey: "rasgulla" },
+            { id: 70, name: "Vanilla Ice Cream", half_price: 0, full_price: 60, category: "Desserts & Drinks", imgKey: "vanilla-ice-cream" },
+            { id: 71, name: "Chocolate Ice Cream", half_price: 0, full_price: 70, category: "Desserts & Drinks", imgKey: "chocolate-ice-cream" },
+            { id: 72, name: "Butterscotch Ice Cream", half_price: 0, full_price: 70, category: "Desserts & Drinks", imgKey: "ice-cream-scoop" },
+            { id: 73, name: "Matka Kulfi", half_price: 0, full_price: 60, category: "Desserts & Drinks", imgKey: "kulfi" },
+            { id: 74, name: "Gajar Halwa (Seasonal)", half_price: 0, full_price: 80, category: "Desserts & Drinks", imgKey: "carrot-halwa" },
+            { id: 75, name: "Sizzling Brownie with Ice Cream", half_price: 0, full_price: 140, category: "Desserts & Drinks", imgKey: "sizzling-brownie" }
         ];
 
         let dishes = [];
-        let cart = [];
+        let cartMap = {};
         let currentCategory = 'all';
         let currentType = 'all';
 
-        // Backend चा डेटा कार्ड्ससाठी अनुकूल करणे व इमेजेस जोडणे
+        // 🧠 स्मार्ट अ‍ॅनालिसिस फाईंडर - नामावरून इमेज युआरएल तयार करणे
+        function getDishImage(dishName, imgKey) {
+            if (imgKey) {
+                return `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80&fit=crop&sig=${imgKey}`; // Dynamic unique image fallback
+            }
+            const cleanName = encodeURIComponent(dishName.toLowerCase().replace(/[^a-z0-9 ]/g, ""));
+            return `https://source.unsplash.com/400x300/?${cleanName}`;
+        }
+
         function processMenuData(rawMenu) {
             const nonVegKeywords = ['chicken', 'mutton', 'fish', 'prawn', 'egg'];
             const bestsellerList = ['Paneer Butter Masala', 'Butter Chicken', 'Chicken Dum Biryani', 'Dal Tadka', 'Sizzling Brownie with Ice Cream'];
 
             return rawMenu.map(item => {
                 const isNonVeg = nonVegKeywords.some(kw => item.name.toLowerCase().includes(kw));
-                const isBestseller = bestsellerList.includes(item.name);
+                const key = item.imgKey || item.name.toLowerCase().replace(/\s+/g, '-');
                 
                 return {
                     id: item.id,
                     name: item.name,
                     category: item.category || 'General',
                     type: isNonVeg ? 'nonveg' : 'veg',
-                    isBestseller: isBestseller,
+                    isBestseller: bestsellerList.includes(item.name),
                     halfPrice: item.half_price > 0 ? item.half_price : null,
                     fullPrice: item.full_price,
-                    image: `https://source.unsplash.com/400x300/?${encodeURIComponent(item.name + ' food')}`
+                    image: `https://loremflickr.com/400/300/${encodeURIComponent(key)},food/all`
                 };
             });
         }
 
-        // UI वर कार्ड्स रेंडर करणे
         function renderMenu(items) {
             const grid = document.getElementById('menuGrid');
             grid.innerHTML = '';
@@ -275,9 +328,9 @@
                 
                 let portionHTML = dish.halfPrice ? 
                     `<div class="btn-group btn-group-sm w-100 my-2">
-                        <input type="radio" class="btn-check" name="portion-${dish.id}" id="half-${dish.id}" checked>
+                        <input type="radio" class="btn-check" name="portion-${dish.id}" id="half-${dish.id}" value="half" checked>
                         <label class="btn btn-outline-warning py-1" for="half-${dish.id}">Half ₹${dish.halfPrice}</label>
-                        <input type="radio" class="btn-check" name="portion-${dish.id}" id="full-${dish.id}">
+                        <input type="radio" class="btn-check" name="portion-${dish.id}" id="full-${dish.id}" value="full">
                         <label class="btn btn-outline-warning py-1" for="full-${dish.id}">Full ₹${dish.fullPrice}</label>
                     </div>` : 
                     `<div class="text-warning fw-bold my-2">Full: ₹${dish.fullPrice}</div>`;
@@ -294,7 +347,7 @@
                                 </div>
                                 ${portionHTML}
                                 <button class="btn btn-warning w-100 fw-bold rounded-3 mt-2" onclick="addToCart(${dish.id})">
-                                    <i class="fa-solid fa-plus me-1"></i> Add
+                                    <i class="fa-solid fa-plus me-1"></i> Add Item
                                 </button>
                             </div>
                         </div>
@@ -302,7 +355,6 @@
             });
         }
 
-        // फिल्टर फंक्शन्स
         function filterCategory(cat, btn) {
             currentCategory = cat;
             document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
@@ -326,38 +378,102 @@
             renderMenu(filtered);
         }
 
-        // कार्ड मध्ये पदार्थ ॲड करणे
         function addToCart(id) {
             const dish = dishes.find(d => d.id === id);
-            cart.push(dish);
-            document.getElementById('cartCount').innerText = cart.length + " Items";
-            document.getElementById('cartTotal').innerText = cart.reduce((sum, item) => sum + item.fullPrice, 0);
-            document.getElementById('checkoutBtn').disabled = false;
+            let portion = 'full';
+            let price = dish.fullPrice;
+
+            const halfRadio = document.getElementById(`half-${id}`);
+            if (halfRadio && halfRadio.checked) {
+                portion = 'half';
+                price = dish.halfPrice;
+            }
+
+            const cartKey = `${id}-${portion}`;
+
+            if (cartMap[cartKey]) {
+                cartMap[cartKey].qty += 1;
+            } else {
+                cartMap[cartKey] = { dish: dish, portion: portion, price: price, qty: 1 };
+            }
+            updateCartUI();
         }
 
-        // 🚀 API मधून डेटा लोड करणे आणि नसल्यास Fallback वापरणे
+        function changeQty(cartKey, delta) {
+            if (cartMap[cartKey]) {
+                cartMap[cartKey].qty += delta;
+                if (cartMap[cartKey].qty <= 0) delete cartMap[cartKey];
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cartItemsContainer');
+            container.innerHTML = '';
+
+            let totalItems = 0;
+            let totalPrice = 0;
+            const keys = Object.keys(cartMap);
+
+            if (keys.length === 0) {
+                container.innerHTML = `<div class="text-center text-secondary py-5">तुमच्या कार्टमध्ये कोणतेही पदार्थ नाहीत.</div>`;
+                document.getElementById('viewCartBtn').disabled = true;
+            } else {
+                document.getElementById('viewCartBtn').disabled = false;
+                
+                keys.forEach(key => {
+                    const item = cartMap[key];
+                    const itemTotal = item.price * item.qty;
+                    totalItems += item.qty;
+                    totalPrice += itemTotal;
+
+                    container.innerHTML += `
+                        <div class="cart-item-card d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-white m-0 fw-bold">${item.dish.name}</h6>
+                                <span class="text-secondary small">(${item.portion.toUpperCase()}) - ₹${item.price}</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <button class="btn btn-sm btn-outline-warning py-0 px-2" onclick="changeQty('${key}', -1)">-</button>
+                                <span class="fw-bold text-warning">${item.qty}</span>
+                                <button class="btn btn-sm btn-outline-warning py-0 px-2" onclick="changeQty('${key}', 1)">+</button>
+                            </div>
+                        </div>`;
+                });
+            }
+
+            document.getElementById('cartCount').innerText = `${totalItems} Items`;
+            document.getElementById('cartTotal').innerText = totalPrice;
+            document.getElementById('drawerTotal').innerText = totalPrice;
+        }
+
+        function submitOrder() {
+            const tableNum = document.getElementById('tableNumber').value;
+            if(!tableNum) {
+                alert('कृपया तुमचा टेबल नंबर प्रविष्ट करा!');
+                return;
+            }
+            alert(`टेबल नंबर ${tableNum} ची ऑर्डर यशस्वीरीत्या सबमिट झाली आहे!`);
+            cartMap = {};
+            document.getElementById('tableNumber').value = '';
+            updateCartUI();
+            
+            const bsOffcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('slideCart'));
+            if(bsOffcanvas) bsOffcanvas.hide();
+        }
+
         async function loadMenuItems() {
             try {
                 const response = await fetch('/api/menu');
                 const data = await response.json();
                 
                 let rawList = [];
-                if (Array.isArray(data)) {
-                    rawList = data;
-                } else if (data.menu && Array.isArray(data.menu)) {
-                    rawList = data.menu;
-                } else if (data.data && Array.isArray(data.data)) {
-                    rawList = data.data;
-                }
+                if (Array.isArray(data)) rawList = data;
+                else if (data.menu && Array.isArray(data.menu)) rawList = data.menu;
 
-                if (rawList.length > 0) {
-                    dishes = processMenuData(rawList);
-                } else {
-                    console.warn("API returned empty array. Loading default 75 menu items.");
-                    dishes = processMenuData(defaultMenuItems);
-                }
+                if (rawList.length > 0) dishes = processMenuData(rawList);
+                else dishes = processMenuData(defaultMenuItems);
             } catch (error) {
-                console.error("API Error, fallback to default menu items:", error);
                 dishes = processMenuData(defaultMenuItems);
             }
             renderMenu(dishes);
