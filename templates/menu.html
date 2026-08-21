@@ -9,66 +9,86 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { 
-            background: #0f172a;
+            background: #0b1120;
             color: #f8fafc; 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            padding-bottom: 110px; 
+            padding-bottom: 120px; 
             min-height: 100vh;
         }
         .hero-section { 
-            background: rgba(15, 23, 42, 0.9); 
-            padding: 16px 0; 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+            background: rgba(15, 23, 42, 0.85); 
+            backdrop-filter: blur(12px);
+            padding: 18px 0; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08); 
         }
         .category-scroll { scrollbar-width: none; }
         .category-scroll::-webkit-scrollbar { display: none; }
         .btn-filter {
-            background: rgba(30, 41, 59, 0.8);
+            background: rgba(30, 41, 59, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #cbd5e1;
             font-weight: 600;
             padding: 8px 18px;
             border-radius: 50px;
+            white-space: nowrap;
+            transition: all 0.3s ease;
         }
         .btn-filter:hover, .btn-filter.active {
             background: #f59e0b;
             color: #0f172a;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
         }
         .search-box {
-            background: rgba(15, 23, 42, 0.8) !important;
-            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            background: rgba(30, 41, 59, 0.7) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
             color: #fff !important;
             border-radius: 30px !important;
-            padding: 10px 20px !important;
+            padding: 12px 22px !important;
         }
         .dish-card { 
-            background: rgba(30, 41, 59, 0.7); 
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            border-radius: 16px; 
-            padding: 16px;
+            background: rgba(30, 41, 59, 0.6); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 18px; 
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .badge-veg-dot {
-            width: 14px; height: 14px; border: 2px solid #22c55e;
+        .dish-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+        .dish-img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+        .badge-veg-dot, .badge-nonveg-dot {
+            width: 16px; height: 16px; border-radius: 3px;
             display: inline-flex; align-items: center; justify-content: center;
-            border-radius: 3px;
+            flex-shrink: 0;
         }
-        .badge-veg-dot::after {
-            content: ''; width: 6px; height: 6px; background: #22c55e; border-radius: 50%;
-        }
-        .badge-nonveg-dot {
-            width: 14px; height: 14px; border: 2px solid #ef4444;
-            display: inline-flex; align-items: center; justify-content: center;
-            border-radius: 3px;
-        }
+        .badge-veg-dot { border: 2px solid #22c55e; }
+        .badge-veg-dot::after { content: ''; width: 6px; height: 6px; background: #22c55e; border-radius: 50%; }
+        .badge-nonveg-dot { border: 2px solid #ef4444; }
         .badge-nonveg-dot::after {
             content: ''; width: 0; height: 0;
             border-left: 3px solid transparent; border-right: 3px solid transparent;
             border-bottom: 6px solid #ef4444;
         }
+        .bestseller-badge {
+            position: absolute; top: 10px; right: 10px;
+            background: #ef4444; color: #fff;
+            font-size: 11px; font-weight: 700;
+            padding: 3px 10px; border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            z-index: 2;
+        }
         .cart-bar { 
             position: fixed; bottom: 0; left: 0; right: 0; 
-            background: #0f172a; border-top: 1px solid #f59e0b; 
-            padding: 14px 24px; z-index: 1000; 
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(245, 158, 11, 0.3); 
+            padding: 16px 24px; z-index: 1000; 
         }
     </style>
 </head>
@@ -77,7 +97,7 @@
     <div class="hero-section sticky-top mb-4">
         <div class="container text-center">
             <h4 class="fw-bold text-warning m-0">
-                <i class="fa-solid fa-crown me-1"></i> THE ROYAL SPICE
+                <i class="fa-solid fa-crown me-2"></i>THE ROYAL SPICE
             </h4>
             <span class="text-secondary small">Digital Menu</span>
         </div>
@@ -87,18 +107,25 @@
         <!-- Search Bar -->
         <div class="row justify-content-center mb-3">
             <div class="col-md-6 col-12">
-                <input type="text" id="searchInput" class="form-control search-box" placeholder="Search dish..." onkeyup="applyFilters()">
+                <input type="text" id="searchInput" class="form-control search-box" placeholder="🔍 Search favorite dish..." onkeyup="applyFilters()">
             </div>
+        </div>
+
+        <!-- Veg/Non-Veg Quick Filter Buttons -->
+        <div class="d-flex justify-content-center gap-2 mb-3">
+            <button class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="typeFilter('veg')">🟢 Veg Only</button>
+            <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="typeFilter('nonveg')">🔴 Non-Veg Only</button>
+            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="typeFilter('all')">Show All</button>
         </div>
 
         <!-- Category Filters -->
         <div class="d-flex gap-2 mb-4 overflow-auto pb-2 category-scroll justify-content-start justify-content-md-center">
             <button class="btn btn-filter active" onclick="filterCategory('all', this)">All</button>
-            <button class="btn btn-filter" onclick="filterCategory('Starters', this)">Starters</button>
-            <button class="btn btn-filter" onclick="filterCategory('Main Course', this)">Main Course</button>
-            <button class="btn btn-filter" onclick="filterCategory('Roti & Breads', this)">Roti & Breads</button>
-            <button class="btn btn-filter" onclick="filterCategory('Rice & Biryani', this)">Rice & Biryani</button>
-            <button class="btn btn-filter" onclick="filterCategory('Desserts & Drinks', this)">Desserts & Drinks</button>
+            <button class="btn btn-filter" onclick="filterCategory('Starters', this)">🍢 Starters</button>
+            <button class="btn btn-filter" onclick="filterCategory('Main Course', this)">🥘 Main Course</button>
+            <button class="btn btn-filter" onclick="filterCategory('Roti & Breads', this)">🫓 Roti & Breads</button>
+            <button class="btn btn-filter" onclick="filterCategory('Rice & Biryani', this)">🍲 Rice & Biryani</button>
+            <button class="btn btn-filter" onclick="filterCategory('Desserts & Drinks', this)">🥤 Desserts & Drinks</button>
         </div>
 
         <!-- Dishes Grid -->
@@ -111,13 +138,15 @@
             <span class="text-secondary small fw-bold">Cart: <strong class="text-warning" id="cartCount">0 Items</strong></span>
             <h4 class="text-success fw-bold m-0">₹<span id="cartTotal">0</span></h4>
         </div>
-        <button class="btn btn-warning fw-bold rounded-pill px-4" id="checkoutBtn" disabled onclick="alert('ऑर्डर सबमिट झाली!')">Place Order</button>
+        <button class="btn btn-warning fw-bold rounded-pill px-4 shadow" id="checkoutBtn" disabled onclick="alert('ऑर्डर सबमिट झाली!')">
+            Place Order <i class="fa-solid fa-arrow-right ms-1"></i>
+        </button>
     </div>
 
     <script>
-        // 📋 प्रत्येक कॅटेगरीमध्ये १५ पदार्थ (एकूण ७५ पदार्थ)
+        // 📋 default 75 Menu Items
         const defaultMenuItems = [
-            // --- 1. Starters (15 Items) ---
+            // --- Starters ---
             { id: 1, name: "Paneer Tikka", half_price: 130, full_price: 240, category: "Starters" },
             { id: 2, name: "Paneer Chilli", half_price: 135, full_price: 250, category: "Starters" },
             { id: 3, name: "Hara Bhara Kebab", half_price: 100, full_price: 190, category: "Starters" },
@@ -134,7 +163,7 @@
             { id: 14, name: "Fish Fry", half_price: 190, full_price: 360, category: "Starters" },
             { id: 15, name: "Prawns Koliwada", half_price: 210, full_price: 390, category: "Starters" },
 
-            // --- 2. Main Course (15 Items) ---
+            // --- Main Course ---
             { id: 16, name: "Paneer Butter Masala", half_price: 140, full_price: 260, category: "Main Course" },
             { id: 17, name: "Paneer Kadhai", half_price: 140, full_price: 260, category: "Main Course" },
             { id: 18, name: "Paneer Bhurji", half_price: 150, full_price: 270, category: "Main Course" },
@@ -151,7 +180,7 @@
             { id: 29, name: "Mutton Curry", half_price: 200, full_price: 380, category: "Main Course" },
             { id: 30, name: "Mutton Rogan Josh", half_price: 220, full_price: 410, category: "Main Course" },
 
-            // --- 3. Roti & Breads (15 Items) ---
+            // --- Roti & Breads ---
             { id: 31, name: "Tandoori Roti", half_price: 0, full_price: 20, category: "Roti & Breads" },
             { id: 32, name: "Butter Roti", half_price: 0, full_price: 25, category: "Roti & Breads" },
             { id: 33, name: "Plain Naan", half_price: 0, full_price: 35, category: "Roti & Breads" },
@@ -168,7 +197,7 @@
             { id: 44, name: "Chapati / Phulka", half_price: 0, full_price: 15, category: "Roti & Breads" },
             { id: 45, name: "Butter Chapati", half_price: 0, full_price: 20, category: "Roti & Breads" },
 
-            // --- 4. Rice & Biryani (15 Items) ---
+            // --- Rice & Biryani ---
             { id: 46, name: "Steam Rice", half_price: 50, full_price: 90, category: "Rice & Biryani" },
             { id: 47, name: "Jeera Rice", half_price: 70, full_price: 130, category: "Rice & Biryani" },
             { id: 48, name: "Dal Khichdi", half_price: 95, full_price: 170, category: "Rice & Biryani" },
@@ -185,7 +214,7 @@
             { id: 59, name: "Veg Fried Rice", half_price: 90, full_price: 170, category: "Rice & Biryani" },
             { id: 60, name: "Chicken Fried Rice", half_price: 120, full_price: 220, category: "Rice & Biryani" },
 
-            // --- 5. Desserts & Drinks (15 Items) ---
+            // --- Desserts & Drinks ---
             { id: 61, name: "Masala Taak (Buttermilk)", half_price: 0, full_price: 25, category: "Desserts & Drinks" },
             { id: 62, name: "Sweet Lassi", half_price: 0, full_price: 50, category: "Desserts & Drinks" },
             { id: 63, name: "Mango Lassi", half_price: 0, full_price: 65, category: "Desserts & Drinks" },
@@ -206,18 +235,28 @@
         let dishes = [];
         let cart = [];
         let currentCategory = 'all';
+        let currentType = 'all';
 
-        // Backend चा डेटा कार्ड्ससाठी अनुकूल करणे
+        // Backend चा डेटा कार्ड्ससाठी अनुकूल करणे व इमेजेस जोडणे
         function processMenuData(rawMenu) {
             const nonVegKeywords = ['chicken', 'mutton', 'fish', 'prawn', 'egg'];
-            return rawMenu.map(item => ({
-                id: item.id,
-                name: item.name,
-                category: item.category || 'General',
-                type: nonVegKeywords.some(kw => item.name.toLowerCase().includes(kw)) ? 'nonveg' : 'veg',
-                halfPrice: item.half_price > 0 ? item.half_price : null,
-                fullPrice: item.full_price
-            }));
+            const bestsellerList = ['Paneer Butter Masala', 'Butter Chicken', 'Chicken Dum Biryani', 'Dal Tadka', 'Sizzling Brownie with Ice Cream'];
+
+            return rawMenu.map(item => {
+                const isNonVeg = nonVegKeywords.some(kw => item.name.toLowerCase().includes(kw));
+                const isBestseller = bestsellerList.includes(item.name);
+                
+                return {
+                    id: item.id,
+                    name: item.name,
+                    category: item.category || 'General',
+                    type: isNonVeg ? 'nonveg' : 'veg',
+                    isBestseller: isBestseller,
+                    halfPrice: item.half_price > 0 ? item.half_price : null,
+                    fullPrice: item.full_price,
+                    image: `https://source.unsplash.com/400x300/?${encodeURIComponent(item.name + ' food')}`
+                };
+            });
         }
 
         // UI वर कार्ड्स रेंडर करणे
@@ -226,12 +265,14 @@
             grid.innerHTML = '';
 
             if(!items || items.length === 0) {
-                grid.innerHTML = `<div class="text-center text-secondary py-4">कोणतेही पदार्थ सापडले नाहीत.</div>`;
+                grid.innerHTML = `<div class="text-center text-secondary py-5">कोणतेही पदार्थ सापडले नाहीत.</div>`;
                 return;
             }
 
             items.forEach(dish => {
                 const badge = dish.type === 'veg' ? '<span class="badge-veg-dot"></span>' : '<span class="badge-nonveg-dot"></span>';
+                const bestsellerBadge = dish.isBestseller ? `<span class="bestseller-badge">🔥 Bestseller</span>` : '';
+                
                 let portionHTML = dish.halfPrice ? 
                     `<div class="btn-group btn-group-sm w-100 my-2">
                         <input type="radio" class="btn-check" name="portion-${dish.id}" id="half-${dish.id}" checked>
@@ -242,17 +283,26 @@
                     `<div class="text-warning fw-bold my-2">Full: ₹${dish.fullPrice}</div>`;
 
                 grid.innerHTML += `
-                    <div class="col-md-6 col-12">
-                        <div class="dish-card">
-                            <h6 class="fw-bold text-white d-flex align-items-center gap-2 m-0">${badge} ${dish.name}</h6>
-                            ${portionHTML}
-                            <button class="btn btn-warning w-100 fw-bold rounded-3 mt-2" onclick="addToCart(${dish.id})">+ Add</button>
+                    <div class="col-md-4 col-sm-6 col-12">
+                        <div class="dish-card position-relative">
+                            ${bestsellerBadge}
+                            <img src="${dish.image}" class="dish-img" alt="${dish.name}" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400'">
+                            <div class="p-3">
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    ${badge}
+                                    <h6 class="fw-bold text-white m-0 text-truncate">${dish.name}</h6>
+                                </div>
+                                ${portionHTML}
+                                <button class="btn btn-warning w-100 fw-bold rounded-3 mt-2" onclick="addToCart(${dish.id})">
+                                    <i class="fa-solid fa-plus me-1"></i> Add
+                                </button>
+                            </div>
                         </div>
                     </div>`;
             });
         }
 
-        // कॅटेगरी फिल्टर करणे
+        // फिल्टर फंक्शन्स
         function filterCategory(cat, btn) {
             currentCategory = cat;
             document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
@@ -260,16 +310,23 @@
             applyFilters();
         }
 
-        // सर्च आणि फिल्टर एकत्र चालवणे
+        function typeFilter(type) {
+            currentType = type;
+            applyFilters();
+        }
+
         function applyFilters() {
             const query = document.getElementById('searchInput').value.toLowerCase();
             let filtered = dishes;
+
             if (currentCategory !== 'all') filtered = filtered.filter(d => d.category === currentCategory);
+            if (currentType !== 'all') filtered = filtered.filter(d => d.type === currentType);
             if (query !== '') filtered = filtered.filter(d => d.name.toLowerCase().includes(query));
+
             renderMenu(filtered);
         }
 
-        // कार्ड मध्ये ॲड करणे
+        // कार्ड मध्ये पदार्थ ॲड करणे
         function addToCart(id) {
             const dish = dishes.find(d => d.id === id);
             cart.push(dish);
@@ -278,7 +335,7 @@
             document.getElementById('checkoutBtn').disabled = false;
         }
 
-        // 🚀 अपडेटेड: API मधील डेटा हाताळणारे सुधारित लोड फंक्शन
+        // 🚀 API मधून डेटा लोड करणे आणि नसल्यास Fallback वापरणे
         async function loadMenuItems() {
             try {
                 const response = await fetch('/api/menu');
