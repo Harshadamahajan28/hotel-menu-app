@@ -278,19 +278,29 @@
             document.getElementById('checkoutBtn').disabled = false;
         }
 
-        // 🚀 API मधून किंवा Static array मधून मेनू लोड करणे
+        // 🚀 अपडेटेड: API मधील डेटा हाताळणारे सुधारित लोड फंक्शन
         async function loadMenuItems() {
             try {
                 const response = await fetch('/api/menu');
                 const data = await response.json();
                 
-                if (data.success && data.menu.length > 0) {
-                    dishes = processMenuData(data.menu);
+                let rawList = [];
+                if (Array.isArray(data)) {
+                    rawList = data;
+                } else if (data.menu && Array.isArray(data.menu)) {
+                    rawList = data.menu;
+                } else if (data.data && Array.isArray(data.data)) {
+                    rawList = data.data;
+                }
+
+                if (rawList.length > 0) {
+                    dishes = processMenuData(rawList);
                 } else {
+                    console.warn("API returned empty array. Loading default 75 menu items.");
                     dishes = processMenuData(defaultMenuItems);
                 }
             } catch (error) {
-                console.error("API Loading error, fallback to static menu:", error);
+                console.error("API Error, fallback to default menu items:", error);
                 dishes = processMenuData(defaultMenuItems);
             }
             renderMenu(dishes);
