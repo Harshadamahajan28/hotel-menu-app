@@ -14,6 +14,94 @@ def get_db_connection():
         raise ValueError("DATABASE_URL environment variable is not set!")
     return psycopg2.connect(DATABASE_URL)
 
+# Full 75 Menu Items List
+DEFAULT_FULL_MENU = [
+    # --- Starters (15 Items) ---
+    ('Paneer Tikka', 130.0, 240.0, 'Starters'),
+    ('Paneer Chilli', 135.0, 250.0, 'Starters'),
+    ('Hara Bhara Kabab', 100.0, 190.0, 'Starters'),
+    ('Veg Crispy', 110.0, 200.0, 'Starters'),
+    ('Veg Manchurian Dry', 110.0, 200.0, 'Starters'),
+    ('Mushroom Tikka', 140.0, 260.0, 'Starters'),
+    ('Cheese Corn Balls', 130.0, 240.0, 'Starters'),
+    ('Chicken Tikka', 160.0, 300.0, 'Starters'),
+    ('Chicken Tandoori', 220.0, 420.0, 'Starters'),
+    ('Chicken Chilli', 150.0, 280.0, 'Starters'),
+    ('Chicken Lollipop', 140.0, 260.0, 'Starters'),
+    ('Chicken Seekh Kebab', 170.0, 320.0, 'Starters'),
+    ('Chicken Malai Tikka', 180.0, 330.0, 'Starters'),
+    ('Fish Fry', 190.0, 360.0, 'Starters'),
+    ('Prawns Koliwada', 210.0, 390.0, 'Starters'),
+
+    # --- Main Course (15 Items) ---
+    ('Paneer Butter Masala', 140.0, 260.0, 'Main Course'),
+    ('Paneer Kadhai', 140.0, 260.0, 'Main Course'),
+    ('Paneer Bhurji', 150.0, 270.0, 'Main Course'),
+    ('Veg Kolhapuri', 120.0, 220.0, 'Main Course'),
+    ('Veg Maratha', 130.0, 240.0, 'Main Course'),
+    ('Dal Tadka', 90.0, 160.0, 'Main Course'),
+    ('Dal Makhani', 110.0, 200.0, 'Main Course'),
+    ('Kaju Curry', 160.0, 290.0, 'Main Course'),
+    ('Butter Chicken', 170.0, 320.0, 'Main Course'),
+    ('Chicken Masala', 150.0, 280.0, 'Main Course'),
+    ('Chicken Handi', 180.0, 340.0, 'Main Course'),
+    ('Chicken Kolhapuri', 160.0, 300.0, 'Main Course'),
+    ('Chicken Curry', 140.0, 260.0, 'Main Course'),
+    ('Mutton Curry', 200.0, 380.0, 'Main Course'),
+    ('Mutton Rogan Josh', 220.0, 410.0, 'Main Course'),
+
+    # --- Roti & Breads (15 Items) ---
+    ('Tandoori Roti', 0.0, 20.0, 'Roti & Breads'),
+    ('Butter Roti', 0.0, 25.0, 'Roti & Breads'),
+    ('Plain Naan', 0.0, 35.0, 'Roti & Breads'),
+    ('Butter Naan', 0.0, 45.0, 'Roti & Breads'),
+    ('Garlic Naan', 0.0, 55.0, 'Roti & Breads'),
+    ('Cheese Garlic Naan', 0.0, 80.0, 'Roti & Breads'),
+    ('Missi Roti', 0.0, 35.0, 'Roti & Breads'),
+    ('Plain Paratha', 0.0, 40.0, 'Roti & Breads'),
+    ('Butter Paratha', 0.0, 50.0, 'Roti & Breads'),
+    ('Aloo Paratha', 0.0, 70.0, 'Roti & Breads'),
+    ('Paneer Paratha', 0.0, 90.0, 'Roti & Breads'),
+    ('Kulcha Plain', 0.0, 40.0, 'Roti & Breads'),
+    ('Onion Kulcha', 0.0, 60.0, 'Roti & Breads'),
+    ('Chapati / Phulka', 0.0, 15.0, 'Roti & Breads'),
+    ('Butter Chapati', 0.0, 20.0, 'Roti & Breads'),
+
+    # --- Rice & Biryani (15 Items) ---
+    ('Steam Rice', 50.0, 90.0, 'Rice & Biryani'),
+    ('Jeera Rice', 70.0, 130.0, 'Rice & Biryani'),
+    ('Dal Khichdi', 95.0, 170.0, 'Rice & Biryani'),
+    ('Palak Khichdi', 100.0, 180.0, 'Rice & Biryani'),
+    ('Veg Dum Biryani', 110.0, 200.0, 'Rice & Biryani'),
+    ('Paneer Biryani', 130.0, 240.0, 'Rice & Biryani'),
+    ('Veg Pulao', 100.0, 180.0, 'Rice & Biryani'),
+    ('Kashmiri Pulao', 120.0, 220.0, 'Rice & Biryani'),
+    ('Chicken Dum Biryani', 140.0, 260.0, 'Rice & Biryani'),
+    ('Chicken Tikka Biryani', 160.0, 290.0, 'Rice & Biryani'),
+    ('Chicken Hyderabadi Biryani', 150.0, 280.0, 'Rice & Biryani'),
+    ('Egg Biryani', 110.0, 200.0, 'Rice & Biryani'),
+    ('Mutton Biryani', 180.0, 340.0, 'Rice & Biryani'),
+    ('Veg Fried Rice', 90.0, 170.0, 'Rice & Biryani'),
+    ('Chicken Fried Rice', 120.0, 220.0, 'Rice & Biryani'),
+
+    # --- Desserts & Drinks (15 Items) ---
+    ('Masala Taak (Buttermilk)', 0.0, 25.0, 'Desserts & Drinks'),
+    ('Sweet Lassi', 0.0, 50.0, 'Desserts & Drinks'),
+    ('Mango Lassi', 0.0, 65.0, 'Desserts & Drinks'),
+    ('Cold Drink (Soft Drink)', 0.0, 30.0, 'Desserts & Drinks'),
+    ('Fresh Lime Soda', 0.0, 45.0, 'Desserts & Drinks'),
+    ('Fresh Lime Water', 0.0, 35.0, 'Desserts & Drinks'),
+    ('Cold Coffee', 0.0, 70.0, 'Desserts & Drinks'),
+    ('Gulab Jamun (2 Pcs)', 0.0, 50.0, 'Desserts & Drinks'),
+    ('Rasgulla (2 Pcs)', 0.0, 50.0, 'Desserts & Drinks'),
+    ('Vanilla Ice Cream', 0.0, 60.0, 'Desserts & Drinks'),
+    ('Chocolate Ice Cream', 0.0, 70.0, 'Desserts & Drinks'),
+    ('Butterscotch Ice Cream', 0.0, 70.0, 'Desserts & Drinks'),
+    ('Matka Kulfi', 0.0, 60.0, 'Desserts & Drinks'),
+    ('Gajar Halwa (Seasonal)', 0.0, 80.0, 'Desserts & Drinks'),
+    ('Sizzling Brownie with Ice Cream', 0.0, 140.0, 'Desserts & Drinks')
+]
+
 # Database Tables Initialization
 def init_db():
     try:
@@ -45,49 +133,19 @@ def init_db():
                 )
             ''')
             
-            # 3. Seed Default Menu Data if empty
+            # 3. Insert or Update Default Menu Data if table has fewer than 75 items
             cursor.execute("SELECT COUNT(*) FROM menu_items")
-            if cursor.fetchone()[0] == 0:
-                default_menu = [
-                    # Starters
-                    ('Paneer Tikka', 130.0, 240.0, 'Starters'),
-                    ('Veg Crispy', 110.0, 200.0, 'Starters'),
-                    ('Hara Bhara Kabab', 100.0, 190.0, 'Starters'),
-                    
-                    # Main Course
-                    ('Paneer Butter Masala', 140.0, 260.0, 'Main Course'),
-                    ('Paneer Kadhai', 140.0, 260.0, 'Main Course'),
-                    ('Veg Kolhapuri', 120.0, 220.0, 'Main Course'),
-                    ('Veg Maratha', 130.0, 230.0, 'Main Course'),
-                    ('Dal Tadka', 90.0, 160.0, 'Main Course'),
-                    ('Dal Fry', 80.0, 150.0, 'Main Course'),
-                    ('Kaju Masala', 150.0, 280.0, 'Main Course'),
-                    
-                    # Breads
-                    ('Roti', 0.0, 20.0, 'Breads'),
-                    ('Butter Roti', 0.0, 25.0, 'Breads'),
-                    ('Butter Naan', 0.0, 40.0, 'Breads'),
-                    ('Garlic Naan', 0.0, 50.0, 'Breads'),
-                    
-                    # Rice
-                    ('Veg Biryani', 100.0, 180.0, 'Rice'),
-                    ('Jeera Rice', 70.0, 120.0, 'Rice'),
-                    ('Steam Rice', 60.0, 100.0, 'Rice'),
-                    ('Dal Khichdi', 90.0, 160.0, 'Rice'),
-                    
-                    # Beverages & Desserts
-                    ('Cold Drink', 0.0, 30.0, 'Beverages'),
-                    ('Masala Taak', 0.0, 20.0, 'Beverages'),
-                    ('Gulab Jamun', 0.0, 50.0, 'Desserts'),
-                    ('Vanilla Ice Cream', 0.0, 60.0, 'Desserts')
-                ]
+            count = cursor.fetchone()[0]
+            
+            if count < 75:
+                cursor.execute("TRUNCATE TABLE menu_items RESTART IDENTITY")
                 cursor.executemany(
                     'INSERT INTO menu_items (name, half_price, full_price, category) VALUES (%s, %s, %s, %s)', 
-                    default_menu
+                    DEFAULT_FULL_MENU
                 )
             
             conn.commit()
-            print("Database Initialized Successfully!")
+            print("Database Initialized Successfully with 75 Menu Items!")
     except Exception as e:
         print("Database Init Error:", e)
     finally:
