@@ -4,99 +4,173 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Digital Menu | The Royal Spice</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --gold-primary: #f59e0b;
+            --gold-light: #fbbf24;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+        }
+
         body { 
-            background: #0b1120;
+            background-color: var(--bg-dark);
             color: #f8fafc; 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             padding-bottom: 120px; 
             min-height: 100vh;
         }
+
+        /* Classic Menu Header */
         .hero-section { 
-            background: rgba(15, 23, 42, 0.85); 
+            background: linear-gradient(180deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
             backdrop-filter: blur(12px);
-            padding: 18px 0; 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08); 
+            padding: 24px 0 16px 0; 
+            border-bottom: 2px solid rgba(245, 158, 11, 0.3); 
         }
+
+        .brand-title {
+            font-family: 'Cinzel', serif;
+            letter-spacing: 2px;
+            color: var(--gold-primary);
+            text-shadow: 0 2px 10px rgba(245, 158, 11, 0.2);
+        }
+
+        /* Category Scroll */
         .category-scroll { scrollbar-width: none; }
         .category-scroll::-webkit-scrollbar { display: none; }
         .btn-filter {
-            background: rgba(30, 41, 59, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             color: #cbd5e1;
             font-weight: 600;
-            padding: 8px 18px;
-            border-radius: 50px;
+            padding: 8px 20px;
+            border-radius: 30px;
             white-space: nowrap;
             transition: all 0.3s ease;
         }
         .btn-filter:hover, .btn-filter.active {
-            background: #f59e0b;
+            background: var(--gold-primary);
             color: #0f172a;
+            border-color: var(--gold-primary);
             box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
         }
+
         .search-box {
-            background: rgba(30, 41, 59, 0.7) !important;
+            background: rgba(255, 255, 255, 0.05) !important;
             border: 1px solid rgba(255, 255, 255, 0.15) !important;
             color: #fff !important;
             border-radius: 30px !important;
             padding: 12px 22px !important;
         }
-        .dish-card { 
-            background: rgba(30, 41, 59, 0.6); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 18px; 
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+        /* Premium Menu Card Style (Text Based) */
+        .menu-card { 
+            background: var(--card-bg); 
+            border: 1px solid rgba(245, 158, 11, 0.15); 
+            border-radius: 16px; 
+            padding: 20px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
-        .dish-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-            border-color: rgba(245, 158, 11, 0.3);
+        .menu-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--gold-primary);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
         }
-        .dish-img {
-            width: 100%;
-            height: 160px;
-            object-fit: cover;
+
+        .dish-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 0;
         }
+
+        .dotted-line {
+            flex-grow: 1;
+            border-bottom: 2px dotted rgba(255, 255, 255, 0.2);
+            margin: 0 10px;
+            position: relative;
+            top: -4px;
+        }
+
+        .price-tag {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--gold-primary);
+        }
+
+        /* Veg / Non-Veg Indicator Dots */
         .badge-veg-dot, .badge-nonveg-dot {
-            width: 16px; height: 16px; border-radius: 3px;
+            width: 18px; height: 18px; border-radius: 4px;
             display: inline-flex; align-items: center; justify-content: center;
             flex-shrink: 0;
         }
         .badge-veg-dot { border: 2px solid #22c55e; }
-        .badge-veg-dot::after { content: ''; width: 6px; height: 6px; background: #22c55e; border-radius: 50%; }
+        .badge-veg-dot::after { content: ''; width: 8px; height: 8px; background: #22c55e; border-radius: 50%; }
         .badge-nonveg-dot { border: 2px solid #ef4444; }
         .badge-nonveg-dot::after {
             content: ''; width: 0; height: 0;
-            border-left: 3px solid transparent; border-right: 3px solid transparent;
-            border-bottom: 6px solid #ef4444;
+            border-left: 4px solid transparent; border-right: 4px solid transparent;
+            border-bottom: 8px solid #ef4444;
         }
-        .bestseller-badge {
-            position: absolute; top: 10px; right: 10px;
-            background: #ef4444; color: #fff;
-            font-size: 11px; font-weight: 700;
-            padding: 3px 10px; border-radius: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            z-index: 2;
+
+        .bestseller-tag {
+            background: linear-gradient(135deg, #ef4444, #b91c1c);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
+
+        .custom-btn {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--gold-primary);
+            border: 1px solid var(--gold-primary);
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 6px 12px;
+            transition: all 0.2s ease;
+        }
+        .custom-btn:hover {
+            background: var(--gold-primary);
+            color: #0f172a;
+        }
+
+        /* Modal Customization */
+        .modal-content-custom {
+            background: #1e293b;
+            border: 1px solid var(--gold-primary);
+            color: #fff;
+            border-radius: 20px;
+        }
+
+        /* Cart Footer */
         .cart-bar { 
             position: fixed; bottom: 0; left: 0; right: 0; 
             background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
             border-top: 1px solid rgba(245, 158, 11, 0.3); 
             padding: 16px 24px; z-index: 1000; 
         }
+
         .offcanvas-custom {
             background: #0f172a;
             color: #fff;
             border-left: 1px solid rgba(245, 158, 11, 0.3);
         }
         .cart-item-card {
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(30, 41, 59, 0.8);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
             padding: 12px;
@@ -106,12 +180,13 @@
 </head>
 <body>
 
+    <!-- Header Section -->
     <div class="hero-section sticky-top mb-4">
         <div class="container text-center">
-            <h4 class="fw-bold text-warning m-0">
+            <h2 class="brand-title m-0">
                 <i class="fa-solid fa-crown me-2"></i>THE ROYAL SPICE
-            </h4>
-            <span class="text-secondary small">Digital Menu</span>
+            </h2>
+            <span class="text-secondary small">A Fine Dining Menu Experience</span>
         </div>
     </div>
 
@@ -119,20 +194,20 @@
         <!-- Search Bar -->
         <div class="row justify-content-center mb-3">
             <div class="col-md-6 col-12">
-                <input type="text" id="searchInput" class="form-control search-box" placeholder="🔍 Search favorite dish..." onkeyup="applyFilters()">
+                <input type="text" id="searchInput" class="form-control search-box" placeholder="🔍 पदार्थ शोधा (उदा. Paneer, Biryani)..." onkeyup="applyFilters()">
             </div>
         </div>
 
         <!-- Veg/Non-Veg Quick Filter Buttons -->
         <div class="d-flex justify-content-center gap-2 mb-3">
-            <button class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="typeFilter('veg')">🟢 Veg Only</button>
-            <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="typeFilter('nonveg')">🔴 Non-Veg Only</button>
+            <button class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="typeFilter('veg')">🟢 Veg</button>
+            <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="typeFilter('nonveg')">🔴 Non-Veg</button>
             <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="typeFilter('all')">Show All</button>
         </div>
 
         <!-- Category Filters -->
         <div class="d-flex gap-2 mb-4 overflow-auto pb-2 category-scroll justify-content-start justify-content-md-center">
-            <button class="btn btn-filter active" onclick="filterCategory('all', this)">All</button>
+            <button class="btn btn-filter active" onclick="filterCategory('all', this)">All Items</button>
             <button class="btn btn-filter" onclick="filterCategory('Starters', this)">🍢 Starters</button>
             <button class="btn btn-filter" onclick="filterCategory('Main Course', this)">🥘 Main Course</button>
             <button class="btn btn-filter" onclick="filterCategory('Roti & Breads', this)">🫓 Roti & Breads</button>
@@ -142,6 +217,54 @@
 
         <!-- Dishes Grid -->
         <div class="row g-3" id="menuGrid"></div>
+    </div>
+
+    <!-- Dish Customization Modal (Popup Options) -->
+    <div class="modal fade" id="customModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-content-custom">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-warning fw-bold" id="modalDishTitle">Dish Name</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Quantity Portion Option -->
+                    <div id="portionContainer" class="mb-3">
+                        <label class="form-label text-secondary fw-bold small">1. प्रमाण निवडा (Portion):</label>
+                        <div class="d-flex gap-2" id="portionOptions"></div>
+                    </div>
+
+                    <!-- Spice Level Option -->
+                    <div class="mb-3">
+                        <label class="form-label text-secondary fw-bold small">2. तिखटपणा निवडा (Spice Level):</label>
+                        <div class="d-flex gap-2">
+                            <input type="radio" class="btn-check" name="spiceLevel" id="spiceLow" value="Low Spicy">
+                            <label class="btn btn-outline-light flex-fill btn-sm" for="spiceLow">🌶️ कमी तिखट</label>
+
+                            <input type="radio" class="btn-check" name="spiceLevel" id="spiceMed" value="Medium Spicy" checked>
+                            <label class="btn btn-outline-warning flex-fill btn-sm" for="spiceMed">🌶️🌶️ मध्यम</label>
+
+                            <input type="radio" class="btn-check" name="spiceLevel" id="spiceHigh" value="Full Spicy">
+                            <label class="btn btn-outline-danger flex-fill btn-sm" for="spiceHigh">🌶️🌶️🌶️ जास्त तिखट</label>
+                        </div>
+                    </div>
+
+                    <!-- Food Type Preferences -->
+                    <div class="mb-3" id="jainOptionContainer">
+                        <label class="form-label text-secondary fw-bold small">3. विशेष टीप (Special Preference):</label>
+                        <div class="d-flex gap-2">
+                            <input type="checkbox" class="btn-check" id="jainCheck">
+                            <label class="btn btn-outline-info flex-fill btn-sm" for="jainCheck">🕊️ Jain Food (कांदा/लसूण विरहित)</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-warning w-100 fw-bold rounded-pill" onclick="confirmAddToCart()">
+                        कार्टमध्ये जोडा (Add to Cart)
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Floating Cart Bar -->
@@ -190,107 +313,98 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // 📋 75 Dishes with Specific Custom Search Keywords for Unsplash Images
         const defaultMenuItems = [
             // --- Starters ---
-            { id: 1, name: "Paneer Tikka", half_price: 130, full_price: 240, category: "Starters", imgKey: "paneer-tikka" },
-            { id: 2, name: "Paneer Chilli", half_price: 135, full_price: 250, category: "Starters", imgKey: "chilli-paneer" },
-            { id: 3, name: "Hara Bhara Kebab", half_price: 100, full_price: 190, category: "Starters", imgKey: "veg-kebab" },
-            { id: 4, name: "Veg Crispy", half_price: 110, full_price: 200, category: "Starters", imgKey: "crispy-vegetables" },
-            { id: 5, name: "Veg Manchurian Dry", half_price: 110, full_price: 200, category: "Starters", imgKey: "manchurian" },
-            { id: 6, name: "Mushroom Tikka", half_price: 140, full_price: 260, category: "Starters", imgKey: "grilled-mushroom" },
-            { id: 7, name: "Cheese Corn Balls", half_price: 130, full_price: 240, category: "Starters", imgKey: "cheese-balls" },
-            { id: 8, name: "Chicken Tikka", half_price: 160, full_price: 300, category: "Starters", imgKey: "chicken-tikka" },
-            { id: 9, name: "Chicken Tandoori", half_price: 220, full_price: 420, category: "Starters", imgKey: "tandoori-chicken" },
-            { id: 10, name: "Chicken Chilli", half_price: 150, full_price: 280, category: "Starters", imgKey: "chilli-chicken" },
-            { id: 11, name: "Chicken Lollipop", half_price: 140, full_price: 260, category: "Starters", imgKey: "chicken-wings" },
-            { id: 12, name: "Chicken Seekh Kebab", half_price: 170, full_price: 320, category: "Starters", imgKey: "seekh-kebab" },
-            { id: 13, name: "Chicken Malai Tikka", half_price: 180, full_price: 330, category: "Starters", imgKey: "malai-tikka" },
-            { id: 14, name: "Fish Fry", half_price: 190, full_price: 360, category: "Starters", imgKey: "fried-fish" },
-            { id: 15, name: "Prawns Koliwada", half_price: 210, full_price: 390, category: "Starters", imgKey: "fried-prawns" },
+            { id: 1, name: "Paneer Tikka", half_price: 130, full_price: 240, category: "Starters" },
+            { id: 2, name: "Paneer Chilli", half_price: 135, full_price: 250, category: "Starters" },
+            { id: 3, name: "Hara Bhara Kebab", half_price: 100, full_price: 190, category: "Starters" },
+            { id: 4, name: "Veg Crispy", half_price: 110, full_price: 200, category: "Starters" },
+            { id: 5, name: "Veg Manchurian Dry", half_price: 110, full_price: 200, category: "Starters" },
+            { id: 6, name: "Mushroom Tikka", half_price: 140, full_price: 260, category: "Starters" },
+            { id: 7, name: "Cheese Corn Balls", half_price: 130, full_price: 240, category: "Starters" },
+            { id: 8, name: "Chicken Tikka", half_price: 160, full_price: 300, category: "Starters" },
+            { id: 9, name: "Chicken Tandoori", half_price: 220, full_price: 420, category: "Starters" },
+            { id: 10, name: "Chicken Chilli", half_price: 150, full_price: 280, category: "Starters" },
+            { id: 11, name: "Chicken Lollipop", half_price: 140, full_price: 260, category: "Starters" },
+            { id: 12, name: "Chicken Seekh Kebab", half_price: 170, full_price: 320, category: "Starters" },
+            { id: 13, name: "Chicken Malai Tikka", half_price: 180, full_price: 330, category: "Starters" },
+            { id: 14, name: "Fish Fry", half_price: 190, full_price: 360, category: "Starters" },
+            { id: 15, name: "Prawns Koliwada", half_price: 210, full_price: 390, category: "Starters" },
 
             // --- Main Course ---
-            { id: 16, name: "Paneer Butter Masala", half_price: 140, full_price: 260, category: "Main Course", imgKey: "paneer-butter-masala" },
-            { id: 17, name: "Paneer Kadhai", half_price: 140, full_price: 260, category: "Main Course", imgKey: "shahi-paneer" },
-            { id: 18, name: "Paneer Bhurji", half_price: 150, full_price: 270, category: "Main Course", imgKey: "paneer-scrambled" },
-            { id: 19, name: "Veg Kolhapuri", half_price: 120, full_price: 220, category: "Main Course", imgKey: "spicy-curry" },
-            { id: 20, name: "Veg Maratha", half_price: 130, full_price: 240, category: "Main Course", imgKey: "mixed-vegetable-curry" },
-            { id: 21, name: "Dal Tadka", half_price: 90, full_price: 160, category: "Main Course", imgKey: "dal-tadka" },
-            { id: 22, name: "Dal Makhani", half_price: 110, full_price: 200, category: "Main Course", imgKey: "dal-makhani" },
-            { id: 23, name: "Kaju Curry", half_price: 160, full_price: 290, category: "Main Course", imgKey: "cashew-curry" },
-            { id: 24, name: "Butter Chicken", half_price: 170, full_price: 320, category: "Main Course", imgKey: "butter-chicken" },
-            { id: 25, name: "Chicken Masala", half_price: 150, full_price: 280, category: "Main Course", imgKey: "chicken-curry" },
-            { id: 26, name: "Chicken Handi", half_price: 180, full_price: 340, category: "Main Course", imgKey: "indian-chicken-gravy" },
-            { id: 27, name: "Chicken Kolhapuri", half_price: 160, full_price: 300, category: "Main Course", imgKey: "spicy-chicken-curry" },
-            { id: 28, name: "Chicken Curry", half_price: 140, full_price: 260, category: "Main Course", imgKey: "chicken-gravy" },
-            { id: 29, name: "Mutton Curry", half_price: 200, full_price: 380, category: "Main Course", imgKey: "mutton-curry" },
-            { id: 30, name: "Mutton Rogan Josh", half_price: 220, full_price: 410, category: "Main Course", imgKey: "rogan-josh" },
+            { id: 16, name: "Paneer Butter Masala", half_price: 140, full_price: 260, category: "Main Course" },
+            { id: 17, name: "Paneer Kadhai", half_price: 140, full_price: 260, category: "Main Course" },
+            { id: 18, name: "Paneer Bhurji", half_price: 150, full_price: 270, category: "Main Course" },
+            { id: 19, name: "Veg Kolhapuri", half_price: 120, full_price: 220, category: "Main Course" },
+            { id: 20, name: "Veg Maratha", half_price: 130, full_price: 240, category: "Main Course" },
+            { id: 21, name: "Dal Tadka", half_price: 90, full_price: 160, category: "Main Course" },
+            { id: 22, name: "Dal Makhani", half_price: 110, full_price: 200, category: "Main Course" },
+            { id: 23, name: "Kaju Curry", half_price: 160, full_price: 290, category: "Main Course" },
+            { id: 24, name: "Butter Chicken", half_price: 170, full_price: 320, category: "Main Course" },
+            { id: 25, name: "Chicken Masala", half_price: 150, full_price: 280, category: "Main Course" },
+            { id: 26, name: "Chicken Handi", half_price: 180, full_price: 340, category: "Main Course" },
+            { id: 27, name: "Chicken Kolhapuri", half_price: 160, full_price: 300, category: "Main Course" },
+            { id: 28, name: "Chicken Curry", half_price: 140, full_price: 260, category: "Main Course" },
+            { id: 29, name: "Mutton Curry", half_price: 200, full_price: 380, category: "Main Course" },
+            { id: 30, name: "Mutton Rogan Josh", half_price: 220, full_price: 410, category: "Main Course" },
 
             // --- Roti & Breads ---
-            { id: 31, name: "Tandoori Roti", half_price: 0, full_price: 20, category: "Roti & Breads", imgKey: "roti-flatbread" },
-            { id: 32, name: "Butter Roti", half_price: 0, full_price: 25, category: "Roti & Breads", imgKey: "butter-roti" },
-            { id: 33, name: "Plain Naan", half_price: 0, full_price: 35, category: "Roti & Breads", imgKey: "naan-bread" },
-            { id: 34, name: "Butter Naan", half_price: 0, full_price: 45, category: "Roti & Breads", imgKey: "butter-naan" },
-            { id: 35, name: "Garlic Naan", half_price: 0, full_price: 55, category: "Roti & Breads", imgKey: "garlic-naan" },
-            { id: 36, name: "Cheese Garlic Naan", half_price: 0, full_price: 80, category: "Roti & Breads", imgKey: "cheese-naan" },
-            { id: 37, name: "Missi Roti", half_price: 0, full_price: 35, category: "Roti & Breads", imgKey: "indian-flatbread" },
-            { id: 38, name: "Plain Paratha", half_price: 0, full_price: 40, category: "Roti & Breads", imgKey: "paratha" },
-            { id: 39, name: "Butter Paratha", half_price: 0, full_price: 50, category: "Roti & Breads", imgKey: "roti" },
-            { id: 40, name: "Aloo Paratha", half_price: 0, full_price: 70, category: "Roti & Breads", imgKey: "aloo-paratha" },
-            { id: 41, name: "Paneer Paratha", half_price: 0, full_price: 90, category: "Roti & Breads", imgKey: "stuffed-paratha" },
-            { id: 42, name: "Kulcha Plain", half_price: 0, full_price: 40, category: "Roti & Breads", imgKey: "kulcha" },
-            { id: 43, name: "Onion Kulcha", half_price: 0, full_price: 60, category: "Roti & Breads", imgKey: "stuffed-bread" },
-            { id: 44, name: "Chapati / Phulka", half_price: 0, full_price: 15, category: "Roti & Breads", imgKey: "chapati" },
-            { id: 45, name: "Butter Chapati", half_price: 0, full_price: 20, category: "Roti & Breads", imgKey: "flatbread" },
+            { id: 31, name: "Tandoori Roti", half_price: 0, full_price: 20, category: "Roti & Breads" },
+            { id: 32, name: "Butter Roti", half_price: 0, full_price: 25, category: "Roti & Breads" },
+            { id: 33, name: "Plain Naan", half_price: 0, full_price: 35, category: "Roti & Breads" },
+            { id: 34, name: "Butter Naan", half_price: 0, full_price: 45, category: "Roti & Breads" },
+            { id: 35, name: "Garlic Naan", half_price: 0, full_price: 55, category: "Roti & Breads" },
+            { id: 36, name: "Cheese Garlic Naan", half_price: 0, full_price: 80, category: "Roti & Breads" },
+            { id: 37, name: "Missi Roti", half_price: 0, full_price: 35, category: "Roti & Breads" },
+            { id: 38, name: "Plain Paratha", half_price: 0, full_price: 40, category: "Roti & Breads" },
+            { id: 39, name: "Butter Paratha", half_price: 0, full_price: 50, category: "Roti & Breads" },
+            { id: 40, name: "Aloo Paratha", half_price: 0, full_price: 70, category: "Roti & Breads" },
+            { id: 41, name: "Paneer Paratha", half_price: 0, full_price: 90, category: "Roti & Breads" },
+            { id: 42, name: "Kulcha Plain", half_price: 0, full_price: 40, category: "Roti & Breads" },
+            { id: 43, name: "Onion Kulcha", half_price: 0, full_price: 60, category: "Roti & Breads" },
+            { id: 44, name: "Chapati / Phulka", half_price: 0, full_price: 15, category: "Roti & Breads" },
+            { id: 45, name: "Butter Chapati", half_price: 0, full_price: 20, category: "Roti & Breads" },
 
             // --- Rice & Biryani ---
-            { id: 46, name: "Steam Rice", half_price: 50, full_price: 90, category: "Rice & Biryani", imgKey: "steamed-rice" },
-            { id: 47, name: "Jeera Rice", half_price: 70, full_price: 130, category: "Rice & Biryani", imgKey: "cumin-rice" },
-            { id: 48, name: "Dal Khichdi", half_price: 95, full_price: 170, category: "Rice & Biryani", imgKey: "khichdi" },
-            { id: 49, name: "Palak Khichdi", half_price: 100, full_price: 180, category: "Rice & Biryani", imgKey: "spinach-rice" },
-            { id: 50, name: "Veg Dum Biryani", half_price: 110, full_price: 200, category: "Rice & Biryani", imgKey: "veg-biryani" },
-            { id: 51, name: "Paneer Biryani", half_price: 130, full_price: 240, category: "Rice & Biryani", imgKey: "paneer-rice" },
-            { id: 52, name: "Veg Pulao", half_price: 100, full_price: 180, category: "Rice & Biryani", imgKey: "vegetable-pulao" },
-            { id: 53, name: "Kashmiri Pulao", half_price: 120, full_price: 220, category: "Rice & Biryani", imgKey: "sweet-rice" },
-            { id: 54, name: "Chicken Dum Biryani", half_price: 140, full_price: 260, category: "Rice & Biryani", imgKey: "chicken-biryani" },
-            { id: 55, name: "Chicken Tikka Biryani", half_price: 160, full_price: 290, category: "Rice & Biryani", imgKey: "tikka-biryani" },
-            { id: 56, name: "Chicken Hyderabadi Biryani", half_price: 150, full_price: 280, category: "Rice & Biryani", imgKey: "hyderabadi-biryani" },
-            { id: 57, name: "Egg Biryani", half_price: 110, full_price: 200, category: "Rice & Biryani", imgKey: "egg-biryani" },
-            { id: 58, name: "Mutton Biryani", half_price: 180, full_price: 340, category: "Rice & Biryani", imgKey: "mutton-biryani" },
-            { id: 59, name: "Veg Fried Rice", half_price: 90, full_price: 170, category: "Rice & Biryani", imgKey: "fried-rice" },
-            { id: 60, name: "Chicken Fried Rice", half_price: 120, full_price: 220, category: "Rice & Biryani", imgKey: "chicken-fried-rice" },
+            { id: 46, name: "Steam Rice", half_price: 50, full_price: 90, category: "Rice & Biryani" },
+            { id: 47, name: "Jeera Rice", half_price: 70, full_price: 130, category: "Rice & Biryani" },
+            { id: 48, name: "Dal Khichdi", half_price: 95, full_price: 170, category: "Rice & Biryani" },
+            { id: 49, name: "Palak Khichdi", half_price: 100, full_price: 180, category: "Rice & Biryani" },
+            { id: 50, name: "Veg Dum Biryani", half_price: 110, full_price: 200, category: "Rice & Biryani" },
+            { id: 51, name: "Paneer Biryani", half_price: 130, full_price: 240, category: "Rice & Biryani" },
+            { id: 52, name: "Veg Pulao", half_price: 100, full_price: 180, category: "Rice & Biryani" },
+            { id: 53, name: "Kashmiri Pulao", half_price: 120, full_price: 220, category: "Rice & Biryani" },
+            { id: 54, name: "Chicken Dum Biryani", half_price: 140, full_price: 260, category: "Rice & Biryani" },
+            { id: 55, name: "Chicken Tikka Biryani", half_price: 160, full_price: 290, category: "Rice & Biryani" },
+            { id: 56, name: "Chicken Hyderabadi Biryani", half_price: 150, full_price: 280, category: "Rice & Biryani" },
+            { id: 57, name: "Egg Biryani", half_price: 110, full_price: 200, category: "Rice & Biryani" },
+            { id: 58, name: "Mutton Biryani", half_price: 180, full_price: 340, category: "Rice & Biryani" },
+            { id: 59, name: "Veg Fried Rice", half_price: 90, full_price: 170, category: "Rice & Biryani" },
+            { id: 60, name: "Chicken Fried Rice", half_price: 120, full_price: 220, category: "Rice & Biryani" },
 
             // --- Desserts & Drinks ---
-            { id: 61, name: "Masala Taak (Buttermilk)", half_price: 0, full_price: 25, category: "Desserts & Drinks", imgKey: "buttermilk" },
-            { id: 62, name: "Sweet Lassi", half_price: 0, full_price: 50, category: "Desserts & Drinks", imgKey: "lassi" },
-            { id: 63, name: "Mango Lassi", half_price: 0, full_price: 65, category: "Desserts & Drinks", imgKey: "mango-lassi" },
-            { id: 64, name: "Cold Drink (Soft Drink)", half_price: 0, full_price: 30, category: "Desserts & Drinks", imgKey: "soda-drink" },
-            { id: 65, name: "Fresh Lime Soda", half_price: 0, full_price: 45, category: "Desserts & Drinks", imgKey: "lemonade" },
-            { id: 66, name: "Fresh Lime Water", half_price: 0, full_price: 35, category: "Desserts & Drinks", imgKey: "lemon-water" },
-            { id: 67, name: "Cold Coffee", half_price: 0, full_price: 70, category: "Desserts & Drinks", imgKey: "iced-coffee" },
-            { id: 68, name: "Gulab Jamun (2 Pcs)", half_price: 0, full_price: 50, category: "Desserts & Drinks", imgKey: "gulab-jamun" },
-            { id: 69, name: "Rasgulla (2 Pcs)", half_price: 0, full_price: 50, category: "Desserts & Drinks", imgKey: "rasgulla" },
-            { id: 70, name: "Vanilla Ice Cream", half_price: 0, full_price: 60, category: "Desserts & Drinks", imgKey: "vanilla-ice-cream" },
-            { id: 71, name: "Chocolate Ice Cream", half_price: 0, full_price: 70, category: "Desserts & Drinks", imgKey: "chocolate-ice-cream" },
-            { id: 72, name: "Butterscotch Ice Cream", half_price: 0, full_price: 70, category: "Desserts & Drinks", imgKey: "ice-cream-scoop" },
-            { id: 73, name: "Matka Kulfi", half_price: 0, full_price: 60, category: "Desserts & Drinks", imgKey: "kulfi" },
-            { id: 74, name: "Gajar Halwa (Seasonal)", half_price: 0, full_price: 80, category: "Desserts & Drinks", imgKey: "carrot-halwa" },
-            { id: 75, name: "Sizzling Brownie with Ice Cream", half_price: 0, full_price: 140, category: "Desserts & Drinks", imgKey: "sizzling-brownie" }
+            { id: 61, name: "Masala Taak (Buttermilk)", half_price: 0, full_price: 25, category: "Desserts & Drinks" },
+            { id: 62, name: "Sweet Lassi", half_price: 0, full_price: 50, category: "Desserts & Drinks" },
+            { id: 63, name: "Mango Lassi", half_price: 0, full_price: 65, category: "Desserts & Drinks" },
+            { id: 64, name: "Cold Drink (Soft Drink)", half_price: 0, full_price: 30, category: "Desserts & Drinks" },
+            { id: 65, name: "Fresh Lime Soda", half_price: 0, full_price: 45, category: "Desserts & Drinks" },
+            { id: 66, name: "Fresh Lime Water", half_price: 0, full_price: 35, category: "Desserts & Drinks" },
+            { id: 67, name: "Cold Coffee", half_price: 0, full_price: 70, category: "Desserts & Drinks" },
+            { id: 68, name: "Gulab Jamun (2 Pcs)", half_price: 0, full_price: 50, category: "Desserts & Drinks" },
+            { id: 69, name: "Rasgulla (2 Pcs)", half_price: 0, full_price: 50, category: "Desserts & Drinks" },
+            { id: 70, name: "Vanilla Ice Cream", half_price: 0, full_price: 60, category: "Desserts & Drinks" },
+            { id: 71, name: "Chocolate Ice Cream", half_price: 0, full_price: 70, category: "Desserts & Drinks" },
+            { id: 72, name: "Butterscotch Ice Cream", half_price: 0, full_price: 70, category: "Desserts & Drinks" },
+            { id: 73, name: "Matka Kulfi", half_price: 0, full_price: 60, category: "Desserts & Drinks" },
+            { id: 74, name: "Gajar Halwa (Seasonal)", half_price: 0, full_price: 80, category: "Desserts & Drinks" },
+            { id: 75, name: "Sizzling Brownie with Ice Cream", half_price: 0, full_price: 140, category: "Desserts & Drinks" }
         ];
 
         let dishes = [];
         let cartMap = {};
         let currentCategory = 'all';
         let currentType = 'all';
-
-        // 🧠 स्मार्ट अ‍ॅनालिसिस फाईंडर - नामावरून इमेज युआरएल तयार करणे
-        function getDishImage(dishName, imgKey) {
-            if (imgKey) {
-                return `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&q=80&fit=crop&sig=${imgKey}`; // Dynamic unique image fallback
-            }
-            const cleanName = encodeURIComponent(dishName.toLowerCase().replace(/[^a-z0-9 ]/g, ""));
-            return `https://source.unsplash.com/400x300/?${cleanName}`;
-        }
+        let selectedDishForModal = null;
 
         function processMenuData(rawMenu) {
             const nonVegKeywords = ['chicken', 'mutton', 'fish', 'prawn', 'egg'];
@@ -298,7 +412,6 @@
 
             return rawMenu.map(item => {
                 const isNonVeg = nonVegKeywords.some(kw => item.name.toLowerCase().includes(kw));
-                const key = item.imgKey || item.name.toLowerCase().replace(/\s+/g, '-');
                 
                 return {
                     id: item.id,
@@ -307,8 +420,7 @@
                     type: isNonVeg ? 'nonveg' : 'veg',
                     isBestseller: bestsellerList.includes(item.name),
                     halfPrice: item.half_price > 0 ? item.half_price : null,
-                    fullPrice: item.full_price,
-                    image: `https://loremflickr.com/400/300/${encodeURIComponent(key)},food/all`
+                    fullPrice: item.full_price
                 };
             });
         }
@@ -324,35 +436,101 @@
 
             items.forEach(dish => {
                 const badge = dish.type === 'veg' ? '<span class="badge-veg-dot"></span>' : '<span class="badge-nonveg-dot"></span>';
-                const bestsellerBadge = dish.isBestseller ? `<span class="bestseller-badge">🔥 Bestseller</span>` : '';
+                const bestsellerBadge = dish.isBestseller ? `<span class="bestseller-tag ms-2">Bestseller</span>` : '';
                 
-                let portionHTML = dish.halfPrice ? 
-                    `<div class="btn-group btn-group-sm w-100 my-2">
-                        <input type="radio" class="btn-check" name="portion-${dish.id}" id="half-${dish.id}" value="half" checked>
-                        <label class="btn btn-outline-warning py-1" for="half-${dish.id}">Half ₹${dish.halfPrice}</label>
-                        <input type="radio" class="btn-check" name="portion-${dish.id}" id="full-${dish.id}" value="full">
-                        <label class="btn btn-outline-warning py-1" for="full-${dish.id}">Full ₹${dish.fullPrice}</label>
-                    </div>` : 
-                    `<div class="text-warning fw-bold my-2">Full: ₹${dish.fullPrice}</div>`;
+                const displayPrice = dish.halfPrice ? `₹${dish.halfPrice} / ₹${dish.fullPrice}` : `₹${dish.fullPrice}`;
 
                 grid.innerHTML += `
-                    <div class="col-md-4 col-sm-6 col-12">
-                        <div class="dish-card position-relative">
-                            ${bestsellerBadge}
-                            <img src="${dish.image}" class="dish-img" alt="${dish.name}" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400'">
-                            <div class="p-3">
-                                <div class="d-flex align-items-center gap-2 mb-1">
+                    <div class="col-md-6 col-12">
+                        <div class="menu-card" onclick="openCustomModal(${dish.id})">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="d-flex align-items-center gap-2">
                                     ${badge}
-                                    <h6 class="fw-bold text-white m-0 text-truncate">${dish.name}</h6>
+                                    <h6 class="dish-title">${dish.name}</h6>
+                                    ${bestsellerBadge}
                                 </div>
-                                ${portionHTML}
-                                <button class="btn btn-warning w-100 fw-bold rounded-3 mt-2" onclick="addToCart(${dish.id})">
-                                    <i class="fa-solid fa-plus me-1"></i> Add Item
+                                <div class="dotted-line d-none d-sm-block"></div>
+                                <div class="price-tag">${displayPrice}</div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <span class="text-secondary small"><i class="fa-solid fa-sliders me-1"></i>Customize & Add</span>
+                                <button class="btn btn-sm custom-btn">
+                                    + Add
                                 </button>
                             </div>
                         </div>
                     </div>`;
             });
+        }
+
+        // 🎛️ Modal Popup Opener
+        function openCustomModal(id) {
+            selectedDishForModal = dishes.find(d => d.id === id);
+            document.getElementById('modalDishTitle').innerText = selectedDishForModal.name;
+
+            const portionContainer = document.getElementById('portionOptions');
+            portionContainer.innerHTML = '';
+
+            if (selectedDishForModal.halfPrice) {
+                portionContainer.innerHTML = `
+                    <input type="radio" class="btn-check" name="modalPortion" id="p_half" value="half" checked>
+                    <label class="btn btn-outline-warning flex-fill" for="p_half">Half (₹${selectedDishForModal.halfPrice})</label>
+                    
+                    <input type="radio" class="btn-check" name="modalPortion" id="p_full" value="full">
+                    <label class="btn btn-outline-warning flex-fill" for="p_full">Full (₹${selectedDishForModal.fullPrice})</label>
+                `;
+            } else {
+                portionContainer.innerHTML = `
+                    <input type="radio" class="btn-check" name="modalPortion" id="p_full" value="full" checked>
+                    <label class="btn btn-outline-warning flex-fill" for="p_full">Full (₹${selectedDishForModal.fullPrice})</label>
+                `;
+            }
+
+            // Hide Jain Option for Non-Veg
+            const jainBox = document.getElementById('jainOptionContainer');
+            if(selectedDishForModal.type === 'nonveg') {
+                jainBox.style.display = 'none';
+            } else {
+                jainBox.style.display = 'block';
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('customModal'));
+            modal.show();
+        }
+
+        function confirmAddToCart() {
+            if(!selectedDishForModal) return;
+
+            const portion = document.querySelector('input[name="modalPortion"]:checked').value;
+            const spice = document.querySelector('input[name="spiceLevel"]:checked').value;
+            const isJain = document.getElementById('jainCheck').checked && selectedDishForModal.type === 'veg';
+
+            const price = (portion === 'half') ? selectedDishForModal.halfPrice : selectedDishForModal.fullPrice;
+            
+            // Build key with options
+            let customNote = spice;
+            if(isJain) customNote += " | Jain";
+
+            const cartKey = `${selectedDishForModal.id}-${portion}-${customNote}`;
+
+            if (cartMap[cartKey]) {
+                cartMap[cartKey].qty += 1;
+            } else {
+                cartMap[cartKey] = { 
+                    dish: selectedDishForModal, 
+                    portion: portion, 
+                    note: customNote,
+                    price: price, 
+                    qty: 1 
+                };
+            }
+
+            // Close Modal & Update UI
+            const modalEl = document.getElementById('customModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+
+            updateCartUI();
         }
 
         function filterCategory(cat, btn) {
@@ -376,27 +554,6 @@
             if (query !== '') filtered = filtered.filter(d => d.name.toLowerCase().includes(query));
 
             renderMenu(filtered);
-        }
-
-        function addToCart(id) {
-            const dish = dishes.find(d => d.id === id);
-            let portion = 'full';
-            let price = dish.fullPrice;
-
-            const halfRadio = document.getElementById(`half-${id}`);
-            if (halfRadio && halfRadio.checked) {
-                portion = 'half';
-                price = dish.halfPrice;
-            }
-
-            const cartKey = `${id}-${portion}`;
-
-            if (cartMap[cartKey]) {
-                cartMap[cartKey].qty += 1;
-            } else {
-                cartMap[cartKey] = { dish: dish, portion: portion, price: price, qty: 1 };
-            }
-            updateCartUI();
         }
 
         function changeQty(cartKey, delta) {
@@ -431,7 +588,8 @@
                         <div class="cart-item-card d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="text-white m-0 fw-bold">${item.dish.name}</h6>
-                                <span class="text-secondary small">(${item.portion.toUpperCase()}) - ₹${item.price}</span>
+                                <div class="text-warning small fw-bold">(${item.portion.toUpperCase()}) - ₹${item.price}</div>
+                                <div class="text-secondary extra-small" style="font-size: 11px;">${item.note}</div>
                             </div>
                             <div class="d-flex align-items-center gap-2">
                                 <button class="btn btn-sm btn-outline-warning py-0 px-2" onclick="changeQty('${key}', -1)">-</button>
