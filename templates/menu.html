@@ -307,6 +307,10 @@
 
             <div class="border-top border-secondary pt-3 mt-3">
                 <div class="mb-3">
+                    <label class="form-label text-secondary small fw-bold">Your Name</label>
+                    <input type="text" id="customerName" class="form-control bg-dark text-white border-secondary" placeholder="e.g. Harshada">
+                </div>
+                <div class="mb-3">
                     <label class="form-label text-secondary small fw-bold">Table Number</label>
                     <input type="number" id="tableNumber" class="form-control bg-dark text-white border-secondary" placeholder="e.g. 05">
                 </div>
@@ -618,40 +622,53 @@
             document.getElementById('drawerTotal').innerText = totalPrice;
         }
 
-        // Keeps polling the order status so we can lock the Cancel button
-        // the moment the admin accepts the order.
+        // Keeps polling the order status so the Cancel button auto-locks
+        // once the 10-minute window is over (or the kitchen marks it Completed).
         let statusPollTimer = null;
 
         async function submitOrder() {
+            const customerName = document.getElementById('customerName').value.trim();
             const tableNum = document.getElementById('tableNumber').value;
+
+            if(!customerName) {
+                alert('Please enter your Name!');
+                return;
+            }
             if(!tableNum) {
                 alert('Please enter your Table Number!');
                 return;
             }
 
             const items = Object.values(cartMap).map(item => ({
-                name: item.dish.name,
-                portion: item.portion,
-                note: item.note,
-                price: item.price,
+                name: `${item.dish.name} (${item.portion.toUpperCase()}${item.note ? ', ' + item.note : ''})`,
                 qty: item.qty
             }));
-            const total = items.reduce((sum, i) => sum + (i.price * i.qty), 0);
+            const total = Object.values(cartMap).reduce((sum, i) => sum + (i.price * i.qty), 0);
 
             try {
-                const response = await fetch('/api/order/place', {
+                const response = await fetch('/api/order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ table_number: tableNum, items: items, total: total })
+                    body: JSON.stringify({
+                        customer_name: customerName,
+                        table_no: tableNum,
+                        items: items,
+                        total: total
+                    })
                 });
                 const result = await response.json();
 
                 if (result.success) {
                     // Save active order locally so we can show it / cancel it later
-                    const activeOrder = { orderId: result.order_id, tableNumber: tableNum, status: 'Pending' };
+                    const activeOrder = {
+                        orderId: result.order_id,
+                        tableNumber: tableNum,
+                        status: 'Pending ⏳',
+                        canCancel: true
+                    };
                     localStorage.setItem('myActiveOrder', JSON.stringify(activeOrder));
 
-                    alert(`✅ Order placed! Your Order ID is ${result.order_id}`);
+                    alert(`✅ Order placed! Your Order ID is #${result.order_id}`);
                     cartMap = {};
                     document.getElementById('tableNumber').value = '';
                     updateCartUI();
@@ -662,35 +679,33 @@
                     showActiveOrderBar(activeOrder);
                     startStatusPolling();
                 } else {
-                    alert('❌ ' + (result.message || 'Order place karta aali nahi, punha try kara.'));
+                    alert('❌ ' + (result.error || 'Order place karta aali nahi, punha try kara.'));
                 }
             } catch (error) {
                 alert('❌ Server shi connect hota aala nahi. Internet / server check kara.');
             }
         }
 
-        // Cancel button handler on the customer side
+        // Cancel button handler on the customer side.
+        // Server-side (app.py) already blocks cancel after 10 minutes have passed.
         async function cancelMyOrder() {
             const activeOrder = JSON.parse(localStorage.getItem('myActiveOrder'));
             if (!activeOrder) return;
 
             try {
-                const response = await fetch('/api/order/cancel', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ order_id: activeOrder.orderId })
+                const response = await fetch(`/api/order/cancel/${activeOrder.orderId}`, {
+                    method: 'DELETE'
                 });
                 const result = await response.json();
 
                 if (result.success) {
-                    alert('✅ ' + result.message);
+                    alert('✅ ' + (result.message || 'Order cancel zali!'));
                     localStorage.removeItem('myActiveOrder');
                     if (statusPollTimer) clearInterval(statusPollTimer);
                     document.getElementById('activeOrderBar').style.display = 'none';
                 } else {
-                    // Server ne cancel nakarla dile (e.g. admin ne already accept kel asel)
-                    alert('❌ ' + result.message);
-                    // Refresh status UI in case it changed
+                    // Server ne cancel nakarla dile (e.g. 10 min zale asतील)
+                    alert('❌ ' + (result.error || 'Cancel karta aali nahi.'));
                     checkOrderStatusOnce(activeOrder.orderId);
                 }
             } catch (error) {
@@ -699,12 +714,12 @@
         }
 
         function showActiveOrderBar(activeOrder) {
-            document.getElementById('activeOrderId').innerText = `Order ID: ${activeOrder.orderId}`;
+            document.getElementById('activeOrderId').innerText = `Order ID: #${activeOrder.orderId}`;
             document.getElementById('activeOrderStatus').innerText = `Status: ${activeOrder.status}`;
             document.getElementById('activeOrderBar').style.display = 'block';
 
             const cancelBtn = document.getElementById('cancelOrderBtn');
-            if (activeOrder.status === 'Pending') {
+            if (activeOrder.canCancel) {
                 cancelBtn.disabled = false;
                 cancelBtn.style.display = 'inline-block';
             } else {
@@ -731,7 +746,7 @@
                     return;
                 }
                 checkOrderStatusOnce(activeOrder.orderId);
-            }, 5000); // dar 5 seconds ne status check
+            }, 10000); // dar 10 seconds ne status check
         }
 
         async function checkOrderStatusOnce(orderId) {
@@ -744,7 +759,7 @@
                     if (!activeOrder) return;
 
                     if (result.status === 'not_found') {
-                        // Order admin kaduna delete zali asel
+                        // Order cancel/delete zali asel
                         localStorage.removeItem('myActiveOrder');
                         clearInterval(statusPollTimer);
                         document.getElementById('activeOrderBar').style.display = 'none';
@@ -752,11 +767,12 @@
                     }
 
                     activeOrder.status = result.status;
+                    activeOrder.canCancel = result.can_cancel;
                     localStorage.setItem('myActiveOrder', JSON.stringify(activeOrder));
                     showActiveOrderBar(activeOrder);
 
-                    // Order Preparing/Ready zali ki polling band kara
-                    if (result.status !== 'Pending') {
+                    // 10 min zale kinva order Completed zali ki polling band kara
+                    if (!result.can_cancel) {
                         clearInterval(statusPollTimer);
                     }
                 }
