@@ -190,6 +190,19 @@
         </div>
     </div>
 
+    <!-- Active Order Status Bar (shown after placing an order) -->
+    <div class="container mb-3" id="activeOrderBar" style="display:none;">
+        <div class="cart-item-card d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <div class="text-warning fw-bold" id="activeOrderId">Order ID: -</div>
+                <div class="text-secondary small" id="activeOrderStatus">Status: Pending</div>
+            </div>
+            <button class="btn btn-outline-danger btn-sm fw-bold" id="cancelOrderBtn" onclick="cancelMyOrder()">
+                <i class="fa-solid fa-xmark me-1"></i>Cancel Order
+            </button>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Search Bar -->
         <div class="row justify-content-center mb-3">
@@ -605,19 +618,151 @@
             document.getElementById('drawerTotal').innerText = totalPrice;
         }
 
-        function submitOrder() {
+        // Keeps polling the order status so we can lock the Cancel button
+        // the moment the admin accepts the order.
+        let statusPollTimer = null;
+
+        async function submitOrder() {
             const tableNum = document.getElementById('tableNumber').value;
             if(!tableNum) {
                 alert('Please enter your Table Number!');
                 return;
             }
-            alert(`Order for Table No. ${tableNum} placed successfully!`);
-            cartMap = {};
-            document.getElementById('tableNumber').value = '';
-            updateCartUI();
-            
-            const bsOffcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('slideCart'));
-            if(bsOffcanvas) bsOffcanvas.hide();
+
+            const items = Object.values(cartMap).map(item => ({
+                name: item.dish.name,
+                portion: item.portion,
+                note: item.note,
+                price: item.price,
+                qty: item.qty
+            }));
+            const total = items.reduce((sum, i) => sum + (i.price * i.qty), 0);
+
+            try {
+                const response = await fetch('/api/order/place', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ table_number: tableNum, items: items, total: total })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    // Save active order locally so we can show it / cancel it later
+                    const activeOrder = { orderId: result.order_id, tableNumber: tableNum, status: 'Pending' };
+                    localStorage.setItem('myActiveOrder', JSON.stringify(activeOrder));
+
+                    alert(`✅ Order placed! Your Order ID is ${result.order_id}`);
+                    cartMap = {};
+                    document.getElementById('tableNumber').value = '';
+                    updateCartUI();
+
+                    const bsOffcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('slideCart'));
+                    if(bsOffcanvas) bsOffcanvas.hide();
+
+                    showActiveOrderBar(activeOrder);
+                    startStatusPolling();
+                } else {
+                    alert('❌ ' + (result.message || 'Order place karta aali nahi, punha try kara.'));
+                }
+            } catch (error) {
+                alert('❌ Server shi connect hota aala nahi. Internet / server check kara.');
+            }
+        }
+
+        // Cancel button handler on the customer side
+        async function cancelMyOrder() {
+            const activeOrder = JSON.parse(localStorage.getItem('myActiveOrder'));
+            if (!activeOrder) return;
+
+            try {
+                const response = await fetch('/api/order/cancel', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: activeOrder.orderId })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('✅ ' + result.message);
+                    localStorage.removeItem('myActiveOrder');
+                    if (statusPollTimer) clearInterval(statusPollTimer);
+                    document.getElementById('activeOrderBar').style.display = 'none';
+                } else {
+                    // Server ne cancel nakarla dile (e.g. admin ne already accept kel asel)
+                    alert('❌ ' + result.message);
+                    // Refresh status UI in case it changed
+                    checkOrderStatusOnce(activeOrder.orderId);
+                }
+            } catch (error) {
+                alert('❌ Server shi connect hota aala nahi. Punha try kara.');
+            }
+        }
+
+        function showActiveOrderBar(activeOrder) {
+            document.getElementById('activeOrderId').innerText = `Order ID: ${activeOrder.orderId}`;
+            document.getElementById('activeOrderStatus').innerText = `Status: ${activeOrder.status}`;
+            document.getElementById('activeOrderBar').style.display = 'block';
+
+            const cancelBtn = document.getElementById('cancelOrderBtn');
+            if (activeOrder.status === 'Pending') {
+                cancelBtn.disabled = false;
+                cancelBtn.style.display = 'inline-block';
+            } else {
+                cancelBtn.disabled = true;
+                cancelBtn.style.display = 'none';
+            }
+        }
+
+        // On page load: if there's an active order saved locally, show it and start polling
+        function checkActiveOrderOnLoad() {
+            const activeOrder = JSON.parse(localStorage.getItem('myActiveOrder'));
+            if (activeOrder) {
+                showActiveOrderBar(activeOrder);
+                startStatusPolling();
+            }
+        }
+
+        function startStatusPolling() {
+            if (statusPollTimer) clearInterval(statusPollTimer);
+            statusPollTimer = setInterval(() => {
+                const activeOrder = JSON.parse(localStorage.getItem('myActiveOrder'));
+                if (!activeOrder) {
+                    clearInterval(statusPollTimer);
+                    return;
+                }
+                checkOrderStatusOnce(activeOrder.orderId);
+            }, 5000); // dar 5 seconds ne status check
+        }
+
+        async function checkOrderStatusOnce(orderId) {
+            try {
+                const response = await fetch(`/api/order/status/${orderId}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    const activeOrder = JSON.parse(localStorage.getItem('myActiveOrder'));
+                    if (!activeOrder) return;
+
+                    if (result.status === 'not_found') {
+                        // Order admin kaduna delete zali asel
+                        localStorage.removeItem('myActiveOrder');
+                        clearInterval(statusPollTimer);
+                        document.getElementById('activeOrderBar').style.display = 'none';
+                        return;
+                    }
+
+                    activeOrder.status = result.status;
+                    localStorage.setItem('myActiveOrder', JSON.stringify(activeOrder));
+                    showActiveOrderBar(activeOrder);
+
+                    // Order Preparing/Ready zali ki polling band kara
+                    if (result.status !== 'Pending') {
+                        clearInterval(statusPollTimer);
+                    }
+                }
+            } catch (error) {
+                // Silent fail - next poll try karel
+            }
         }
 
         async function loadMenuItems() {
@@ -637,7 +782,10 @@
             renderMenu(dishes);
         }
 
-        window.onload = loadMenuItems;
+        window.onload = function() {
+            loadMenuItems();
+            checkActiveOrderOnLoad();
+        };
     </script>
 </body>
 </html>
