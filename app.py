@@ -287,6 +287,47 @@ def cancel_order(order_id):
         if 'conn' in locals() and conn:
             conn.close()
 
+# --------------------------------------------------------------
+# 🆕 कस्टमरच्या स्क्रीनवरून दर काही सेकंदांनी ऑर्डरचा स्टेटस आणि
+# "अजून किती वेळ Cancel करता येईल" हे तपासण्यासाठी नवीन Endpoint.
+# (हे DELETE /api/order/cancel/<id> ला रिप्लेस करत नाही -- तो
+#  आधीचा 10-मिनिटांचा लॉक तसाच वापरला जातो. हे फक्त customer च्या
+#  स्क्रीनवर Cancel बटण वेळेआधीच लपवण्यासाठी आहे.)
+# --------------------------------------------------------------
+@app.route('/api/order/status/<int:order_id>', methods=['GET'])
+def order_status(order_id):
+    try:
+        conn = get_db_connection()
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute('SELECT id, status, order_date, order_time FROM orders WHERE id = %s', (order_id,))
+            order = cursor.fetchone()
+
+        if not order:
+            return jsonify({'success': True, 'status': 'not_found', 'can_cancel': False, 'seconds_left': 0})
+
+        order_datetime_str = f"{order['order_date']} {order['order_time']}"
+        order_datetime = datetime.datetime.strptime(order_datetime_str, "%Y-%m-%d %I:%M %p")
+
+        utc_now = datetime.datetime.now(datetime.timezone.utc)
+        ist_now = (utc_now + datetime.timedelta(hours=5, minutes=30)).replace(tzinfo=None)
+        elapsed_minutes = (ist_now - order_datetime).total_seconds() / 60
+
+        is_pending = bool(order['status']) and 'Pending' in order['status']
+        can_cancel = is_pending and elapsed_minutes <= 10
+        seconds_left = max(0, int((10 - elapsed_minutes) * 60)) if can_cancel else 0
+
+        return jsonify({
+            'success': True,
+            'status': order['status'],
+            'can_cancel': can_cancel,
+            'seconds_left': seconds_left
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        if 'conn' in locals() and conn:
+            conn.close()
+
 @app.route('/api/admin/orders', methods=['GET'])
 def get_admin_orders():
     try:
