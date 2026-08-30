@@ -17,6 +17,15 @@
 
         body { 
             background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 15% 10%, rgba(245, 158, 11, 0.10), transparent 45%),
+                radial-gradient(circle at 85% 90%, rgba(245, 158, 11, 0.08), transparent 45%),
+                linear-gradient(rgba(15, 23, 42, 0.90), rgba(15, 23, 42, 0.94)),
+                url("https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?auto=format&fit=crop&w=1600&q=80");
+            background-attachment: fixed, fixed, fixed, fixed;
+            background-size: cover, cover, cover, cover;
+            background-repeat: no-repeat;
+            background-position: center;
             color: #f8fafc; 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             padding-bottom: 120px; 
@@ -190,18 +199,8 @@
         </div>
     </div>
 
-    <!-- Active Order Status Bar (shown after placing an order) -->
-    <div class="container mb-3" id="activeOrderBar" style="display:none;">
-        <div class="cart-item-card d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div>
-                <div class="text-warning fw-bold" id="activeOrderId">Order ID: -</div>
-                <div class="text-secondary small" id="activeOrderStatus">Status: Pending</div>
-            </div>
-            <button class="btn btn-outline-danger btn-sm fw-bold" id="cancelOrderBtn" onclick="cancelMyOrder()">
-                <i class="fa-solid fa-xmark me-1"></i>Cancel Order
-            </button>
-        </div>
-    </div>
+    <!-- Active Orders Status Bar (ek pekshaa jast active orders asatil tar sagle ekaa khaali ek dista) -->
+    <div class="container mb-3" id="activeOrdersContainer" style="display:none;"></div>
 
     <div class="container">
         <!-- Search Bar -->
@@ -622,9 +621,19 @@
             document.getElementById('drawerTotal').innerText = totalPrice;
         }
 
-        // Keeps polling the order status so the Cancel button auto-locks
-        // once the 10-minute window is over (or the kitchen marks it Completed).
+        // Ek pekshaa jaast orders ekaach vela active astaat tar sagle
+        // 'myActiveOrders' array madhe (localStorage) save hotat, ani
+        // pratyek order chi swataha ची card + status + Cancel button
+        // one-by-one (khaali khaali) disti.
         let statusPollTimer = null;
+
+        function getActiveOrders() {
+            return JSON.parse(localStorage.getItem('myActiveOrders') || '[]');
+        }
+
+        function saveActiveOrders(list) {
+            localStorage.setItem('myActiveOrders', JSON.stringify(list));
+        }
 
         async function submitOrder() {
             const customerName = document.getElementById('customerName').value.trim();
@@ -659,14 +668,16 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    // Save active order locally so we can show it / cancel it later
-                    const activeOrder = {
+                    // Navin order chi entry active orders list madhe add karne
+                    const newOrder = {
                         orderId: result.order_id,
                         tableNumber: tableNum,
                         status: 'Pending ⏳',
                         canCancel: true
                     };
-                    localStorage.setItem('myActiveOrder', JSON.stringify(activeOrder));
+                    const orders = getActiveOrders();
+                    orders.push(newOrder);
+                    saveActiveOrders(orders);
 
                     alert(`✅ Order placed! Your Order ID is #${result.order_id}`);
                     cartMap = {};
@@ -676,7 +687,7 @@
                     const bsOffcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('slideCart'));
                     if(bsOffcanvas) bsOffcanvas.hide();
 
-                    showActiveOrderBar(activeOrder);
+                    renderActiveOrders();
                     startStatusPolling();
                 } else {
                     alert('❌ ' + (result.error || 'Order place karta aali nahi, punha try kara.'));
@@ -686,53 +697,64 @@
             }
         }
 
-        // Cancel button handler on the customer side.
+        // Cancel button handler — specific order id sathi.
         // Server-side (app.py) already blocks cancel after 10 minutes have passed.
-        async function cancelMyOrder() {
-            const activeOrder = JSON.parse(localStorage.getItem('myActiveOrder'));
-            if (!activeOrder) return;
-
+        async function cancelMyOrder(orderId) {
             try {
-                const response = await fetch(`/api/order/cancel/${activeOrder.orderId}`, {
+                const response = await fetch(`/api/order/cancel/${orderId}`, {
                     method: 'DELETE'
                 });
                 const result = await response.json();
 
                 if (result.success) {
                     alert('✅ ' + (result.message || 'Order cancel zali!'));
-                    localStorage.removeItem('myActiveOrder');
-                    if (statusPollTimer) clearInterval(statusPollTimer);
-                    document.getElementById('activeOrderBar').style.display = 'none';
+                    let orders = getActiveOrders();
+                    orders = orders.filter(o => o.orderId !== orderId);
+                    saveActiveOrders(orders);
+                    renderActiveOrders();
                 } else {
                     // Server ne cancel nakarla dile (e.g. 10 min zale asतील)
                     alert('❌ ' + (result.error || 'Cancel karta aali nahi.'));
-                    checkOrderStatusOnce(activeOrder.orderId);
+                    checkOrderStatusOnce(orderId);
                 }
             } catch (error) {
                 alert('❌ Server shi connect hota aala nahi. Punha try kara.');
             }
         }
 
-        function showActiveOrderBar(activeOrder) {
-            document.getElementById('activeOrderId').innerText = `Order ID: #${activeOrder.orderId}`;
-            document.getElementById('activeOrderStatus').innerText = `Status: ${activeOrder.status}`;
-            document.getElementById('activeOrderBar').style.display = 'block';
+        // Sagle active orders ekaa khaali ek (one-by-one) card svaroopat renders karne
+        function renderActiveOrders() {
+            const orders = getActiveOrders();
+            const container = document.getElementById('activeOrdersContainer');
 
-            const cancelBtn = document.getElementById('cancelOrderBtn');
-            if (activeOrder.canCancel) {
-                cancelBtn.disabled = false;
-                cancelBtn.style.display = 'inline-block';
-            } else {
-                cancelBtn.disabled = true;
-                cancelBtn.style.display = 'none';
+            if (orders.length === 0) {
+                container.style.display = 'none';
+                container.innerHTML = '';
+                return;
             }
+
+            container.style.display = 'block';
+            // Navin order sarvaat varti disnyasathi reverse order
+            container.innerHTML = orders.slice().reverse().map(order => `
+                <div class="cart-item-card d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                    <div>
+                        <div class="text-warning fw-bold">Order ID: #${order.orderId} <span class="text-secondary small">(Table ${order.tableNumber})</span></div>
+                        <div class="text-secondary small">Status: ${order.status}</div>
+                    </div>
+                    ${order.canCancel
+                        ? `<button class="btn btn-outline-danger btn-sm fw-bold" onclick="cancelMyOrder(${order.orderId})">
+                               <i class="fa-solid fa-xmark me-1"></i>Cancel Order
+                           </button>`
+                        : ''
+                    }
+                </div>
+            `).join('');
         }
 
-        // On page load: if there's an active order saved locally, show it and start polling
+        // Page load houn hote tevha, sagle active orders parat dakhavne ani polling suru karne
         function checkActiveOrderOnLoad() {
-            const activeOrder = JSON.parse(localStorage.getItem('myActiveOrder'));
-            if (activeOrder) {
-                showActiveOrderBar(activeOrder);
+            if (getActiveOrders().length > 0) {
+                renderActiveOrders();
                 startStatusPolling();
             }
         }
@@ -740,12 +762,13 @@
         function startStatusPolling() {
             if (statusPollTimer) clearInterval(statusPollTimer);
             statusPollTimer = setInterval(() => {
-                const activeOrder = JSON.parse(localStorage.getItem('myActiveOrder'));
-                if (!activeOrder) {
+                const orders = getActiveOrders();
+                if (orders.length === 0) {
                     clearInterval(statusPollTimer);
                     return;
                 }
-                checkOrderStatusOnce(activeOrder.orderId);
+                // Pratyek active order sathi status check karne
+                orders.forEach(o => checkOrderStatusOnce(o.orderId));
             }, 10000); // dar 10 seconds ne status check
         }
 
@@ -755,26 +778,22 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    const activeOrder = JSON.parse(localStorage.getItem('myActiveOrder'));
-                    if (!activeOrder) return;
+                    let orders = getActiveOrders();
+                    const idx = orders.findIndex(o => o.orderId === orderId);
+                    if (idx === -1) return;
 
                     if (result.status === 'not_found') {
                         // Order cancel/delete zali asel
-                        localStorage.removeItem('myActiveOrder');
-                        clearInterval(statusPollTimer);
-                        document.getElementById('activeOrderBar').style.display = 'none';
+                        orders.splice(idx, 1);
+                        saveActiveOrders(orders);
+                        renderActiveOrders();
                         return;
                     }
 
-                    activeOrder.status = result.status;
-                    activeOrder.canCancel = result.can_cancel;
-                    localStorage.setItem('myActiveOrder', JSON.stringify(activeOrder));
-                    showActiveOrderBar(activeOrder);
-
-                    // 10 min zale kinva order Completed zali ki polling band kara
-                    if (!result.can_cancel) {
-                        clearInterval(statusPollTimer);
-                    }
+                    orders[idx].status = result.status;
+                    orders[idx].canCancel = result.can_cancel;
+                    saveActiveOrders(orders);
+                    renderActiveOrders();
                 }
             } catch (error) {
                 // Silent fail - next poll try karel
