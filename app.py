@@ -197,6 +197,40 @@ def get_menu():
         if 'conn' in locals() and conn:
             conn.close()
 
+# --------------------------------------------------------------
+# 🆕 नवीन Menu Item Add करण्यासाठी Endpoint
+# Admin Dashboard वरील "Add New Menu Item" फॉर्म याच route ला
+# data पाठवतो. Item database मध्ये save झाला की तो आपोआप
+# /api/menu (म्हणजे customer च्या /menu page वर) पण दिसतो,
+# कारण दोन्ही ठिकाणी एकाच menu_items table मधून data येतो.
+# --------------------------------------------------------------
+@app.route('/api/admin/add_item', methods=['POST'])
+def add_menu_item():
+    try:
+        data = request.json or {}
+        name = data.get('name')
+        category = data.get('category')
+        half_price = float(data.get('half_price', 0))
+        full_price = float(data.get('full_price', 0))
+
+        if not name or not full_price:
+            return jsonify({'success': False, 'error': 'Name आणि Full Price आवश्यक आहे'}), 400
+
+        conn = get_db_connection()
+        with conn.cursor() as cursor:
+            cursor.execute(
+                'INSERT INTO menu_items (name, half_price, full_price, category) VALUES (%s, %s, %s, %s)',
+                (name, half_price, full_price, category)
+            )
+            conn.commit()
+
+        return jsonify({'success': True, 'message': 'Item added successfully'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+    finally:
+        if 'conn' in locals() and conn:
+            conn.close()
+
 @app.route('/api/admin/update_item', methods=['POST'])
 def update_item():
     try:
