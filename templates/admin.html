@@ -307,7 +307,7 @@
 
                 const data = await res.json();
                 if(data.success) {
-                    alert('नवीन पदार्थ यशस्वीरीत्या जोडला गेला! ✅');
+                    alert('New item added successfully! ✅');
                     document.getElementById('addMenuForm').reset();
                     fetchMenuItems(); // लिस्ट रिफ्रेश करा
                 } else {
@@ -322,7 +322,7 @@
             const fullPrice = document.getElementById(`full_price_${itemId}`).value;
 
             if(!fullPrice || fullPrice < 0) {
-                alert('कृपया कमीत कमी Full Price योग्य टाका!');
+                alert('Price updated successfully! ✅');
                 return;
             }
 
@@ -338,7 +338,7 @@
                 });
                 const data = await res.json();
                 if(data.success) {
-                    alert('किंमत यशस्वीरीत्या अपडेट झाली! ✅');
+                    alert('Price updated successfully! ✅');
                     fetchMenuItems();
                 } else {
                     alert('Error: ' + data.error);
